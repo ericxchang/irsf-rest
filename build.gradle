@@ -1,0 +1,113 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+}
+
+plugins {
+	id 'java'
+	id 'war'
+	id 'groovy'
+	id "org.akhikhl.gretty" version "1.4.0"
+	id "io.spring.dependency-management" version "0.6.1.RELEASE"
+	id "org.sonarqube" version "2.2"
+ }
+
+
+repositories { 
+	jcenter()
+	mavenCentral artifactUrls:[
+	"http://icsnjnmsbuild1.ics.iconectiv.com/nexus3/repository/releases/", 
+	"http://icsnjnmsbuild1.ics.iconectiv.com/nexus3/repository/snapshots/"]
+}
+
+group = 'com.iconectiv.irsf'
+version = '0.5-SNAPSHOT'
+
+description = 'IRSF Restful Service'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+war {
+	archiveName = 'irsf-rest.war'
+}
+
+
+
+jar {
+	baseName = 'irsf-rest'
+	version = '0.5-SNAPSHOT'
+}
+
+gretty {
+	// supported values: 'jetty7', 'jetty8', 'jetty9', 'tomcat7', 'tomcat8'
+	servletContainer = 'jetty9'
+	port = 8080
+	contextPath = '/irsf-rest'
+	scanInterval = 10
+	consoleLogEnabled = true
+	fastReload = true
+}
+sourceSets.main.java.srcDirs = []
+
+sourceSets.main.groovy.srcDirs = [
+	"src/main/java",
+	"src/main/groovy"
+]
+
+dependencyManagement {
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:Athens-SR2'
+	}
+}
+
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy-all'
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework.data:spring-data-jpa'
+	compile 'org.springframework:spring-webmvc'
+	compile 'org.springframework:spring-web'
+	compile 'org.springframework:spring-jdbc'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-context-support'
+	compile 'org.springframework.security:spring-security-core'
+	compile 'org.springframework.security:spring-security-web'
+	compile 'org.springframework:spring-tx'
+	compile 'org.hibernate:hibernate-core'
+	compile 'org.hibernate:hibernate-entitymanager'
+	compile 'org.aspectj:aspectjrt'
+	compile 'org.aspectj:aspectjweaver'
+
+	compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.5'
+
+	compile 'io.jsonwebtoken:jjwt:0.7.0'
+	compile group: 'ch.qos.logback', name: 'logback-classic', version:'1.1.7'
+	compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.21'
+
+	compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+	compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3.1'
+	compile group: 'commons-io', name: 'commons-io', version:'2.4'
+	compile group: 'org.apache.commons', name: 'commons-compress', version:'1.9'
+
+	compile group: 'com.google.guava', name: 'guava', version:'17.0'
+	
+	//support filters in web.xml
+	compile group: 'com.googlecode.webutilities', name: 'webutilities', version:'0.0.8'
+	
+	compile group: 'joda-time', name: 'joda-time', version:'2.8.2'
+	compile group: 'org.joda', name: 'joda-convert', version: '1.8.1'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.8.4'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.8.4'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.6.6'
+	compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version:'2.8.4'
+	compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-guava', version:'2.8.4'
+	
+	testCompile 'org.springframework:spring-test'	
+	testCompile(group: 'junit', name: 'junit', version:'4.12') 
+	testCompile group: 'org.mockito', name: 'mockito-core', version:'1.10.19'
+	testCompile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0'
+// https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp
+	testCompile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+}
