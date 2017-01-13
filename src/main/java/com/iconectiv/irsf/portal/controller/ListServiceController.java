@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.util.JsonHelper;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,14 +21,14 @@ public class ListServiceController extends BaseRestController {
 	@Autowired
 	private ListService listService;
 
-	@RequestMapping(value = "/uploadBlackList", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody public ResponseEntity<String> uploadBlackList() {
+	@RequestMapping(value = "/uploadBlackList/{customer}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody public ResponseEntity<String> uploadBlackList(@PathVariable String customer) {
 		ResponseEntity<String> rv;
 		try {
-			Thread.sleep(5*1000);
 			log.info("complete download file");
-			listService.parseBlackList(1);
-			rv = makeSuccessResult();
+			ListUploadRequest request = listService.saveUploadRequest(customer, "blacklist", "/tmp/blackList.txt");
+			listService.parseBlackList(request);
+			rv = makeSuccessResult(request);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}

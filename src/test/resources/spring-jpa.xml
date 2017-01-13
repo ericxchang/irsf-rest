@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx.xsd
+     http://www.springframework.org/schema/jdbc
+     http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+     http://www.springframework.org/schema/data/jpa
+     http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+	<context:component-scan base-package="com.iconectiv.irsf.portal.repositories" />
+
+	<!-- enable web support -->
+	<bean class="org.springframework.data.web.config.SpringDataWebConfiguration" />
+
+	<!-- Enable annotation driven transaction management -->
+	<tx:annotation-driven />
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<!-- <value>classpath:spring-config-test.properties</value> -->
+			<value>file:/conf/irsf/spring-config.properties</value>
+		</property>
+	</bean>
+
+	<!-- Create DataSource Bean -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="url" value="${jdbc.url}" />
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="removeAbandoned" value="true" />
+		<property name="initialSize" value="${jdbc.initSize}" />
+		<property name="maxActive" value="${jdbc.maxSize}" />
+	</bean>
+
+	<bean id="abstractDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="removeAbandoned" value="true" />
+		<property name="initialSize" value="1" />
+		<property name="maxActive" value="3" />
+	</bean>
+
+	<bean id="customerDataSource1" parent="abstractDataSource">
+		<property name="url" value="${jdbc.customerDatabaseurl1}" />
+	</bean>
+
+	<bean id="customerDataSource2" parent="abstractDataSource">
+		<property name="url" value="${jdbc.customerDatabaseurl2}" />
+	</bean>
+
+	<bean id="customerDataSource3" parent="abstractDataSource">
+		<property name="url" value="${jdbc.customerDatabaseurl3}" />
+	</bean>
+
+	<bean id="customerAbstractDataSource"
+		class="com.iconectiv.irsf.portal.config.CustomerDatasourceRouter">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry key="cust01" value-ref="customerDataSource1" />
+				<entry key="cust02" value-ref="customerDataSource2" />
+				<entry key="cust03" value-ref="customerDataSource3" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="jpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="showSql" value="false" />
+		<property name="generateDdl" value="true" />
+		<property name="databasePlatform" value="org.hibernate.dialect.MySQLInnoDBDialect" />
+	</bean>
+
+	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect">
+	</bean>
+
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<!-- spring based scanning for entity classes -->
+		<property name="packagesToScan" value="com.iconectiv.irsf.portal.model.common" />
+		<property name="jpaDialect" ref="jpaDialect" />
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">false</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+				<!-- TODO config hibernate cache -->
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<prop key="hibernate.cache.use_query_cache">false</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/ehcache.xml</prop>
+				<prop key="hibernate.use_sql_comments">false</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
+			</props>
+		</property>
+
+	</bean>
+
+	<bean id="customerEntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="customerAbstractDataSource" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<!-- spring based scanning for entity classes -->
+		<property name="packagesToScan" value="com.iconectiv.irsf.portal.model.customer" />
+		<property name="jpaDialect" ref="jpaDialect" />
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">false</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+				<!-- TODO config hibernate cache -->
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<prop key="hibernate.cache.use_query_cache">false</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/ehcache.xml</prop>
+				<prop key="hibernate.use_sql_comments">false</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
+			</props>
+		</property>
+
+	</bean>
+
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+    <bean id="transactionManagerCustomer" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="customerEntityManagerFactory" />
+    </bean>    
+
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.common" transaction-manager-ref="transactionManager" entity-manager-factory-ref="entityManagerFactory"/>
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.customer" transaction-manager-ref="transactionManagerCustomer" entity-manager-factory-ref="customerEntityManagerFactory"/>
+
+</beans>

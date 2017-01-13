@@ -21,8 +21,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa-test.xml"})
+@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
 @WebAppConfiguration
 public class ListServiceControllerTest {
     private static Logger log = LoggerFactory.getLogger(ListServiceControllerTest.class);
@@ -39,12 +43,21 @@ public class ListServiceControllerTest {
     }
 
     @Test
-    public void testUploadList() throws Exception {
-        ResultActions action = mockMvc.perform(get("/uploadBlackList"));
-        String result = action.andReturn().getResponse().getContentAsString();
+    public void testMultiUploadRequests() throws Exception {
+    	List<String> customers = new ArrayList<>(Arrays.asList("cust01", "cust02", "cust03"));
+    	
+    	customers.stream().parallel().forEach(customer -> {
+            ResultActions action;
+			try {
+				action = mockMvc.perform(get("/uploadBlackList/" + customer));
+	            String result = action.andReturn().getResponse().getContentAsString();
+	            log.info(result);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-        log.info(result);
-
+    	});
         Thread.sleep(30*1000);
     }
 

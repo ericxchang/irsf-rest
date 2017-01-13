@@ -17,10 +17,6 @@
 
 	<logger name="com.iconectiv" level="DEBUG">
 	</logger>
-	<logger name="o.s.data.mongodb.core.MongoTemplate" level="DEBUG">
-	</logger>
-	<logger name="org.springframework.data.document.mongodb" level="DEBUG">
-	</logger>
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
