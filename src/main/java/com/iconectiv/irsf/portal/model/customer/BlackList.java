@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class BlackList implements java.io.Serializable {
 	private Integer id;
 	private String customerId;
+	private String listName;
 	private String phone;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
@@ -63,6 +64,15 @@ public class BlackList implements java.io.Serializable {
 
 	public void setCustomerId(String customerId) {
 		this.customerId = customerId;
+	}
+
+	@Column(name = "list_name", nullable = false, length = 45)
+	public String getListName() {
+		return listName;
+	}
+
+	public void setListName(String listName) {
+		this.listName = listName;
 	}
 
 	@Column(name = "phone", nullable = false, length = 45)

@@ -9,4 +9,5 @@ public class AppConstants {
 	public static final String SUCCESS = "success";
 	public static final String NORECORDFOUND = "No record found";
 
+
 }

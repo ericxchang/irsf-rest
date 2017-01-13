@@ -14,9 +14,8 @@ import com.iconectiv.irsf.portal.model.customer.BlackList;
 public interface BlackListRepository extends CrudRepository<BlackList, Integer> {
 	
 	List<BlackList> findAllByCustomerId(String customerId);
-	
+
 	@Modifying
 	@Transactional
-	void deleteAllByCustomerId(String customerId);
-
+	void deleteAllByCustomerIdAndListName(String customerId, String listName);
 }

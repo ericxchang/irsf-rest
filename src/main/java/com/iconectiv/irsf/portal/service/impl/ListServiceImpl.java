@@ -36,11 +36,12 @@ public class ListServiceImpl implements ListService {
         log.info("Start parsing black list file {}", uploadRequest.getId());
         try {
         	CustomerContextHolder.setCustomer(uploadRequest.getAccount());
-        	blackListRepo.deleteAllByCustomerId(uploadRequest.getAccount());
+        	blackListRepo.deleteAllByCustomerIdAndListName(uploadRequest.getAccount(), uploadRequest.getListName());
         	
         	IntStream.range(1, 100).forEach(counter -> {
                 BlackList item = new BlackList();
                 item.setCustomerId(uploadRequest.getAccount());
+                item.setListName(uploadRequest.getListName());
                 item.setPhone(String.valueOf(counter));
                 item.setLastUpdated(new Date());
                 blackListRepo.save(item);
