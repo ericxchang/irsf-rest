@@ -3,6 +3,13 @@ package com.iconectiv.irsf.portal.model.common;
 
 
 import javax.persistence.*;
+
+import org.springframework.data.annotation.TypeAlias;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -14,6 +21,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name="list_upload_request"
         ,catalog="irsf"
 )
+@TypeAlias("ListUploadRequest")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ListUploadRequest  implements java.io.Serializable {
 
 
@@ -22,6 +32,8 @@ public class ListUploadRequest  implements java.io.Serializable {
     private String listName;
     private String path;
     private String status;
+    
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private Date lastUpdated;
 
     public ListUploadRequest() {
