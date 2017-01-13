@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;;;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations=["classpath:spring-cfg.xml", "classpath:spring-jpa.xml"])
 @WebAppConfiguration
-class ListUploadServiceControllerTest extends GroovyTestCase {
+class ListServiceControllerTest extends GroovyTestCase {
 	private static Logger log = LoggerFactory.getLogger(ListServiceControllerTest.class);
 
 	@Autowired WebApplicationContext wac;
@@ -50,6 +50,6 @@ class ListUploadServiceControllerTest extends GroovyTestCase {
 			assert result.indexOf("success") > 0
 		});
 	
-		sleep(20*1000) 
+		sleep(10*1000) 
 	}
 }

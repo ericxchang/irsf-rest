@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${catalina.home}/logs/irsf-rest.log</file>
+		<file>/tmp/irsf-rest.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover. Make sure the path matches the one in the file element or else
              the rollover logs are placed in the working directory. -->
-            <fileNamePattern>${catalina.home}/logs/irst_rest_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>/tmp/irst_rest_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>5MB</maxFileSize>
@@ -22,12 +22,8 @@
 
 
 	<logger name="com.iconectiv" level="DEBUG">
-		<appender-ref ref="FILE" />
 	</logger>
-	<logger name="o.s.data.mongodb.core.MongoTemplate" level="INFO">
-	</logger>
-	<logger name="org.springframework.data.document.mongodb" level="INFO">
-	</logger>
+
 
 	<root level="INFO">
 		<appender-ref ref="FILE" />
