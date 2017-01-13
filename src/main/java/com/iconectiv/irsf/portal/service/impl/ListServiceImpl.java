@@ -50,7 +50,7 @@ public class ListServiceImpl implements ListService {
 
             uploadRequest.setStatus("complete");
             listUploadRepo.save(uploadRequest);
-            log.info("Complete parsing list file");
+            log.info("Complete parsing list file {}", uploadRequest.getId());
         } catch (Exception e) {
             log.error("Error to parse black list: \n", e);
         }

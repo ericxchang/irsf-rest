@@ -53,6 +53,6 @@ class FileUploadControllerTest extends GroovyTestCase {
 		mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadBlackList")
 						.file(firstFile).file(secondFile).file(thirdFile)
 						.param("customer", "cust03"));
-		sleep(10*1000) 
+		sleep(20*1000) 
 	}
 }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
 import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.portal.util.JsonHelper;
 
 @Controller
 class FileUploadController extends BaseRestController {
@@ -47,10 +48,13 @@ class FileUploadController extends BaseRestController {
 			rv = makeErrorResult(e);
 		}
 
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
 		return rv;
 	}
 
-	@Async
+
 	private void saveSingleFile(String customer, MultipartFile file) {
 		try {
 			String fileName = file.getOriginalFilename();
