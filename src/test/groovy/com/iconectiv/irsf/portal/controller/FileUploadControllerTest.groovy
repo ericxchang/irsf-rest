@@ -47,11 +47,11 @@ class FileUploadControllerTest extends GroovyTestCase {
 	public void testUploadRequests() throws Exception {
 		MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "phone=7321010001".getBytes());
 		MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "phone=7321010002".getBytes());
-
+		MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "phone=7321010003".getBytes());
+		
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 		mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadBlackList")
-						.file(firstFile)
-						.file(secondFile)
+						.file(firstFile).file(secondFile).file(thirdFile)
 						.param("customer", "cust03"));
 		sleep(10*1000) 
 	}
