@@ -43,6 +43,7 @@ public class BlackListRepositoryTest {
         BlackList item = new BlackList();
         item.setCustomerId("cust01");
         item.setPhone("7326991234");
+        item.setListName("blacklist");
         repository.save(item);
         
         log.info("Save request {}", item.getId());

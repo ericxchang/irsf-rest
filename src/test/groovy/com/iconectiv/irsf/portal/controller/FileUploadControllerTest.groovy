@@ -17,37 +17,48 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
+import static groovyx.gpars.GParsPool.withPool
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations=["classpath:spring-cfg.xml", "classpath:spring-jpa.xml"])
+@ContextConfiguration(locations = ["classpath:spring-cfg.xml", "classpath:spring-jpa.xml"])
 @WebAppConfiguration
 class FileUploadControllerTest extends GroovyTestCase {
-	private static Logger log = LoggerFactory.getLogger(FileUploadControllerTest.class);
+    private static Logger log = LoggerFactory.getLogger(FileUploadControllerTest.class)
 
-	@Autowired WebApplicationContext wac;
-	@Autowired MockHttpSession session;
-	@Autowired MockHttpServletRequest request;
+    @Autowired
+    WebApplicationContext wac
+    @Autowired
+    MockHttpSession session
+    @Autowired
+    MockHttpServletRequest request
 
-	private MockMvc mockMvc;
+    private MockMvc mockMvc
 
-	@Before
-	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-	}
+    @Before
+    void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
+    }
 
 
-	@Test
-	public void testUploadRequests() throws Exception {
-		MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "phone=7321010001".getBytes());
-		MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "phone=7321010002".getBytes());
-		MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "phone=7321010003".getBytes());
-		
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-		def action =  mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadBlackList")
-						.file(firstFile).file(secondFile).file(thirdFile)
-						.param("customer", "cust03"));
-		def result = action.andReturn().getResponse().getContentAsString();
-		log.info(result)
-		assert result.indexOf("success") > 0
-		sleep(20*1000) 
-	}
+    @Test
+    void testUploadRequests() throws Exception {
+        withPool {
+            ["cust01", "cust02", "cust03"].makeConcurrent().each {
+                log.info("Processing upload request from customer $it")
+                MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "country=usa, phone=7321010001".getBytes())
+                MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "country=usa, phone=7321010002".getBytes())
+                MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "country=usa, phone=7321010003".getBytes())
+
+                MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
+                def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadBlackList")
+                        .file(firstFile).file(secondFile).file(thirdFile)
+                        .param("customer", it))
+                def result = action.andReturn().getResponse().getContentAsString()
+                log.info(result)
+                assert result.indexOf("success") > 0
+            }
+        }
+
+        sleep(60 * 1000)
+    }
 }

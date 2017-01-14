@@ -9,5 +9,5 @@ public interface ListService {
 
     void parseBlackList(ListUploadRequest request);
 
-	ListUploadRequest saveUploadRequest(String customer, String listName, String filePath);
+	ListUploadRequest saveUploadRequest(String customer, String listName, String type, String filePath);
 }

@@ -44,6 +44,7 @@ public class ListUploadRequestRepositoryTest {
         ListUploadRequest request = new ListUploadRequest();
         request.setAccount("cust01");
         request.setListName("black01");
+        request.setType("blacklist");
         request.setPath("/tmp/irsf/cust01/black01.txt");
         request.setStatus("ready");
         request.setLastUpdated(new Date());

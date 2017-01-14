@@ -1,17 +1,5 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.IntStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
 import com.iconectiv.irsf.portal.model.customer.BlackList;
@@ -19,6 +7,17 @@ import com.iconectiv.irsf.portal.repositories.common.ListUploadRequestRepository
 import com.iconectiv.irsf.portal.repositories.customer.BlackListRepository;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.util.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Created by echang on 1/11/2017.
@@ -41,7 +40,7 @@ public class ListServiceImpl implements ListService {
         	CustomerContextHolder.setCustomer(uploadRequest.getAccount());
         	blackListRepo.deleteAllByCustomerIdAndListName(uploadRequest.getAccount(), uploadRequest.getListName());
         	List<BlackList> items = new ArrayList<BlackList>();
-        	IntStream.range(1, 305).forEach(counter -> {
+        	IntStream.range(1, 205).forEach(counter -> {
                 BlackList item = new BlackList();
                 item.setCustomerId(uploadRequest.getAccount());
                 item.setListName(uploadRequest.getListName());
@@ -69,10 +68,11 @@ public class ListServiceImpl implements ListService {
     }
 
 	@Override
-	public ListUploadRequest saveUploadRequest(String customer, String listName, String filePath) {
+	public ListUploadRequest saveUploadRequest(String customer, String listName, String type, String filePath) {
         ListUploadRequest request = new ListUploadRequest();
         request.setAccount(customer);
         request.setListName(listName);
+        request.setType(type);
         request.setPath(filePath);
         request.setStatus("ready");
         request.setLastUpdated(new Date());

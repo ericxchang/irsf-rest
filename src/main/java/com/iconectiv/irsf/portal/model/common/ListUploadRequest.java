@@ -2,14 +2,12 @@ package com.iconectiv.irsf.portal.model.common;
 // Generated Jan 12, 2017 11:20:13 AM by Hibernate Tools 3.2.2.GA
 
 
-import javax.persistence.*;
-
-import org.springframework.data.annotation.TypeAlias;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.annotation.TypeAlias;
 
+import javax.persistence.*;
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -30,6 +28,7 @@ public class ListUploadRequest  implements java.io.Serializable {
     private Integer id;
     private String account;
     private String listName;
+    private String type;
     private String path;
     private String status;
     
@@ -74,6 +73,15 @@ public class ListUploadRequest  implements java.io.Serializable {
 
     public void setListName(String listName) {
         this.listName = listName;
+    }
+
+    @Column(name="type", nullable=false, length=15)
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Column(name="path", nullable=false, length=45)

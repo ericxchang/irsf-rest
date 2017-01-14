@@ -1,28 +1,23 @@
 package com.iconectiv.irsf.portal.controller;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
+import com.iconectiv.irsf.portal.service.FileHandleerService;
+import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.portal.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+
+import java.util.Arrays;
 
 @Controller
 class FileUploadController extends BaseRestController {
@@ -30,6 +25,9 @@ class FileUploadController extends BaseRestController {
 
 	@Autowired
 	private ListService listService;
+
+	@Autowired
+	private FileHandleerService fileService;
 
 	@Autowired
 	private Environment env;
@@ -41,7 +39,7 @@ class FileUploadController extends BaseRestController {
 		ResponseEntity<String> rv;
 		try {
 			Arrays.asList(files).stream().parallel().forEach(file -> {
-				saveSingleFile(customer, file);
+				saveSingleFile(customer, "blacklist", file);
 			});
 			rv = makeSuccessResult();
 		} catch (Exception e) {
@@ -55,25 +53,14 @@ class FileUploadController extends BaseRestController {
 	}
 
 
-	private void saveSingleFile(String customer, MultipartFile file) {
+	private void saveSingleFile(String customer, String type, MultipartFile file) {
 		try {
-			String fileName = file.getOriginalFilename();
-			File fileDir = new File(env.getProperty("uploadList.path") + "/" + customer);
-			String fileLocation = env.getProperty("uploadList.path") + "/" + customer + "/" + fileName;
-			log.info("Saving upload list file {}", fileName);
+			String fileLocation = env.getProperty("uploadList.path") + "/" + customer;
 
-			if (!fileDir.exists()) {
-				log.info("Create directory {]", fileDir.getAbsolutePath());
-				fileDir.mkdirs();
+			if (fileService.saveFile(fileLocation, file, true)) {
+				ListUploadRequest request = listService.saveUploadRequest(customer, file.getOriginalFilename(), type, fileLocation);
+				listService.parseBlackList(request);
 			}
-
-			byte[] bytes = file.getBytes();
-			BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(new File(fileLocation)));
-			buffStream.write(bytes);
-			buffStream.close();
-
-			ListUploadRequest request = listService.saveUploadRequest(customer, fileName, fileLocation);
-			listService.parseBlackList(request);
 		} catch (Exception e) {
 			log.error("Error to save file {}", file.getOriginalFilename(), e);
 		}
