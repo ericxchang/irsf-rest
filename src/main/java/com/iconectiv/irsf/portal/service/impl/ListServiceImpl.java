@@ -1,6 +1,8 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import com.iconectiv.irsf.portal.model.customer.BlackList;
 import com.iconectiv.irsf.portal.repositories.common.ListUploadRequestRepository;
 import com.iconectiv.irsf.portal.repositories.customer.BlackListRepository;
 import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.portal.util.JsonHelper;
 
 /**
  * Created by echang on 1/11/2017.
@@ -37,20 +40,28 @@ public class ListServiceImpl implements ListService {
         try {
         	CustomerContextHolder.setCustomer(uploadRequest.getAccount());
         	blackListRepo.deleteAllByCustomerIdAndListName(uploadRequest.getAccount(), uploadRequest.getListName());
-        	
-        	IntStream.range(1, 100).forEach(counter -> {
+        	List<BlackList> items = new ArrayList<BlackList>();
+        	IntStream.range(1, 305).forEach(counter -> {
                 BlackList item = new BlackList();
                 item.setCustomerId(uploadRequest.getAccount());
                 item.setListName(uploadRequest.getListName());
                 item.setPhone(String.valueOf(counter));
                 item.setLastUpdated(new Date());
-                blackListRepo.save(item);
-
+                items.add(item);
+                
+                if (items.size() % 100 == 0) {
+                    blackListRepo.save(items);
+                	items.clear();
+                }
         	});
-
+        	
+        	if (!items.isEmpty()) {
+        		blackListRepo.save(items);
+            	items.clear();
+        	}
             uploadRequest.setStatus("complete");
             listUploadRepo.save(uploadRequest);
-            log.info("Complete parsing list file {}", uploadRequest.getId());
+            log.info("Complete parsing list file {}", JsonHelper.toJson(uploadRequest));
         } catch (Exception e) {
             log.error("Error to parse black list: \n", e);
         }

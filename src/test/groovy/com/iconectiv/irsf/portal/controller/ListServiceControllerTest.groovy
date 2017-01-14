@@ -50,6 +50,6 @@ class ListServiceControllerTest extends GroovyTestCase {
 			assert result.indexOf("success") > 0
 		});
 	
-		sleep(10*1000) 
+		sleep(60*1000) 
 	}
 }
