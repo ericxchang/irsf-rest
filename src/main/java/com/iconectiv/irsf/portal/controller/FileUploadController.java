@@ -1,7 +1,7 @@
 package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
-import com.iconectiv.irsf.portal.service.FileHandleerService;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.util.JsonHelper;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ class FileUploadController extends BaseRestController {
 	private ListService listService;
 
 	@Autowired
-	private FileHandleerService fileService;
+	private FileHandlerService fileService;
 
 	@Autowired
 	private Environment env;
@@ -39,9 +39,9 @@ class FileUploadController extends BaseRestController {
 	        @RequestParam("customer") String customer) {
 		ResponseEntity<String> rv;
 		try {
-			Arrays.asList(files).stream().parallel().forEach(file -> {
-				saveSingleFile(customer, "blacklist", file);
-			});
+			Arrays.asList(files).stream().parallel().forEach(file ->
+				saveSingleFile(customer, "blacklist", file)
+			);
 			rv = makeSuccessResult();
 		} catch (Exception e) {
 			rv = makeErrorResult(e);

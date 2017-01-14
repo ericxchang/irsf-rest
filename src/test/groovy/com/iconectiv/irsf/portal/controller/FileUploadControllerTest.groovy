@@ -45,7 +45,7 @@ class FileUploadControllerTest extends GroovyTestCase {
         withPool {
             ["cust01", "cust02", "cust03"].eachParallel {
                 log.info("Processing upload request from customer $it")
-                MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "country=usa, phone=7321010001".getBytes())
+                MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "country=usa, phone=7321010001\ncountry=usa, phone=7321010002".getBytes())
                 MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "country=usa, phone=7321010002".getBytes())
                 MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "country=usa, phone=7321010003".getBytes())
                 MockMultipartFile fourthFile = new MockMultipartFile("file", "blacklist04.txt", "text/plain", "".getBytes())

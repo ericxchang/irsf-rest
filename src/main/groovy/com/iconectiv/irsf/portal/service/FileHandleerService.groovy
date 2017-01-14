@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile
  * Created by echang on 1/13/2017.
  */
 @Service
-class FileHandleerService {
-    private static Logger log = LoggerFactory.getLogger(FileHandleerService.class)
+class FileHandlerService {
+    private static Logger log = LoggerFactory.getLogger(FileHandlerService.class)
 
     Boolean saveFile(String dirName, MultipartFile fileStream, Boolean override = true) {
         if (fileStream.empty) {
