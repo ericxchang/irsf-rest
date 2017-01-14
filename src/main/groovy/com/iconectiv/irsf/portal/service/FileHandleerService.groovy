@@ -28,6 +28,27 @@ class FileHandleerService {
         return true
     }
 
+    List<String> saveTextFile(String dirName, MultipartFile fileStream) {
+        def contents = []
+        if (fileStream.empty) {
+            log.warn("File {} is empty!", fileStream.getOriginalFilename())
+            return contents
+        }
+        checkDirectory(dirName)
+        def targetFile = new File(dirName + "/" + fileStream.getOriginalFilename())
+
+        if (targetFile.exists()) {
+            log.info("Delete existing file {}", targetFile.getAbsolutePath())
+            targetFile.delete()
+        }
+        targetFile.setBytes(fileStream.getBytes())
+
+        new ByteArrayInputStream(fileStream.getBytes()).eachLine('UTF-8') {contents.add(it)}
+
+        log.info("Successfully save file {}", targetFile.getAbsolutePath())
+        return contents
+    }
+
     private void checkDirectory(dirName) {
         def location = new File(dirName)
         if (!location.exists()) {

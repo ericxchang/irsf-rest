@@ -67,7 +67,14 @@ public class ListServiceImpl implements ListService {
 
     }
 
-	@Override
+    @Override
+    @Async
+    public void parseBlackList(ListUploadRequest request, List<String> contents) {
+        log.info("Start parsing black list file :{}", contents);
+        parseBlackList(request);
+    }
+
+    @Override
 	public ListUploadRequest saveUploadRequest(String customer, String listName, String type, String filePath) {
         ListUploadRequest request = new ListUploadRequest();
         request.setAccount(customer);

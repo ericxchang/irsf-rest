@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 class FileUploadController extends BaseRestController {
@@ -57,9 +58,10 @@ class FileUploadController extends BaseRestController {
 		try {
 			String fileLocation = env.getProperty("uploadList.path") + "/" + customer;
 
-			if (fileService.saveFile(fileLocation, file, true)) {
+            List<String> contents = fileService.saveTextFile(fileLocation, file);
+			if (!contents.isEmpty()) {
 				ListUploadRequest request = listService.saveUploadRequest(customer, file.getOriginalFilename(), type, fileLocation);
-				listService.parseBlackList(request);
+				listService.parseBlackList(request, contents);
 			}
 		} catch (Exception e) {
 			log.error("Error to save file {}", file.getOriginalFilename(), e);
