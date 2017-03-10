@@ -55,4 +55,25 @@ class FileHandlerService {
             location.mkdirs()
         }
     }
+
+	int getFileSize(MultipartFile file) {
+		return file.getBytes().size()
+	}
+
+	byte[] getContent(MultipartFile file) {
+		return file.getBytes()
+	}
+
+	List<String> getContentAsList(MultipartFile file) {
+		def contents = []
+		new ByteArrayInputStream(file.getBytes()).eachLine('UTF-8') {contents.add(it)}
+		return contents
+	}
+
+	List<String> getContentAsList(byte[] file) {
+		def contents = []
+		file.eachLine('UTF-8') {contents.add(it)}
+		return contents
+	}
+
 }

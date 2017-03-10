@@ -1,23 +1,27 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.model.common.ListUploadRequest;
-import com.iconectiv.irsf.portal.model.customer.BlackList;
-import com.iconectiv.irsf.portal.repositories.common.ListUploadRequestRepository;
-import com.iconectiv.irsf.portal.repositories.customer.BlackListRepository;
+import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.portal.service.ListUploadService;
+import com.iconectiv.irsf.portal.util.AppConstants;
 import com.iconectiv.irsf.portal.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * Created by echang on 1/11/2017.
@@ -28,64 +32,126 @@ public class ListServiceImpl implements ListService {
     private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
     
     @Autowired
-    private BlackListRepository blackListRepo;
-    @Autowired
     private ListUploadRequestRepository listUploadRepo;
+    @Autowired
+    private ListDefinitionRepository listRepo;
+    @Autowired
+    private ListDetailsRepository listDetailRepo;
+    @Autowired
+	private FileHandlerService fileService;
+    @Autowired
+    private ListUploadService lstUploadService;
     
+    @Transactional
     @Override
-    @Async
-    public void parseBlackList(ListUploadRequest uploadRequest) {
-        log.info("Start parsing black list file {}", uploadRequest.getId());
+    public void processListUploadRequest(ListUploadRequest uploadReq) {
+        log.info("Start parsing black list file {}", uploadReq.getId());
+        StringBuilder errorList = new StringBuilder();
+        List<ListDetails> listEntries = new ArrayList<>();
+
+        
         try {
-        	CustomerContextHolder.setCustomer(uploadRequest.getAccount());
-        	blackListRepo.deleteAllByCustomerIdAndListName(uploadRequest.getAccount(), uploadRequest.getListName());
-        	List<BlackList> items = new ArrayList<BlackList>();
-        	IntStream.range(1, 205).forEach(counter -> {
-                BlackList item = new BlackList();
-                item.setCustomerId(uploadRequest.getAccount());
-                item.setListName(uploadRequest.getListName());
-                item.setPhone(String.valueOf(counter));
-                item.setLastUpdated(new Date());
-                items.add(item);
-                
-                if (items.size() % 100 == 0) {
-                    blackListRepo.save(items);
-                	items.clear();
-                }
-        	});
+			lstUploadService.parseBlackWhiteListData(uploadReq, listEntries, errorList);
         	
-        	if (!items.isEmpty()) {
-        		blackListRepo.save(items);
-            	items.clear();
+        	if (errorList.length() > 0) {
+        		updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
+        		return;
         	}
-            uploadRequest.setStatus("complete");
-            listUploadRepo.save(uploadRequest);
-            log.info("Complete parsing list file {}", JsonHelper.toJson(uploadRequest));
+
+        	//TODO batch save
+        	CustomerContextHolder.setCustomer(uploadReq.getCustomerName());
+        	listDetailRepo.save(listEntries);
+        	
+        	uploadReq.setStatus(AppConstants.COMPLETE);
+            listUploadRepo.save(uploadReq);
+            log.info("Complete parsing list file {}", JsonHelper.toJson(uploadReq));
         } catch (Exception e) {
             log.error("Error to parse black list: \n", e);
         }
 
     }
 
-    @Override
-    @Async
-    public void parseBlackList(ListUploadRequest request, List<String> contents) {
-        log.info("Start parsing black list file :{}", contents);
-        parseBlackList(request);
+	@Override
+	public Integer createListDefinition(String customer, String listName, String listType, String user) {
+		CustomerContextHolder.setCustomer(customer);
+
+		ListDefintion listDefintion = new ListDefintion();
+		listDefintion.setListName(listName);
+		listDefintion.setType(listType);
+		listDefintion.setCustomerName(customer);
+		listDefintion.setCreateBy(user);
+		listDefintion.setLastUpdatedBy(user);
+		listDefintion.setCreateTimestamp(new Date());
+		listDefintion.setLastUpdated(new Date());
+		listDefintion = listRepo.save(listDefintion);
+
+		return listDefintion.getId();
+	}
+
+	public ListUploadRequest createUploadRequest(String customer, String user, ListDefintion listDef, String delimiter) {
+    	CustomerContextHolder.setCustomer(customer);
+        ListUploadRequest uploadReq = new ListUploadRequest();
+        uploadReq.setDelimiter(delimiter);
+        uploadReq.setStatus(AppConstants.PROCESS);
+        uploadReq.setListRefId(listDef.getId());
+        uploadReq.setLastUpdated(new Date());
+        uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
+
+        uploadReq = listUploadRepo.save(uploadReq);
+		return uploadReq;
+	}
+
+	@Override
+    public ListDefintion getListDetails(String customer, String listName) {
+        CustomerContextHolder.setCustomer(customer);
+        ListDefintion listDef = listRepo.findOneByListName(listName);
+        listDef.setListUploadRequests(listUploadRepo.findAllByListRefId(listDef.getId()));
+
+        listDef.getListUploadRequests().forEach(uploadReq -> {
+            uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
+        });
+        return listDef;
     }
 
     @Override
-	public ListUploadRequest saveUploadRequest(String customer, String listName, String type, String filePath) {
-        ListUploadRequest request = new ListUploadRequest();
-        request.setAccount(customer);
-        request.setListName(listName);
-        request.setType(type);
-        request.setPath(filePath);
-        request.setStatus("ready");
-        request.setLastUpdated(new Date());
-        listUploadRepo.save(request);
-        
-        log.debug("Save request {}", request.getId());
-		return request;
+    @Transactional
+    public void deleteListDefinition(String customer, String listName) {
+        CustomerContextHolder.setCustomer(customer);
+        listRepo.deleteByListName(listName);
+        return;
+    }
+
+
+    @Override
+	@Transactional
+	public ListUploadRequest saveUploadRequest(String customer, ListDefintion listDef, MultipartFile file, String delimiter, String user) {
+		ListUploadRequest uploadReq = createUploadRequest(customer, user, listDef, delimiter);
+		log.debug(file.getContentType());
+		
+		if (fileService.getFileSize(file) == 0) {
+			String errorMessage = file.getOriginalFilename() + " is empty";
+		    log.error(errorMessage);
+			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
+			return null;
+		}
+		
+        if (!file.getContentType().equals("text/plain")) {
+            String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
+            log.error(errorMessage);
+            updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
+            return null;
+        }
+		
+		uploadReq = listUploadRepo.save(uploadReq);
+        uploadReq.setCustomerName(customer);
+        uploadReq.setData(fileService.getContentAsList(file));
+        return uploadReq;
+	}
+
+	private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {
+		uploadReq.setErrorData(data);
+		uploadReq.setStatus(AppConstants.FAIL);
+		uploadReq.setLastUpdated(new Date());
+		listUploadRepo.save(uploadReq);
 	}
 }
