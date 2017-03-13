@@ -48,6 +48,13 @@ public class DateTimeHelper {
 		return format.format(myDate);
 	}
 
+	public static String formatDate(Date myDate, String formatStr) {
+		SimpleDateFormat format = new SimpleDateFormat(formatStr);
+		if (myDate == null) {
+			return "";
+		}
+		return format.format(myDate);
+	}
 
 	public static DateTime getDateBefore(Date expirationdate, int days) {
 		DateTime myDay = new DateTime(expirationdate);

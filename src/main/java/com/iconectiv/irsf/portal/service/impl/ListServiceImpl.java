@@ -1,12 +1,15 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.EventType;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
+import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.service.ListUploadService;
@@ -41,6 +44,8 @@ public class ListServiceImpl implements ListService {
 	private FileHandlerService fileService;
     @Autowired
     private ListUploadService lstUploadService;
+    @Autowired
+    private EventNotificationService eventService;
     
     @Transactional
     @Override
@@ -64,6 +69,17 @@ public class ListServiceImpl implements ListService {
         	
         	uploadReq.setStatus(AppConstants.COMPLETE);
             listUploadRepo.save(uploadReq);
+            
+            EventNotification event = new EventNotification();
+            event.setCustomerName(uploadReq.getCustomerName());
+            event.setEventType(EventType.List_Update.value());
+            event.setReferenceId(uploadReq.getListRefId());
+            event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
+            event.setCreateTimestamp(new Date());
+            event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
+            event.setStatus("new");
+            eventService.addEventNotification(event);
+            
             log.info("Complete parsing list file {}", JsonHelper.toJson(uploadReq));
         } catch (Exception e) {
             log.error("Error to parse black list: \n", e);

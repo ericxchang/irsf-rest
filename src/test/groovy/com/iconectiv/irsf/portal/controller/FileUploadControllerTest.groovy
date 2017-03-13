@@ -1,6 +1,8 @@
 package com.iconectiv.irsf.portal.controller
 
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository
+import com.iconectiv.irsf.portal.util.DateTimeHelper;
+
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +50,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 
     @Test
     void testUploadRequests() throws Exception {
+		def listName = "junit-blackList-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMdd')
         try {
             withPool {
                 ["cust01", "cust02", "cust03"].eachParallel {
@@ -60,7 +63,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile).file(secondFile).file(thirdFile)
-                            .param("customer", it).param("listType", "BL").param("listName", "junit-blackList-01").param("listId", '').param("delimiter", ","))
+                            .param("customer", it).param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ","))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -72,11 +75,11 @@ class FileUploadControllerTest extends GroovyTestCase {
         } finally {
             withPool {
                 ["cust01", "cust02", "cust03"].eachParallel {
-                    def action = mockMvc.perform(get("/list/${it}/junit-blackList-01")).andExpect(status().isOk())
+                    def action = mockMvc.perform(get("/list/${it}/${listName}")).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
-                    action = mockMvc.perform(delete("/list/delete/${it}/junit-blackList-01")).andExpect(status().isOk())
+                    action = mockMvc.perform(delete("/list/delete/${it}/${listName}")).andExpect(status().isOk())
                     result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }

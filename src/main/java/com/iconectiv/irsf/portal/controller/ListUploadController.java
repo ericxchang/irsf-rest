@@ -80,6 +80,7 @@ class ListUploadController extends BaseRestController {
 			
 			if (listDef != null) {
 				ListUploadRequest uploadRequest = listService.saveUploadRequest(customer, listDef, file, delimiter, guiUser);
+				uploadRequest.setListDefintion(listDef);
 				listService.processListUploadRequest(uploadRequest);
 			} else {
 				throw new AppException("Invalid list definition id " + listId);
