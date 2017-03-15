@@ -21,9 +21,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "partition_defintion")
 public class PartitionDefintion implements java.io.Serializable {
-
+	private static final long serialVersionUID = 1L;
 	private Integer id;
-	private Integer customerId;
+	private String customerName;
 	private String name;
 	private String description;
 	private Integer wlId;
@@ -45,12 +45,6 @@ public class PartitionDefintion implements java.io.Serializable {
 	public PartitionDefintion() {
 	}
 
-	public PartitionDefintion(Integer customerId, String name, String status) {
-		this.customerId = customerId;
-		this.name = name;
-		this.status = status;
-	}
-
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 
@@ -63,13 +57,13 @@ public class PartitionDefintion implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "customer_id", nullable = false)
-	public Integer getCustomerId() {
-		return this.customerId;
+	@Column(name = "customer_name", nullable = false, length=45)
+	public String getCustomerName() {
+		return customerName;
 	}
 
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
 	}
 
 	@Column(name = "name", nullable = false, length = 45)
@@ -117,7 +111,7 @@ public class PartitionDefintion implements java.io.Serializable {
 		this.ruleIds = ruleIds;
 	}
 
-	@Column(name = "status", nullable = false, length = 6)
+	@Column(name = "status", nullable = false, length = 15)
 	public String getStatus() {
 		return this.status;
 	}

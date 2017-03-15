@@ -1,6 +1,6 @@
 package com.iconectiv.irsf.portal.core;
 
-public enum Role {
+public enum PermissionRole {
 	Admin ("admin"),
 	API ("api"),
 	CustAdmin ("custAdmin"),
@@ -9,7 +9,7 @@ public enum Role {
 	
 	private String role;
 	
-	Role(String role) {
+	PermissionRole(String role) {
 		this.role = role;
 	}
 	

@@ -20,9 +20,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "rule_definition")
 public class RuleDefinition implements java.io.Serializable {
-
-
-    private Integer id;
+	private static final long serialVersionUID = 1L;
+	private Integer id;
     private Integer partitionId;
     private PartitionDefintion partitionDefintion;
     private String dataSource;

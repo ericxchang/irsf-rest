@@ -1,9 +1,8 @@
 package com.iconectiv.irsf.portal.repositories;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Date;
-
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -17,9 +16,9 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.iconectiv.irsf.portal.core.Role;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.service.UserService;
+import java.util.Date;
+
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -42,7 +41,7 @@ public class UserDefinitionRepositoryTest {
 		String raw = "1234";
 
 		user.setUserName("junitTestUser");
-		user.setRole(Role.Admin.value());
+		user.setRole(PermissionRole.Admin.value());
 		user.setFirstName("admin");
 		user.setLastName("junit");
 		user.setCreateTimestamp(new Date());
