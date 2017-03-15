@@ -3,7 +3,7 @@ package com.iconectiv.irsf.portal.repositories;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.DialPatternType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefintion;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
@@ -39,8 +39,8 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	PartitionDefinitionRepository partitionRepo;
 	
 
-	private PartitionDefintion createPartition() {
-		PartitionDefintion partition = new PartitionDefintion();
+	private PartitionDefinition createPartition() {
+		PartitionDefinition partition = new PartitionDefinition();
 		partition.setCustomerName("cust01");
 		partition.setName("junit-part-" + DateTimeHelper.formatDate(new Date(), "yyyyMMddSS"));
 		partition.setDescription("my parittion for junit");
@@ -59,7 +59,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	@Test
 	public void testAdAndDeleteRuleDefinition() {
     	CustomerContextHolder.setCustomer("cust01");
-		PartitionDefintion partition = createPartition();
+		PartitionDefinition partition = createPartition();
 		
 		RuleDefinition rule = new RuleDefinition();
 		rule.setPartitionId(partition.getId());

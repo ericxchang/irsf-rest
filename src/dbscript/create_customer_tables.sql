@@ -117,7 +117,7 @@ CREATE TABLE `partition_data_details` (
 -- Table structure for table `partition_defintion`
 --
 
-DROP TABLE IF EXISTS `partition_defintion`;
+DROP TABLE IF EXISTS `partition_definition`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `partition_defintion` (

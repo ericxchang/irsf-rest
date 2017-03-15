@@ -20,11 +20,10 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "partition_export_history")
 public class PartitionExportHistory implements java.io.Serializable {
-
-
-    private Integer id;
+	private static final long serialVersionUID = 1L;
+	private Integer id;
     private Integer partitionId;
-    private PartitionDefintion partitionDefintion;
+    private PartitionDefinition partitionDefinition;
     private byte[] exportFileLong;
     private byte[] exportFileShort;
     private byte[] exportWhitelist;
@@ -37,16 +36,16 @@ public class PartitionExportHistory implements java.io.Serializable {
     }
 
 
-    public PartitionExportHistory(PartitionDefintion partitionDefintion, byte[] exportFileLong, byte[] exportFileShort, Date exportDate, String status) {
-        this.partitionDefintion = partitionDefintion;
+    public PartitionExportHistory(PartitionDefinition partitionDefinition, byte[] exportFileLong, byte[] exportFileShort, Date exportDate, String status) {
+        this.partitionDefinition = partitionDefinition;
         this.exportFileLong = exportFileLong;
         this.exportFileShort = exportFileShort;
         this.exportDate = exportDate;
         this.status = status;
     }
 
-    public PartitionExportHistory(PartitionDefintion partitionDefintion, byte[] exportFileLong, byte[] exportFileShort, byte[] exportWhitelist, Date exportDate, String status, String reason) {
-        this.partitionDefintion = partitionDefintion;
+    public PartitionExportHistory(PartitionDefinition partitionDefinition, byte[] exportFileLong, byte[] exportFileShort, byte[] exportWhitelist, Date exportDate, String status, String reason) {
+        this.partitionDefinition = partitionDefinition;
         this.exportFileLong = exportFileLong;
         this.exportFileShort = exportFileShort;
         this.exportWhitelist = exportWhitelist;
@@ -77,12 +76,12 @@ public class PartitionExportHistory implements java.io.Serializable {
     }
 
     @Transient
-    public PartitionDefintion getPartitionDefintion() {
-        return this.partitionDefintion;
+    public PartitionDefinition getPartitionDefinition() {
+        return this.partitionDefinition;
     }
 
-    public void setPartitionDefintion(PartitionDefintion partitionDefintion) {
-        this.partitionDefintion = partitionDefintion;
+    public void setPartitionDefinition(PartitionDefinition partitionDefinition) {
+        this.partitionDefinition = partitionDefinition;
     }
 
     @Column(name = "export_file_long", nullable = false)

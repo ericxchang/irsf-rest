@@ -1,15 +1,12 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import com.iconectiv.irsf.portal.core.PartitionStatus;
-import com.iconectiv.irsf.portal.exception.AppException;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefintion;
-import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
-import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
-import com.iconectiv.irsf.portal.service.PartitionService;
-import io.jsonwebtoken.lang.Assert;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import com.iconectiv.irsf.portal.core.PartitionStatus;
+import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
+import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
+import com.iconectiv.irsf.portal.service.PartitionService;
+
+import io.jsonwebtoken.lang.Assert;
 
 
 @Service
@@ -44,7 +51,7 @@ public class PartitionServiceImpl implements PartitionService {
 	@Override
 	public void exportPartitionData(Integer partitionId, String userName) throws AppException {
 		try {
-			PartitionDefintion partition = defRepo.findOne(partitionId);
+			PartitionDefinition partition = defRepo.findOne(partitionId);
             Assert.notNull(partition);
 
 			generateExportData(partition);
@@ -63,13 +70,13 @@ public class PartitionServiceImpl implements PartitionService {
 
 	}
 
-	private void generateExportData(final PartitionDefintion partition) {
+	private void generateExportData(final PartitionDefinition partition) {
 		// TODO copy data to partition_export_history; create event to send
 		// export data
 
 	}
 
-	private void clonePartition(PartitionDefintion partition, String userName) {
+	private void clonePartition(PartitionDefinition partition, String userName) {
 		partition.setId(null);
 		partition.setStatus(PartitionStatus.Fresh.value());
 		partition.setLastUpdated(new Date());
@@ -86,7 +93,7 @@ public class PartitionServiceImpl implements PartitionService {
 		return;
 	}
 
-	private List<String> cloneRules(final PartitionDefintion partition) {
+	private List<String> cloneRules(final PartitionDefinition partition) {
 		List<String> ruleIds = new ArrayList<>();
 		for (String ruleId : partition.getRuleIds().split(",")) {
 			RuleDefinition rule = ruleRepo.findOne(Integer.valueOf(ruleId));
@@ -106,7 +113,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Transactional
 	@Override
-	public void addRule(PartitionDefintion partition, RuleDefinition rule, String userName)  throws AppException {
+	public void addRule(PartitionDefinition partition, RuleDefinition rule, String userName)  throws AppException {
 		try {
             Assert.notNull(partition);
             Assert.notNull(rule);
@@ -131,7 +138,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Transactional
 	@Override
-	public void removeRule(PartitionDefintion partition, Integer ruleId, String userName)  throws AppException {
+	public void removeRule(PartitionDefinition partition, Integer ruleId, String userName)  throws AppException {
 		try {
             Assert.notNull(partition);
             Assert.notNull(ruleId);
@@ -151,7 +158,21 @@ public class PartitionServiceImpl implements PartitionService {
 
 	}
 
-	private void updateRuleId(PartitionDefintion partition, Set<String> ruleIds, String userName) {
+	@Override
+	public PartitionDefinition getPartitionDetails(Integer partitionId) throws AppException {
+		PartitionDefinition partition = defRepo.findOne(partitionId);
+		if (partition == null) {
+			throw new AppException("Invalid partition id " + partitionId);
+		}
+
+		for (String ruleId : partition.getRuleIds().split(",")) {
+			partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+		}
+
+		return partition;
+	}
+
+	private void updateRuleId(PartitionDefinition partition, Set<String> ruleIds, String userName) {
 		partition.setRuleIds(StringUtils.collectionToCommaDelimitedString(ruleIds));
 		partition.setLastUpdated(new Date());
 		partition.setLastUpdatedBy(userName);

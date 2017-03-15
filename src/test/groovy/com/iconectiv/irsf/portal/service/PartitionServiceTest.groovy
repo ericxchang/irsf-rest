@@ -4,7 +4,7 @@ import com.iconectiv.irsf.portal.config.CustomerContextHolder
 import com.iconectiv.irsf.portal.core.DialPatternType
 import com.iconectiv.irsf.portal.core.PartitionStatus
 import com.iconectiv.irsf.portal.exception.AppException
-import com.iconectiv.irsf.portal.model.customer.PartitionDefintion
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository
@@ -42,7 +42,7 @@ import org.springframework.test.context.web.WebAppConfiguration
 	
 	@Test
 	void testExportPartitionData() {
-		PartitionDefintion partition = createPartition()
+		PartitionDefinition partition = createPartition()
 
         (1..3).each {
 			addRule(partition)
@@ -51,8 +51,8 @@ import org.springframework.test.context.web.WebAppConfiguration
 		service.exportPartitionData(partition.getId(), user)
 	}
 	
-	private PartitionDefintion createPartition() {
-		PartitionDefintion partition = new PartitionDefintion()
+	private PartitionDefinition createPartition() {
+		PartitionDefinition partition = new PartitionDefinition()
 		partition.setCustomerName(customer)
 		partition.setName("junit-part-" + DateTimeHelper.formatDate(new Date(), "yyyyMMddSS"))
 		partition.setDescription("my parittion for junit")
@@ -66,7 +66,7 @@ import org.springframework.test.context.web.WebAppConfiguration
 		return partition
 	}
 	
-	private void addRule(PartitionDefintion partition) throws AppException {
+	private void addRule(PartitionDefinition partition) throws AppException {
 		RuleDefinition rule = new RuleDefinition()
 		rule.setPartitionId(partition.getId())
 		rule.setActive(true)

@@ -19,8 +19,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 @Entity
-@Table(name = "partition_defintion")
-public class PartitionDefintion implements java.io.Serializable {
+@Table(name = "partition_definition")
+public class PartitionDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String customerName;
@@ -42,7 +42,7 @@ public class PartitionDefintion implements java.io.Serializable {
 	private List<PartitionDataDetails> partitionDataDetailses = new ArrayList<>();
 	private List<RuleDefinition> ruleDefinitions = new ArrayList<>();
 
-	public PartitionDefintion() {
+	public PartitionDefinition() {
 	}
 
 	@Id
@@ -186,4 +186,7 @@ public class PartitionDefintion implements java.io.Serializable {
 		this.ruleDefinitions = ruleDefinitions;
 	}
 
+	public void addRule(RuleDefinition rule) {
+		this.ruleDefinitions.add(rule);
+	}
 }

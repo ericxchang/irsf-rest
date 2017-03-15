@@ -22,7 +22,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class PartitionDataDetails implements java.io.Serializable {
     private Integer id;
     private Integer partitionId;
-    private PartitionDefintion partitionDefintion;
+    private PartitionDefinition partitionDefinition;
     private String reference;
     private String dialPattern;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -40,14 +40,14 @@ public class PartitionDataDetails implements java.io.Serializable {
     }
 
 
-    public PartitionDataDetails(PartitionDefintion partitionDefintion, String reference, String dialPattern) {
-        this.partitionDefintion = partitionDefintion;
+    public PartitionDataDetails(PartitionDefinition partitionDefinition, String reference, String dialPattern) {
+        this.partitionDefinition = partitionDefinition;
         this.reference = reference;
         this.dialPattern = dialPattern;
     }
 
-    public PartitionDataDetails(PartitionDefintion partitionDefintion, String reference, String dialPattern, Date customerDate, String description, String notes, String cc, String ndc, String iso2, String tos, String tosdesc, String provider) {
-        this.partitionDefintion = partitionDefintion;
+    public PartitionDataDetails(PartitionDefinition partitionDefinition, String reference, String dialPattern, Date customerDate, String description, String notes, String cc, String ndc, String iso2, String tos, String tosdesc, String provider) {
+        this.partitionDefinition = partitionDefinition;
         this.reference = reference;
         this.dialPattern = dialPattern;
         this.customerDate = customerDate;
@@ -82,12 +82,12 @@ public class PartitionDataDetails implements java.io.Serializable {
     }
 
     @Transient
-    public PartitionDefintion getPartitionDefintion() {
-        return this.partitionDefintion;
+    public PartitionDefinition getPartitionDefinition() {
+        return this.partitionDefinition;
     }
 
-    public void setPartitionDefintion(PartitionDefintion partitionDefintion) {
-        this.partitionDefintion = partitionDefintion;
+    public void setPartitionDefinition(PartitionDefinition partitionDefinition) {
+        this.partitionDefinition = partitionDefinition;
     }
 
     @Column(name = "reference", nullable = false, length = 45)
