@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd
+    http://www.springframework.org/schema/mvc
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <global-method-security pre-post-annotations="enabled" />
+    
+    <http pattern="/rest/login" security="none"/>
+    <http pattern="/rest/nosecure/" security="none"/>
+
+    <http name="/**" entry-point-ref="restAuthenticationEntryPoint" create-session="stateless">
+        <csrf disabled="true"/> 
+        <custom-filter position="FORM_LOGIN_FILTER" ref="jwtAuthenticationFilter"/> 
+    </http>
+
+	<beans:bean id="jwtAuthenticationSuccessHandler" class="com.iconectiv.irsf.portal.security.JwtAuthenticationSuccessHandler" />
+	<beans:bean id="jwtAuthenticationProvider" class="com.iconectiv.irsf.portal.security.JwtAuthenticationProvider" />
+	<beans:bean id="restAuthenticationEntryPoint" class="com.iconectiv.irsf.portal.security.RestAuthenticationEntryPoint" />
+
+	<beans:bean id="jwtAuthenticationFilter" class="com.iconectiv.irsf.portal.security.JwtAuthenticationFilter"> 
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="authenticationSuccessHandler" ref="jwtAuthenticationSuccessHandler" /> 
+	</beans:bean>
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="jwtAuthenticationProvider" /> 
+	</authentication-manager>
+
+	<beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+		<beans:constructor-arg name="strength" value="11" />
+	</beans:bean>
+</beans:beans>

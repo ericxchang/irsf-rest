@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
+@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml", "classpath:spring-security.xml"})
 @WebAppConfiguration
 public class ListServiceControllerTest {
 	private static Logger log = LoggerFactory.getLogger(ListServiceControllerTest.class);
@@ -44,7 +44,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testGetUploadRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/list/uploadrequests/blacklist")).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist")).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

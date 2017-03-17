@@ -17,7 +17,7 @@
     http://www.springframework.org/schema/context/spring-context.xsd
     http://www.springframework.org/schema/tx
     http://www.springframework.org/schema/tx/spring-tx.xsd">
-	<context:component-scan base-package="com.iconectiv.irsf.portal.controller, com.iconectiv.irsf.portal.service, com.iconectiv.irsf.portal.config" />
+	<context:component-scan base-package="com.iconectiv.irsf.portal.controller, com.iconectiv.irsf.portal.service, com.iconectiv.irsf.portal.config, com.iconectiv.irsf.portal.security" />
 	<context:annotation-config />
 	<mvc:annotation-driven />
 	<tx:annotation-driven proxy-target-class="false"/> 

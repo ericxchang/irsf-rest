@@ -3,11 +3,9 @@ package com.iconectiv.irsf.portal.model.common;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import io.jsonwebtoken.Claims;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +86,7 @@ public class UserDefinition implements java.io.Serializable {
 		this.role = role;
 	}
 
+	@JsonIgnore
 	@Column(name = "password", nullable = false, length = 100)
 	public String getPassword() {
 		return this.password;
