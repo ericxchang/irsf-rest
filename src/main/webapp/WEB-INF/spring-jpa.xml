@@ -126,7 +126,7 @@
         <property name="entityManagerFactory" ref="customerEntityManagerFactory" />
     </bean>    
 
-	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.common" transaction-manager-ref="transactionManager" entity-manager-factory-ref="entityManagerFactory"/>
-	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.customer" transaction-manager-ref="transactionManagerCustomer" entity-manager-factory-ref="customerEntityManagerFactory"/>
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.common" transaction-manager-ref="transactionManager" entity-manager-factory-ref="entityManagerFactory" repository-impl-postfix="Impl"/>
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.customer" transaction-manager-ref="transactionManagerCustomer" entity-manager-factory-ref="customerEntityManagerFactory" repository-impl-postfix="Impl"/>
 
 </beans>

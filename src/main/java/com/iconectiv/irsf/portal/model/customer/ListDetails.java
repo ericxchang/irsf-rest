@@ -1,7 +1,6 @@
 package com.iconectiv.irsf.portal.model.customer;
 // Generated Mar 6, 2017 5:15:33 PM by Hibernate Tools 3.2.2.GA
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -18,136 +17,268 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name = "list_details")
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(name = "joinAll", procedureName = "proc_list_details_range_all_vw", resultClasses = { ListDetails.class }, 
+        	parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "list_id", type = Integer.class) 
+        	}),
+        @NamedStoredProcedureQuery(name = "joinRange", procedureName = "proc_list_details_range_vw", resultClasses = { ListDetails.class }, 
+        	parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "list_id", type = Integer.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "row_start", type = Integer.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "num_recs", type = Integer.class)
+        	}) 
+        })
 public class ListDetails implements java.io.Serializable {
-    private Integer id;
-    private Integer listRefId;
-    private Integer upLoadRefId;
-    private String dialPattern;
-    private String description;
-    private String notes;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date customerDate;
-    private boolean active;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date lastUpdated;
-    private String lastUpdatedBy;
+	private static final long serialVersionUID = 1L;
+	private Integer id;
+	private Integer listRefId;
+	private Integer upLoadRefId;
+	private String dialPattern;
+	private String description;
+	private String notes;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date customerDate;
+	private boolean active;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date lastUpdated;
+	private String lastUpdatedBy;
 
-    public ListDetails() {
-    }
+	// join from range_ndc table
+	private String termCountry;
+	private String ccNdc;
+	private String iso2;
+	private String code;
+	private String tos;
+	private String tosdesc;
+	private String ndc;
+	private String locality;
+	private String provider;
+	private String supplement;
+	private String jobId;
+	private Date loadDate;
 
-    @Override
-    public boolean equals(Object v) {
-        if (v instanceof ListDetails) {
-            ListDetails obj = (ListDetails)v;
-            if (this.id == null && obj.getId() == null) {
-                return this.dialPattern.equals(obj.getDialPattern());
-            }
-            if ( (this.id == null && obj.getId() != null )|| ( this.id != null && obj.getId() == null )) {
-                return false;
-            }
+	public ListDetails() {
+	}
 
-            return this.id.equals(obj.getId()) && this.dialPattern.equals(obj.getDialPattern());
-        }
+	@Override
+	public boolean equals(Object v) {
+		if (v instanceof ListDetails) {
+			ListDetails obj = (ListDetails) v;
+			if (this.id == null && obj.getId() == null) {
+				return this.dialPattern.equals(obj.getDialPattern());
+			}
+			if ((this.id == null && obj.getId() != null) || (this.id != null && obj.getId() == null)) {
+				return false;
+			}
 
-        return false;
-    }
+			return this.id.equals(obj.getId()) && this.dialPattern.equals(obj.getDialPattern());
+		}
 
+		return false;
+	}
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @Column(name = "list_ref_id", nullable = false)
-    public Integer getListRefId() {
-        return listRefId;
-    }
+	@Column(name = "list_ref_id", nullable = false)
+	public Integer getListRefId() {
+		return listRefId;
+	}
 
-    public void setListRefId(Integer listRefId) {
-        this.listRefId = listRefId;
-    }
+	public void setListRefId(Integer listRefId) {
+		this.listRefId = listRefId;
+	}
 
-    @Column(name = "upload_req_ref_id")
-    public Integer getUpLoadRefId() {
-        return upLoadRefId;
-    }
+	@Column(name = "upload_req_ref_id")
+	public Integer getUpLoadRefId() {
+		return upLoadRefId;
+	}
 
-    public void setUpLoadRefId(Integer upLoadRefId) {
-        this.upLoadRefId = upLoadRefId;
-    }
+	public void setUpLoadRefId(Integer upLoadRefId) {
+		this.upLoadRefId = upLoadRefId;
+	}
 
-    @Column(name = "dial_pattern", nullable = false, length = 45)
-    public String getDialPattern() {
-        return this.dialPattern;
-    }
+	@Column(name = "dial_pattern", nullable = false, length = 15)
+	public String getDialPattern() {
+		return this.dialPattern;
+	}
 
-    public void setDialPattern(String dialPattern) {
-        this.dialPattern = dialPattern;
-    }
+	public void setDialPattern(String dialPattern) {
+		this.dialPattern = dialPattern;
+	}
 
-    @Column(name = "description", length = 100)
-    public String getDescription() {
-        return this.description;
-    }
+	@Column(name = "description", length = 100)
+	public String getDescription() {
+		return this.description;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @Column(name = "notes", length = 100)
-    public String getNotes() {
-        return this.notes;
-    }
+	@Column(name = "notes", length = 100)
+	public String getNotes() {
+		return this.notes;
+	}
 
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "customer_date", length = 10)
-    public Date getCustomerDate() {
-        return this.customerDate;
-    }
+	@Temporal(TemporalType.DATE)
+	@Column(name = "customer_date", length = 10)
+	public Date getCustomerDate() {
+		return this.customerDate;
+	}
 
-    public void setCustomerDate(Date customerDate) {
-        this.customerDate = customerDate;
-    }
+	public void setCustomerDate(Date customerDate) {
+		this.customerDate = customerDate;
+	}
 
-    @Column(name = "active", nullable = false)
-    public boolean isActive() {
-        return this.active;
-    }
+	@Column(name = "active", nullable = false)
+	public boolean isActive() {
+		return this.active;
+	}
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "last_updated", nullable = false, length = 19)
-    public Date getLastUpdated() {
-        return this.lastUpdated;
-    }
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_updated", nullable = false, length = 19)
+	public Date getLastUpdated() {
+		return this.lastUpdated;
+	}
 
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
 
-    @Column(name = "last_updated_by", nullable = false, length = 45)
-    public String getLastUpdatedBy() {
-        return this.lastUpdatedBy;
-    }
+	@Column(name = "last_updated_by", nullable = false, length = 45)
+	public String getLastUpdatedBy() {
+		return this.lastUpdatedBy;
+	}
 
-    public void setLastUpdatedBy(String lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
 
+	// join from range_ndc table
+	@Transient
+	public String getTermCountry() {
+		return termCountry;
+	}
+
+	public void setTermCountry(String termCountry) {
+		this.termCountry = termCountry;
+	}
+
+	@Transient
+	public String getCcNdc() {
+		return ccNdc;
+	}
+
+	public void setCcNdc(String ccNdc) {
+		this.ccNdc = ccNdc;
+	}
+
+	@Transient
+	public String getIso2() {
+		return iso2;
+	}
+
+	public void setIso2(String iso2) {
+		this.iso2 = iso2;
+	}
+
+	@Transient
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	@Transient
+	public String getTos() {
+		return tos;
+	}
+
+	public void setTos(String tos) {
+		this.tos = tos;
+	}
+
+	@Transient
+	public String getTosdesc() {
+		return tosdesc;
+	}
+
+	public void setTosdesc(String tosdesc) {
+		this.tosdesc = tosdesc;
+	}
+
+	@Transient
+	public String getNdc() {
+		return ndc;
+	}
+
+	public void setNdc(String ndc) {
+		this.ndc = ndc;
+	}
+
+	@Transient
+	public String getLocality() {
+		return locality;
+	}
+
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
+
+	@Transient
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+
+	@Transient
+	public String getSupplement() {
+		return supplement;
+	}
+
+	public void setSupplement(String supplement) {
+		this.supplement = supplement;
+	}
+
+	@Transient
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	@Transient
+	public Date getLoadDate() {
+		return loadDate;
+	}
+
+	public void setLoadDate(Date loadDate) {
+		this.loadDate = loadDate;
+	}
 
 }
-
-

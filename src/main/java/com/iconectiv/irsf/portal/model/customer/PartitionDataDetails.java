@@ -20,7 +20,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "partition_data_details")
 public class PartitionDataDetails implements java.io.Serializable {
-    private Integer id;
+
+	private static final long serialVersionUID = 1L;
+	private Integer id;
     private Integer partitionId;
     private PartitionDefinition partitionDefinition;
     private String reference;
@@ -99,7 +101,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.reference = reference;
     }
 
-    @Column(name = "dial_pattern", nullable = false, length = 45)
+    @Column(name = "dial_pattern", nullable = false, length = 15)
     public String getDialPattern() {
         return this.dialPattern;
     }
@@ -136,7 +138,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.notes = notes;
     }
 
-    @Column(name = "cc", length = 45)
+    @Column(name = "cc", length = 3)
     public String getCc() {
         return this.cc;
     }
@@ -145,7 +147,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.cc = cc;
     }
 
-    @Column(name = "ndc", length = 45)
+    @Column(name = "ndc", length = 15)
     public String getNdc() {
         return this.ndc;
     }
@@ -154,7 +156,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.ndc = ndc;
     }
 
-    @Column(name = "iso2", length = 45)
+    @Column(name = "iso2", length = 2)
     public String getIso2() {
         return this.iso2;
     }
@@ -163,7 +165,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.iso2 = iso2;
     }
 
-    @Column(name = "tos", length = 45)
+    @Column(name = "tos", length = 1)
     public String getTos() {
         return this.tos;
     }
@@ -172,7 +174,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.tos = tos;
     }
 
-    @Column(name = "tosdesc", length = 45)
+    @Column(name = "tosdesc", length = 20)
     public String getTosdesc() {
         return this.tosdesc;
     }
@@ -181,7 +183,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.tosdesc = tosdesc;
     }
 
-    @Column(name = "provider", length = 45)
+    @Column(name = "provider", length = 50)
     public String getProvider() {
         return this.provider;
     }
