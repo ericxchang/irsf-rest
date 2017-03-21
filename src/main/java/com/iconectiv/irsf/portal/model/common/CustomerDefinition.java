@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class CustomerDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
+	private String schemaName;
 	private String customerName;
 	private String phone;
 	private String email;
@@ -56,6 +57,15 @@ public class CustomerDefinition implements java.io.Serializable {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	@Column(name = "schema_name", unique = true, nullable = false, length = 15)
+	public String getSchemaName() {
+		return schemaName;
+	}
+
+	public void setSchemaName(String schemaName) {
+		this.schemaName = schemaName;
 	}
 
 	@Column(name = "customer_name", unique = true, nullable = false, length = 45)

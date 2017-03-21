@@ -83,6 +83,7 @@ DROP TABLE IF EXISTS `customer_definition`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `customer_definition` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schema_name` varchar(15) NOT NULL,
   `customer_name` varchar(45) NOT NULL,
   `phone` varchar(45) DEFAULT NULL,
   `email` varchar(45) DEFAULT NULL,
@@ -91,7 +92,8 @@ CREATE TABLE `customer_definition` (
   `last_updated` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `customer_name_UNIQUE` (`customer_name`)
+  UNIQUE KEY `customer_name_UNIQUE` (`customer_name`),
+  UNIQUE KEY `schema_name_UNIQUE` (`schema_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -509,4 +511,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-21 16:20:14
+-- Dump completed on 2017-03-21 16:26:33
