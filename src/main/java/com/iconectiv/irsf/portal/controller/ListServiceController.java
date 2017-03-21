@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.util.JsonHelper;
@@ -22,12 +23,13 @@ class ListServiceController extends BaseRestController {
 	@Autowired
 	private ListService listService;
 
-	@RequestMapping(value = "/list/{customer}/{listName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/list/{schema}/{listName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getListDetails(@PathVariable String customer, @PathVariable String listName) {
+	public ResponseEntity<String> getListDetails(@PathVariable String schema, @PathVariable String listName) {
 		ResponseEntity<String> rv;
 		try {
-			ListDefintion listDef = listService.getListDetails(customer, listName);
+			CustomerContextHolder.setSchema(schema);
+			ListDefintion listDef = listService.getListDetails(listName);
             rv = makeSuccessResult(listDef);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
@@ -40,12 +42,13 @@ class ListServiceController extends BaseRestController {
 	}
 
 	//TO support junit testing
-    @RequestMapping(value = "/list/delete/{customer}/{listName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/list/{schema}/{listName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> deleteListByNameRequest(@PathVariable String customer, @PathVariable String listName) {
+    public ResponseEntity<String> deleteListByNameRequest(@PathVariable String schema, @PathVariable String listName) {
         ResponseEntity<String> rv;
         try {
-            listService.deleteListDefinition(customer, listName);
+			CustomerContextHolder.setSchema(schema);
+            listService.deleteListDefinition(listName);
             rv = makeSuccessResult();
         } catch (Exception e) {
             rv = makeErrorResult(e);

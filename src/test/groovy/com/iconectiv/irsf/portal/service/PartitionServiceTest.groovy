@@ -32,12 +32,13 @@ import org.springframework.test.context.web.WebAppConfiguration
 	@Autowired
 	PartitionDefinitionRepository partitionRepo
 	
-	private String customer = "cust01"
-	private String user = "junit"
+	def schema = "cust01"
+	def customer = "junitCust"
+	def user = "junit"
 	
 	@Before
 	void before() {
-		CustomerContextHolder.setCustomer(customer)
+		CustomerContextHolder.setSchema(schema)
 	}
 	
 	@Test

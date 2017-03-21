@@ -15,7 +15,7 @@ public interface ListService {
 
 	void processListUploadRequest(ListUploadRequest uploadRequest);
 
-	void deleteListDefinition(String customer, String listName);
+	void deleteListDefinition(String listName);
 
-	ListDefintion getListDetails(String customer, String listName);
+	ListDefintion getListDetails(String listName);
 }

@@ -32,7 +32,8 @@ public class CustomerDefinitionRepositoryTest {
 	@Test
 	public void testAdAndDeletedCustomerDefinition() {
 		CustomerDefinition customer = new CustomerDefinition();
-		customer.setCustomerName("JUNITCustomer1");
+		customer.setSchemaName("cust01");
+		customer.setCustomerName("JUNITCustomer");
 
 		
 		customer = customerRepo.save(customer);

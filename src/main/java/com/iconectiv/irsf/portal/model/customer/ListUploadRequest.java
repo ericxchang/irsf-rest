@@ -33,6 +33,7 @@ public class ListUploadRequest implements java.io.Serializable {
 	private String lastUpdatedBy;
 
 	private String customerName;
+	
 	private List<String> data;
 
 	private List<ListDetails> listDetailsList = new ArrayList<>();

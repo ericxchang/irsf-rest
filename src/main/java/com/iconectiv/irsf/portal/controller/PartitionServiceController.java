@@ -1,14 +1,5 @@
 package com.iconectiv.irsf.portal.controller;
 
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.service.PartitionService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
-
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.service.PartitionService;
+import com.iconectiv.irsf.portal.util.JsonHelper;
+
 
 @Controller
 class PartitionServiceController extends BaseRestController {
@@ -28,12 +24,12 @@ class PartitionServiceController extends BaseRestController {
 	@Autowired
 	private PartitionService service;
 
-	@RequestMapping(value = "/partition/{customer}/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/partition/{schema}/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getListDetails(@PathVariable String customer, @PathVariable Integer partitionId) {
+	public ResponseEntity<String> getListDetails(@PathVariable String schema, @PathVariable Integer partitionId) {
 		ResponseEntity<String> rv;
 		try {
-			CustomerContextHolder.setCustomer(customer);
+			CustomerContextHolder.setSchema(schema);
 			PartitionDefinition partition = service.getPartitionDetails(partitionId);
             rv = makeSuccessResult(partition);
 		} catch (Exception e) {

@@ -41,7 +41,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 
 	private PartitionDefinition createPartition() {
 		PartitionDefinition partition = new PartitionDefinition();
-		partition.setCustomerName("cust01");
+		partition.setCustomerName("junitcust01");
 		partition.setName("junit-part-" + DateTimeHelper.formatDate(new Date(), "yyyyMMddSS"));
 		partition.setDescription("my parittion for junit");
 		partition.setDraftDate(new Date());
@@ -58,7 +58,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 
 	@Test
 	public void testAdAndDeleteRuleDefinition() {
-    	CustomerContextHolder.setCustomer("cust01");
+    	CustomerContextHolder.setSchema("cust01");
 		PartitionDefinition partition = createPartition();
 		
 		RuleDefinition rule = new RuleDefinition();

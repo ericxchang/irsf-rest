@@ -44,7 +44,7 @@ public class PartitionServiceControllerTest {
 
 	@Test
 	public void testGetPartitionDetail() throws Exception {
-		ResultActions action = mockMvc.perform(get("/partition/cust01/14")).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/partition/cust01/4")).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

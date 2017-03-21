@@ -36,7 +36,7 @@ CREATE TABLE `list_defintion` (
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `list_name_UNIQUE` (`list_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `list_details` (
   KEY `upload_req_ref_id_idx` (`upload_req_ref_id`),
   CONSTRAINT `lis_ref_id_fk` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `upload_req_ref_id_fk` FOREIGN KEY (`upload_req_ref_id`) REFERENCES `list_upload_request` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +83,7 @@ CREATE TABLE `list_upload_request` (
   PRIMARY KEY (`id`),
   KEY `list_ref_id_idx` (`list_ref_id`),
   CONSTRAINT `list_ref_id` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,32 +109,32 @@ CREATE TABLE `partition_data_details` (
   `provider` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `partition_fk` (`partition_id`),
-  CONSTRAINT `partition_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_defintion` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `partition_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_definition` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `partition_defintion`
+-- Table structure for table `partition_definition`
 --
 
-DROP TABLE IF EXISTS `partition_defintion`;
+DROP TABLE IF EXISTS `partition_definition`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `partition_defintion` (
+CREATE TABLE `partition_definition` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_id` int(11) NOT NULL,
+  `customer_name` varchar(45) NOT NULL,
   `name` varchar(45) NOT NULL,
   `description` varchar(100) DEFAULT NULL,
   `wl_id` int(11) DEFAULT NULL,
   `bl_id` int(11) DEFAULT NULL,
   `rule_ids` varchar(250) DEFAULT NULL,
-  `status` enum('draft','locked') NOT NULL DEFAULT 'draft',
+  `status` enum('fresh','draft','locked') NOT NULL DEFAULT 'draft',
   `draft_date` timestamp NULL DEFAULT NULL,
   `last_export_date` timestamp NULL DEFAULT NULL,
   `last_updated` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,7 +155,7 @@ CREATE TABLE `partition_export_history` (
   `reason` varchar(1000) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `partion_id_fk_idx` (`partition_id`),
-  CONSTRAINT `partion_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `partion_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -179,8 +179,8 @@ CREATE TABLE `rule_definition` (
   `last_updated_by` varchar(45) CHARACTER SET latin1 NOT NULL,
   PRIMARY KEY (`id`),
   KEY `partition_id_fk_idx` (`partition_id`),
-  CONSTRAINT `partition_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  CONSTRAINT `partition_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,4 +277,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-21 16:19:34
+-- Dump completed on 2017-03-21 17:08:26

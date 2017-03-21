@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.ls.LSInput;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,7 +65,6 @@ public class ListServiceImpl implements ListService {
         	}
 
         	//TODO batch save
-        	CustomerContextHolder.setCustomer(uploadReq.getCustomerName());
         	listDetailRepo.save(listEntries);
         	
         	uploadReq.setStatus(AppConstants.COMPLETE);
@@ -89,8 +89,6 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	public Integer createListDefinition(String customer, String listName, String listType, String user) {
-		CustomerContextHolder.setCustomer(customer);
-
 		ListDefintion listDefintion = new ListDefintion();
 		listDefintion.setListName(listName);
 		listDefintion.setType(listType);
@@ -105,7 +103,6 @@ public class ListServiceImpl implements ListService {
 	}
 
 	public ListUploadRequest createUploadRequest(String customer, String user, ListDefintion listDef, String delimiter) {
-    	CustomerContextHolder.setCustomer(customer);
         ListUploadRequest uploadReq = new ListUploadRequest();
         uploadReq.setDelimiter(delimiter);
         uploadReq.setStatus(AppConstants.PROCESS);
@@ -118,9 +115,13 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-    public ListDefintion getListDetails(String customer, String listName) {
-        CustomerContextHolder.setCustomer(customer);
+    public ListDefintion getListDetails(String listName) {
         ListDefintion listDef = listRepo.findOneByListName(listName);
+        
+        if (listDef == null) {
+        	log.warn("list {} does not exist", listName );
+        	return null;
+        }
         listDef.setListUploadRequests(listUploadRepo.findAllByListRefId(listDef.getId()));
 
         listDef.getListUploadRequests().forEach(uploadReq -> {
@@ -131,8 +132,7 @@ public class ListServiceImpl implements ListService {
 
     @Override
     @Transactional
-    public void deleteListDefinition(String customer, String listName) {
-        CustomerContextHolder.setCustomer(customer);
+    public void deleteListDefinition(String listName) {
         listRepo.deleteByListName(listName);
         return;
     }

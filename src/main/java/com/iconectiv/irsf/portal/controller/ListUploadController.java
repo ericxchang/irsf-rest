@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
@@ -41,7 +42,7 @@ class ListUploadController extends BaseRestController {
 
 	@RequestMapping(value = "/uploadListFile", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> multipleSave(@RequestParam("file") MultipartFile[] files,
+	public ResponseEntity<String> multipleSave(@RequestParam("file") MultipartFile[] files,  @RequestParam("schema") String schema, 
 	        @RequestParam("customer") String customer, @RequestParam("listType") String listType, @RequestParam("listName") String listName,
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
@@ -52,6 +53,7 @@ class ListUploadController extends BaseRestController {
 
             Integer listId;
 			if (listName != null && id == null) {
+				CustomerContextHolder.setSchema(schema);				
 				listId = listService.createListDefinition(customer, listName, listType, guiUser);
 			} else if (!id.equals(null)){
 				listId = id;

@@ -63,7 +63,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile).file(secondFile).file(thirdFile)
-                            .param("customer", it).param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ","))
+                            .param("schema", it).param("customer", "junitCust").param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ","))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -79,7 +79,7 @@ class FileUploadControllerTest extends GroovyTestCase {
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
-                    action = mockMvc.perform(delete("/list/delete/${it}/${listName}")).andExpect(status().isOk())
+                    action = mockMvc.perform(delete("/list/${it}/${listName}")).andExpect(status().isOk())
                     result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }
