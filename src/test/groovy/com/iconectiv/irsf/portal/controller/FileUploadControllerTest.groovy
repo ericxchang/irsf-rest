@@ -1,8 +1,7 @@
 package com.iconectiv.irsf.portal.controller
 
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository
-import com.iconectiv.irsf.portal.util.DateTimeHelper;
-
+import com.iconectiv.irsf.util.DateTimeHelper
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +45,43 @@ class FileUploadControllerTest extends GroovyTestCase {
     void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
     }
+	
+	//@Test
+	void testLoadLargeFile() throws Exception {
+		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
+		
+		def data = this.getClass().getResource('/irsf_blacklist_large.csv').text
+		
+		try {
+            withPool {
+                ["cust01"].eachParallel {
+                    log.info("Processing upload request from customer $it")
+                    MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
+
+                    MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
+
+                    def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
+                            .file(firstFile)
+                            .param("schema", it).param("customer", "junitCust").param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ","))
+                    def result = action.andReturn().getResponse().getContentAsString()
+                    log.info(result)
+
+                    //assert result.indexOf("success") > 0
+                }
+            }
+
+            sleep(10 * 1000)
+        } finally {
+            withPool {
+                ["cust01"].eachParallel {
+                    def action = mockMvc.perform(get("/list/${it}/${listName}")).andExpect(status().isOk())
+                    def result = action.andReturn().getResponse().getContentAsString()
+                    log.info(result)
+                }
+            }
+        }
+    
+	}
 
 
     @Test

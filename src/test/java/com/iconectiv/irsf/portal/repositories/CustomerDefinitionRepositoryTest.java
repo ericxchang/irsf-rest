@@ -16,7 +16,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.service.PartitionService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 
 
 @Controller

@@ -3,7 +3,7 @@ package com.iconectiv.irsf.portal.controller;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

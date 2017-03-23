@@ -6,7 +6,7 @@ import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -35,7 +35,7 @@ public class ListDetails implements java.io.Serializable {
 	private Integer listRefId;
 	private Integer upLoadRefId;
 	private String dialPattern;
-	private String description;
+	private String reason;
 	private String notes;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date customerDate;
@@ -116,13 +116,13 @@ public class ListDetails implements java.io.Serializable {
 		this.dialPattern = dialPattern;
 	}
 
-	@Column(name = "description", length = 100)
-	public String getDescription() {
-		return this.description;
+	@Column(name = "reason", length = 100)
+	public String getReason() {
+		return this.reason;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 	@Column(name = "notes", length = 100)

@@ -1,6 +1,5 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.EventType;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
@@ -13,19 +12,20 @@ import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.service.ListUploadService;
-import com.iconectiv.irsf.portal.util.AppConstants;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.ls.LSInput;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.persistence.EntityManagerFactory;
 
 /**
  * Created by echang on 1/11/2017.
@@ -33,59 +33,60 @@ import java.util.List;
 @Service
 @Transactional
 public class ListServiceImpl implements ListService {
-    private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
-    
-    @Autowired
-    private ListUploadRequestRepository listUploadRepo;
-    @Autowired
-    private ListDefinitionRepository listRepo;
-    @Autowired
-    private ListDetailsRepository listDetailRepo;
-    @Autowired
+	private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
+
+	@Autowired
+	private ListUploadRequestRepository listUploadRepo;
+	@Autowired
+	private ListDefinitionRepository listRepo;
+	@Autowired
+	private ListDetailsRepository listDetailRepo;
+	@Autowired
 	private FileHandlerService fileService;
-    @Autowired
-    private ListUploadService lstUploadService;
-    @Autowired
-    private EventNotificationService eventService;
-    
-    @Transactional
-    @Override
-    public void processListUploadRequest(ListUploadRequest uploadReq) {
-        log.info("Start parsing black list file {}", uploadReq.getId());
-        StringBuilder errorList = new StringBuilder();
-        List<ListDetails> listEntries = new ArrayList<>();
+	@Autowired
+	private ListUploadService lstUploadService;
+	@Autowired
+	private EventNotificationService eventService;
+	@Autowired
+	EntityManagerFactory customerEntityManagerFactory;
 
-        
-        try {
+	@Transactional
+	@Override
+	public void processListUploadRequest(ListUploadRequest uploadReq) {
+		log.info("Start parsing black list file {}", uploadReq.getId());
+		StringBuilder errorList = new StringBuilder();
+		List<ListDetails> listEntries = new ArrayList<>();
+
+		try {
 			lstUploadService.parseBlackWhiteListData(uploadReq, listEntries, errorList);
-        	
-        	if (errorList.length() > 0) {
-        		updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
-        		return;
-        	}
 
-        	//TODO batch save
-        	listDetailRepo.save(listEntries);
-        	
-        	uploadReq.setStatus(AppConstants.COMPLETE);
-            listUploadRepo.save(uploadReq);
-            
-            EventNotification event = new EventNotification();
-            event.setCustomerName(uploadReq.getCustomerName());
-            event.setEventType(EventType.List_Update.value());
-            event.setReferenceId(uploadReq.getListRefId());
-            event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
-            event.setCreateTimestamp(new Date());
-            event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
-            event.setStatus("new");
-            eventService.addEventNotification(event);
-            
-            log.info("Complete parsing list file {}", JsonHelper.toJson(uploadReq));
-        } catch (Exception e) {
-            log.error("Error to parse black list: \n", e);
-        }
+			if (errorList.length() > 0) {
+				updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
+				return;
+			}
 
-    }
+			// TODO batch save
+			listDetailRepo.save(listEntries);
+
+			uploadReq.setStatus(AppConstants.COMPLETE);
+			listUploadRepo.save(uploadReq);
+
+			EventNotification event = new EventNotification();
+			event.setCustomerName(uploadReq.getCustomerName());
+			event.setEventType(EventType.List_Update.value());
+			event.setReferenceId(uploadReq.getListRefId());
+			event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
+			event.setCreateTimestamp(new Date());
+			event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
+			event.setStatus("new");
+			eventService.addEventNotification(event);
+
+			log.info("Complete parsing list file {}", JsonHelper.toJson(uploadReq));
+		} catch (Exception e) {
+			log.error("Error to parse black list: \n", e);
+		}
+
+	}
 
 	@Override
 	public Integer createListDefinition(String customer, String listName, String listType, String user) {
@@ -102,66 +103,67 @@ public class ListServiceImpl implements ListService {
 		return listDefintion.getId();
 	}
 
-	public ListUploadRequest createUploadRequest(String customer, String user, ListDefintion listDef, String delimiter) {
-        ListUploadRequest uploadReq = new ListUploadRequest();
-        uploadReq.setDelimiter(delimiter);
-        uploadReq.setStatus(AppConstants.PROCESS);
-        uploadReq.setListRefId(listDef.getId());
-        uploadReq.setLastUpdated(new Date());
-        uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
+	public ListUploadRequest createUploadRequest(String customer, String user, ListDefintion listDef,
+	        String delimiter) {
+		ListUploadRequest uploadReq = new ListUploadRequest();
+		uploadReq.setDelimiter(delimiter);
+		uploadReq.setStatus(AppConstants.PROCESS);
+		uploadReq.setListRefId(listDef.getId());
+		uploadReq.setLastUpdated(new Date());
+		uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
 
-        uploadReq = listUploadRepo.save(uploadReq);
+		uploadReq = listUploadRepo.save(uploadReq);
 		return uploadReq;
 	}
 
 	@Override
-    public ListDefintion getListDetails(String listName) {
-        ListDefintion listDef = listRepo.findOneByListName(listName);
-        
-        if (listDef == null) {
-        	log.warn("list {} does not exist", listName );
-        	return null;
-        }
-        listDef.setListUploadRequests(listUploadRepo.findAllByListRefId(listDef.getId()));
+	public ListDefintion getListDetails(String listName) {
+		ListDefintion listDef = listRepo.findOneByListName(listName);
 
-        listDef.getListUploadRequests().forEach(uploadReq -> {
-            uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
-        });
-        return listDef;
-    }
+		if (listDef == null) {
+			log.warn("list {} does not exist", listName);
+			return null;
+		}
+		listDef.setListUploadRequests(listUploadRepo.findAllByListRefId(listDef.getId()));
 
-    @Override
-    @Transactional
-    public void deleteListDefinition(String listName) {
-        listRepo.deleteByListName(listName);
-        return;
-    }
+		listDef.getListUploadRequests().forEach(uploadReq -> {
+			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
+		});
+		return listDef;
+	}
 
-
-    @Override
+	@Override
 	@Transactional
-	public ListUploadRequest saveUploadRequest(String customer, ListDefintion listDef, MultipartFile file, String delimiter, String user) {
+	public void deleteListDefinition(String listName) {
+		listRepo.deleteByListName(listName);
+		return;
+	}
+
+	@Override
+	@Transactional
+	public ListUploadRequest saveUploadRequest(String customer, ListDefintion listDef, MultipartFile file,
+	        String delimiter, String user) {
 		ListUploadRequest uploadReq = createUploadRequest(customer, user, listDef, delimiter);
 		log.debug(file.getContentType());
-		
+
 		if (fileService.getFileSize(file) == 0) {
 			String errorMessage = file.getOriginalFilename() + " is empty";
-		    log.error(errorMessage);
+			log.error(errorMessage);
 			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
 			return null;
 		}
-		
-        if (!file.getContentType().equals("text/plain")) {
-            String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
-            log.error(errorMessage);
-            updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
-            return null;
-        }
-		
+
+		if (!file.getContentType().equals("text/plain")) {
+			String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
+			log.error(errorMessage);
+			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
+			return null;
+		}
+
 		uploadReq = listUploadRepo.save(uploadReq);
-        uploadReq.setCustomerName(customer);
-        uploadReq.setData(fileService.getContentAsList(file));
-        return uploadReq;
+		uploadReq.setCustomerName(customer);
+		uploadReq.setData(fileService.getContentAsList(file));
+		return uploadReq;
 	}
 
 	private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {

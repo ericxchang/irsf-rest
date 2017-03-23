@@ -1,7 +1,11 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.security.Key;
 
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.exception.AuthException;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.service.UserService;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.iconectiv.irsf.portal.exception.AuthException;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.service.UserService;
-import com.iconectiv.irsf.portal.util.JsonHelper;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.MacProvider;
 
 @Controller
 public class AuthServiceController extends BaseRestController {
@@ -53,11 +48,7 @@ public class AuthServiceController extends BaseRestController {
 				throw new AuthException("Password is NOT correct");
 			}
 			
-			
-			//TODO generate token
-			Key secretKey = MacProvider.generateKey();
-			String token = Jwts.builder().setSubject("irsf portal jwt").setAudience("irsf-web").setIssuer("iconectiv").
-					setClaims(loginUser.getMap()).signWith(SignatureAlgorithm.HS256, secretKey ).compact();
+			String token = JWTUtil.createToken("irsf portal jwt", "irsf-rest", loginUser.getMap());
 			rv = makeSuccessResult(token);
 		} catch (Exception e) {
 			log.error("Failed to login: ", e);

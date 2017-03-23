@@ -7,8 +7,8 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.iconectiv.irsf.portal.util.AppConstants;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.util.JsonHelper;
 
 /**
  * Base class containing utility methods for REST API controllers.

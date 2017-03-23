@@ -18,7 +18,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import com.iconectiv.irsf.portal.model.common.IprnDialPatternVw;
 import com.iconectiv.irsf.portal.repositories.common.IprnDialPatternVwRepository;
-import com.iconectiv.irsf.portal.util.JsonHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})

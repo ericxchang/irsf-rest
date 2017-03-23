@@ -1,13 +1,13 @@
-package com.iconectiv.irsf.portal.util;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+package com.iconectiv.irsf.util;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DateTimeHelper {
 	public static DateTime getTodayAtMidnight() {
@@ -54,6 +54,14 @@ public class DateTimeHelper {
 			return "";
 		}
 		return format.format(myDate);
+	}
+
+	public static Date formatDate(String myDateStr, String formatStr) throws Exception {
+		SimpleDateFormat format = new SimpleDateFormat(formatStr);
+		if (myDateStr == null || "".equals(myDateStr)) {
+			return null;
+		}
+		return format.parse(myDateStr);
 	}
 
 	public static DateTime getDateBefore(Date expirationdate, int days) {
