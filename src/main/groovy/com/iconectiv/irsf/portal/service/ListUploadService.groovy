@@ -21,7 +21,7 @@ class ListUploadService {
 	void parseBlackWhiteListData(ListUploadRequest uploadReq, List<ListDetails> listEntries, StringBuilder errorList) {
         def headerMap = parseHeader(uploadReq, uploadReq.delimiter)
 		uploadReq.data.eachWithIndex {item, index ->
-            if (log.isDebugEnabled()) log.debug("Parsing ${index} line: ${item}")
+            if (log.isTraceEnabled()) log.trace("Parsing ${index} line: ${item}")
 			parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)
 		}
 		log.info("Finish parsing input file, about to insert")

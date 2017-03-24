@@ -49,7 +49,7 @@ class FileUploadControllerTest extends GroovyTestCase {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
     }
 	
-	//@Test
+	@Test
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
@@ -62,10 +62,11 @@ class FileUploadControllerTest extends GroovyTestCase {
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
 
                     MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
-
+					def token = createToken(it)
+					
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile)
-                            .param("schema", it).param("customer", "junitCust").param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ","))
+                            .param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("Authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -77,7 +78,8 @@ class FileUploadControllerTest extends GroovyTestCase {
         } finally {
             withPool {
                 ["cust01"].eachParallel {
-                    def action = mockMvc.perform(get("/list/${it}/${listName}")).andExpect(status().isOk())
+					def token = createToken(it)
+                    def action = mockMvc.perform(get("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }

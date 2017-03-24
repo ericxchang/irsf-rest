@@ -66,11 +66,11 @@ public class ListServiceImpl implements ListService {
 				return;
 			}
 
-			// TODO batch save
-			listDetailRepo.save(listEntries);
-
 			uploadReq.setStatus(AppConstants.COMPLETE);
 			listUploadRepo.save(uploadReq);
+
+			// TODO batch save
+			listDetailRepo.batchUpdate(listEntries);
 
 			EventNotification event = new EventNotification();
 			event.setCustomerName(uploadReq.getCustomerName());
