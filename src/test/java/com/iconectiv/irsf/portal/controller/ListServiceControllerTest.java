@@ -21,8 +21,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml", "classpath:spring-security.xml"})
+@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
 @WebAppConfiguration
 public class ListServiceControllerTest {
 	private static Logger log = LoggerFactory.getLogger(ListServiceControllerTest.class);
@@ -32,6 +37,7 @@ public class ListServiceControllerTest {
 	@Autowired MockHttpServletRequest request;
 	
 	private MockMvc mockMvc;
+	private static String token;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -43,8 +49,17 @@ public class ListServiceControllerTest {
 	}
 
 	@Test
-	public void testGetUploadRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist")).andExpect(status().isOk());
+	public void testQueryListRequest() throws Exception {
+		UserDefinition loginUser = new UserDefinition();
+		loginUser.setUserName("guiuser01");
+		loginUser.setCustomerId(1);
+		loginUser.setRole(PermissionRole.CustAdmin.value());	
+		loginUser.setSchemaName("cust01");
+		loginUser.setCustomerName("Verizon");
+		
+		token = JWTUtil.createToken(loginUser);
+		
+		ResultActions action = mockMvc.perform(get("/list/large-201703231517432").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -52,4 +67,33 @@ public class ListServiceControllerTest {
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
 
+	@Test
+	public void testInvalidUser() throws Exception {
+		UserDefinition loginUser = new UserDefinition();
+		loginUser.setUserName("guiuser01");
+		loginUser.setCustomerId(1);
+		loginUser.setRole(PermissionRole.API.value());
+		token = JWTUtil.createToken(loginUser);
+		
+		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+
+	}
+	
+	@Test
+	public void testInvalidPermission() throws Exception {
+		UserDefinition loginUser = new UserDefinition();
+		loginUser.setUserName("guiuser01");
+		loginUser.setCustomerId(1);
+		loginUser.setRole(PermissionRole.API.value());
+		token = JWTUtil.createToken(loginUser);
+		
+		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+
+	}
 }

@@ -1,28 +1,34 @@
 package com.iconectiv.irsf.portal.controller;
 
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.exception.AppException;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
-import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
-import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.util.JsonHelper;
-import io.jsonwebtoken.lang.Assert;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.util.JsonHelper;
+
+import io.jsonwebtoken.lang.Assert;
 
 @Controller
 class ListUploadController extends BaseRestController {
@@ -33,38 +39,37 @@ class ListUploadController extends BaseRestController {
 
 	@Autowired
 	private ListDefinitionRepository listDefRepo;
-	
-	@Autowired
-	private Environment env;
 
-	//TODO decode user from token
-	private String guiUser = "test";
 
 	@RequestMapping(value = "/uploadListFile", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> multipleSave(@RequestParam("file") MultipartFile[] files,  @RequestParam("schema") String schema, 
-	        @RequestParam("customer") String customer, @RequestParam("listType") String listType, @RequestParam("listName") String listName,
+	public ResponseEntity<String> multipleSave(@RequestHeader Map<String, String> header, @RequestParam("file") MultipartFile[] files,   
+	        @RequestParam("listType") String listType, @RequestParam("listName") String listName,
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 		try {
-            Assert.notNull(customer);
             Assert.notNull(listType);
             Assert.notNull(delimiter);
 
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+
             Integer listId;
 			if (listName != null && id == null) {
-				CustomerContextHolder.setSchema(schema);				
-				listId = listService.createListDefinition(customer, listName, listType, guiUser);
-			} else if (!id.equals(null)){
+				CustomerContextHolder.setSchema(loginUser.getSchemaName());				
+				listId = listService.createListDefinition(loginUser, listName, listType);
+			} else if (id != null){
 				listId = id;
 			} else {
 				throw new AppException("Invalid request parameter: must provide either listName or listId");
 			}
 
             Arrays.asList(files).stream().forEach(file -> {
-				saveSingleFile(customer, listId, listType, file, delimiter);
+				saveSingleFile(loginUser, listId, listType, file, delimiter);
 			});
 			rv = makeSuccessResult();
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
@@ -76,12 +81,12 @@ class ListUploadController extends BaseRestController {
 	}
 
 	@Async
-	private void saveSingleFile(String customer, final Integer listId, String type, MultipartFile file, String delimiter) {
+	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter) {
 		try {
 			ListDefintion listDef = listDefRepo.findOne(listId);
 			
 			if (listDef != null) {
-				ListUploadRequest uploadRequest = listService.saveUploadRequest(customer, listDef, file, delimiter, guiUser);
+				ListUploadRequest uploadRequest = listService.saveUploadRequest(user, listDef, file, delimiter);
 				uploadRequest.setListDefintion(listDef);
 				listService.processListUploadRequest(uploadRequest);
 			} else {

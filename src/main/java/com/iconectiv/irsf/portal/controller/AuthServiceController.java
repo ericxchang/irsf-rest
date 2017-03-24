@@ -48,7 +48,7 @@ public class AuthServiceController extends BaseRestController {
 				throw new AuthException("Password is NOT correct");
 			}
 			
-			String token = JWTUtil.createToken("irsf portal jwt", "irsf-rest", loginUser.getMap());
+			String token = JWTUtil.createToken(loginUser);
 			rv = makeSuccessResult(token);
 		} catch (Exception e) {
 			log.error("Failed to login: ", e);

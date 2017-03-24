@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.service;
 
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,9 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ListService {
 
-	Integer createListDefinition(String customer, String listName, String listType, String user);
+	Integer createListDefinition(UserDefinition user, String listName, String listType);
 
-	ListUploadRequest saveUploadRequest(String customer, ListDefintion listDef, MultipartFile file, String delimiter, String user);
+	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter);
 
 	void processListUploadRequest(ListUploadRequest uploadRequest);
 

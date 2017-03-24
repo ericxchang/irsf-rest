@@ -1,21 +1,55 @@
 package com.iconectiv.irsf.portal.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.util.JsonHelper;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 
 /**
  * Base class containing utility methods for REST API controllers.
  */
 public class BaseRestController {
+	private static Logger log = LoggerFactory.getLogger(BaseRestController.class);
 	private static final String STATUS = "status";
 	private static final String MESSAGE = "message";
+
+	protected void assertAuthorized(UserDefinition loginUser, String permission) {
+		if (loginUser == null) {
+			throw new SecurityException("Invalid user, please login first!");
+		}
+
+		if (permission != null) {
+			if (!Arrays.asList(permission.split(",")).contains(loginUser.getRole())) {
+				throw new SecurityException(
+				        "User " + loginUser.getUserName() + " does NOT have permission of " + permission);
+			}
+		}
+	}
+
+	protected UserDefinition getLoginUser(Map<String, String> header) {
+		try {
+			String token = header.get("Authorization");
+			Jws<Claims> claims = JWTUtil.parseToken(token.substring(7));
+
+			UserDefinition loginUser = JsonHelper.fromJson(claims.getBody(), UserDefinition.class);
+			return loginUser;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	/**
 	 * Create an error response (status = FAIL) based on the exception caught.
@@ -30,6 +64,14 @@ public class BaseRestController {
 		result.put(MESSAGE, ve.getMessage());
 		String json = JsonHelper.toJson(result);
 		return new ResponseEntity<>(json, HttpStatus.OK);
+	}
+
+	protected ResponseEntity<String> makeErrorResult(Exception ve, HttpStatus httpStatus) {
+		Map<String, Object> result = new HashMap<>();
+		result.put(STATUS, AppConstants.FAIL);
+		result.put(MESSAGE, ve.getMessage());
+		String json = JsonHelper.toJson(result);
+		return new ResponseEntity<>(json, httpStatus);
 	}
 
 	/**
@@ -120,7 +162,6 @@ public class BaseRestController {
 		Map<String, Object> result = new HashMap<>();
 		return makeSuccessResult(result);
 	}
-
 
 	protected ResponseEntity<String> makeSuccessResult(String key, Object value) {
 		Map<String, Object> result = new HashMap<>();

@@ -7,7 +7,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.iconectiv.irsf.portal.exception.AuthException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.UserService;
 
@@ -18,6 +20,8 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserDefinitionRepository userRepo;
+	@Autowired
+	private CustomerDefinitionRepository customerRepo;
 	
 	@Autowired
 	BCryptPasswordEncoder encoder;	
@@ -34,6 +38,14 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	private void getUserDetails(UserDefinition user) {
+		if (user.getCustomerId() != null) {
+			CustomerDefinition customer = customerRepo.findOne(user.getCustomerId());
+			if (customer != null) {
+				user.setCustomerDefinition(customer);
+				user.setCustomerName(customer.getCustomerName());
+				user.setSchemaName(customer.getSchemaName());
+			}
+		}
 	}
 
 	@Override

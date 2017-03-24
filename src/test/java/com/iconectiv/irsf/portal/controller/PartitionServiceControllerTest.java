@@ -21,6 +21,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
 @WebAppConfiguration
@@ -44,7 +48,16 @@ public class PartitionServiceControllerTest {
 
 	@Test
 	public void testGetPartitionDetail() throws Exception {
-		ResultActions action = mockMvc.perform(get("/partition/cust01/4")).andExpect(status().isOk());
+		UserDefinition loginUser = new UserDefinition();
+		loginUser.setUserName("guiuser01");
+		loginUser.setCustomerId(1);
+		loginUser.setRole(PermissionRole.CustAdmin.value());	
+		loginUser.setSchemaName("cust01");
+		loginUser.setCustomerName("Verizon");
+		
+		String token = JWTUtil.createToken(loginUser);
+		
+		ResultActions action = mockMvc.perform(get("/partition/4").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

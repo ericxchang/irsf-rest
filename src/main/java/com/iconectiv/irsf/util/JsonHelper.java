@@ -7,6 +7,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.json.vaidation.JsonValidator;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +117,15 @@ public class JsonHelper {
 		return null;
 	}
 	
-	
+	public static  <T> T fromJson(Object obj, Class<T> classOfT) {
+		try {
+			return fromJson(toJson(obj), classOfT);
+		} catch (JsonValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}		
 	
 	public static void toFile(Object object, String fileName) {
 		try {
@@ -163,5 +176,7 @@ public class JsonHelper {
     private static Key generateKey() throws Exception {
         Key key = new SecretKeySpec(keyValue, ALGO);
         return key;
-    }	
+    }
+
+
 }

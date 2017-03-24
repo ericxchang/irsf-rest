@@ -23,6 +23,8 @@ public class UserDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private Integer customerId;
+	private String customerName;
+	private String schemaName;
 	private CustomerDefinition customerDefinition;
 	private String userName;
 	private String role;
@@ -171,11 +173,32 @@ public class UserDefinition implements java.io.Serializable {
 	}
 
 	@Transient
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	@Transient
+	public String getSchemaName() {
+		return schemaName;
+	}
+
+	public void setSchemaName(String schemaName) {
+		this.schemaName = schemaName;
+	}
+
+	@Transient
 	public Map<String, Object> getMap() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", this.id);
 		map.put("userName", this.userName);
 		map.put("role", this.role);
+		map.put("customerId", this.customerId);
+		map.put("customerName", this.customerName);
+		map.put("schemaName", this.schemaName);
 		return map;
 	}
 

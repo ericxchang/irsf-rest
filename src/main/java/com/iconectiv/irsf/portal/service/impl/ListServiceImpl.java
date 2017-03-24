@@ -2,6 +2,7 @@ package com.iconectiv.irsf.portal.service.impl;
 
 import com.iconectiv.irsf.portal.core.EventType;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
@@ -89,13 +90,13 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public Integer createListDefinition(String customer, String listName, String listType, String user) {
+	public Integer createListDefinition(UserDefinition user, String listName, String listType) {
 		ListDefintion listDefintion = new ListDefintion();
 		listDefintion.setListName(listName);
 		listDefintion.setType(listType);
-		listDefintion.setCustomerName(customer);
-		listDefintion.setCreateBy(user);
-		listDefintion.setLastUpdatedBy(user);
+		listDefintion.setCustomerName(user.getCustomerName());
+		listDefintion.setCreateBy(user.getUserName());
+		listDefintion.setLastUpdatedBy(user.getUserName());
 		listDefintion.setCreateTimestamp(new Date());
 		listDefintion.setLastUpdated(new Date());
 		listDefintion = listRepo.save(listDefintion);
@@ -103,8 +104,7 @@ public class ListServiceImpl implements ListService {
 		return listDefintion.getId();
 	}
 
-	public ListUploadRequest createUploadRequest(String customer, String user, ListDefintion listDef,
-	        String delimiter) {
+	public ListUploadRequest createUploadRequest(ListDefintion listDef, String delimiter) {
 		ListUploadRequest uploadReq = new ListUploadRequest();
 		uploadReq.setDelimiter(delimiter);
 		uploadReq.setStatus(AppConstants.PROCESS);
@@ -141,9 +141,8 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	@Transactional
-	public ListUploadRequest saveUploadRequest(String customer, ListDefintion listDef, MultipartFile file,
-	        String delimiter, String user) {
-		ListUploadRequest uploadReq = createUploadRequest(customer, user, listDef, delimiter);
+	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter) {
+		ListUploadRequest uploadReq = createUploadRequest(listDef, delimiter);
 		log.debug(file.getContentType());
 
 		if (fileService.getFileSize(file) == 0) {
@@ -161,7 +160,7 @@ public class ListServiceImpl implements ListService {
 		}
 
 		uploadReq = listUploadRepo.save(uploadReq);
-		uploadReq.setCustomerName(customer);
+		uploadReq.setCustomerName(user.getCustomerName());
 		uploadReq.setData(fileService.getContentAsList(file));
 		return uploadReq;
 	}
