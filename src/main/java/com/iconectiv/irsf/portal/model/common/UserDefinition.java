@@ -88,7 +88,6 @@ public class UserDefinition implements java.io.Serializable {
 		this.role = role;
 	}
 
-	@JsonIgnore
 	@Column(name = "password", nullable = false, length = 100)
 	public String getPassword() {
 		return this.password;

@@ -32,7 +32,7 @@ public class CustomerDefinitionRepositoryTest {
 	@Test
 	public void testAdAndDeletedCustomerDefinition() {
 		CustomerDefinition customer = new CustomerDefinition();
-		customer.setSchemaName("cust01");
+		customer.setSchemaName("cust04");
 		customer.setCustomerName("JUNITCustomer");
 
 		
@@ -41,7 +41,7 @@ public class CustomerDefinitionRepositoryTest {
 
 		customerRepo.delete(customer);
 
-		customer = customerRepo.findByCustomerName("JUNITCustomer1");
+		customer = customerRepo.findByCustomerName("JUNITCustomer");
 		Assert.assertNull(customer);
 	}
 

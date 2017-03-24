@@ -9,4 +9,6 @@ import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
  */
 public interface CustomerDefinitionRepository extends CrudRepository<CustomerDefinition, Integer>{
 	CustomerDefinition findByCustomerName(String customerName);
+
+	CustomerDefinition findOneBySchemaName(String string);
 }

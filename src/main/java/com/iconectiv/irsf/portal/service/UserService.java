@@ -10,6 +10,8 @@ public interface UserService {
 
 	Iterable<UserDefinition> findAllUsers() throws AuthException;
 
+	void createUser(UserDefinition user) throws AuthException;
+
 	void updateUser(UserDefinition user) throws AuthException;
 
 	void deleteUser(Integer id) throws AuthException;
@@ -17,4 +19,7 @@ public interface UserService {
 	void changePassword(Integer userId, String password) throws AuthException;
 	
 	void changePassword(String userName, String password) throws AuthException;
+
+	void changePassword(UserDefinition user) throws AuthException;
+
 }
