@@ -63,12 +63,27 @@ class ListUploadService {
         }
 
         if ( ! (dialCode ==~ /^\d+$/) ) {
-            errorList.append("line $index contains non digit character in dial code field\n")
+            errorList.append("line $index The Dial Pattern field contains non digit character\n")
+            return
+        }
+
+        if (dialCode.size() > 15) {
+            errorList.append("line $index The Dial Pattern field is over the max length of 15\n")
+            return
+        }
+
+        if (reason.size() > 100) {
+            errorList.append("line $index The Reason field is over the max length of 100\n")
+            return
+        }
+
+        if (notes.size() > 100) {
+            errorList.append("line $index The Notes field is over the max length of 100\n")
             return
         }
 
         if (hasDuplicateEntry(listEntries, dialCode)) {
-            errorList.append("line $index dial code <${dialCode}> already exists in the file\n")
+            errorList.append("line $index The Dial Pattern <${dialCode}> already exists in the upload file\n")
             return
         }
 

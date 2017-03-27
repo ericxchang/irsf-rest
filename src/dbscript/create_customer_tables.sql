@@ -36,7 +36,7 @@ CREATE TABLE `list_defintion` (
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `list_name_UNIQUE` (`list_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -51,7 +51,7 @@ CREATE TABLE `list_details` (
   `list_ref_id` int(11) NOT NULL,
   `upload_req_ref_id` int(11) DEFAULT NULL,
   `dial_pattern` varchar(15) CHARACTER SET latin1 NOT NULL,
-  `description` varchar(100) DEFAULT NULL,
+  `reason` varchar(100) DEFAULT NULL,
   `notes` varchar(100) DEFAULT NULL,
   `customer_date` date DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
@@ -62,7 +62,7 @@ CREATE TABLE `list_details` (
   KEY `upload_req_ref_id_idx` (`upload_req_ref_id`),
   CONSTRAINT `lis_ref_id_fk` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `upload_req_ref_id_fk` FOREIGN KEY (`upload_req_ref_id`) REFERENCES `list_upload_request` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=69718 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +83,7 @@ CREATE TABLE `list_upload_request` (
   PRIMARY KEY (`id`),
   KEY `list_ref_id_idx` (`list_ref_id`),
   CONSTRAINT `list_ref_id` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `partition_definition` (
   `last_updated` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +180,7 @@ CREATE TABLE `rule_definition` (
   PRIMARY KEY (`id`),
   KEY `partition_id_fk_idx` (`partition_id`),
   CONSTRAINT `partition_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -216,16 +216,26 @@ DELIMITER ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `proc_list_details_range_all_vw`(IN list_id INT)
 BEGIN
 SET @_list_id = list_id;
-PREPARE stmt FROM "SELECT ld.*, rt.* from (  select irsfmast.getMaxMatchCCNDCPattern(dial_pattern) as match_cc_ndc, ld.* from list_details ld WHERE list_ref_id = ? ) ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc";
+PREPARE stmt FROM "SELECT ld.*, rt.* 
+from (  select irsfmast.getMaxMatchCCNDCPattern(dial_pattern) 
+as match_cc_ndc, ld.* from list_details ld WHERE list_ref_id = ? ) 
+ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc";
+
+select "SELECT ld.*, rt.* 
+from (  select irsfmast.getMaxMatchCCNDCPattern(dial_pattern) 
+as match_cc_ndc, ld.* from list_details ld WHERE list_ref_id = ? ) 
+ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc";
+
+
 EXECUTE stmt USING @_list_id;
 DEALLOCATE PREPARE stmt;
 END ;;
@@ -277,4 +287,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-21 17:08:26
+-- Dump completed on 2017-03-27 15:03:28

@@ -1,13 +1,5 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AuthException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
@@ -15,6 +7,13 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 
 @Service
@@ -56,6 +55,7 @@ public class UserServiceImpl implements UserService {
 		UserDefinition user = userRepo.findOneByUserName(userName);
 		
 		if (user != null) {
+			user.setPassword(null);
 			getUserDetails(user);
 		}
 		
@@ -91,6 +91,8 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		user.setPassword(encoder.encode(user.getPassword()));
+		user.setDisabled(false);
+		user.setLocked(false);
 		user.setLastUpdated(new Date());
 		user.setCreateTimestamp(new Date());
 		

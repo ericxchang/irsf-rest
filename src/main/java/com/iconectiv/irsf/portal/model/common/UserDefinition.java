@@ -1,11 +1,10 @@
 package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
-import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,8 @@ public class UserDefinition implements java.io.Serializable {
 	private String lastName;
 	private String phone;
 	private String email;
-	private boolean active;
+	private boolean locked;
+	private boolean disabled;
 	private Date createTimestamp;
 	private Date lastUpdated;
 	private String lastUpdatedBy;
@@ -133,13 +133,22 @@ public class UserDefinition implements java.io.Serializable {
 		this.email = email;
 	}
 
-	@Column(name = "active", nullable = false)
-	public boolean isActive() {
-		return this.active;
+	@Column(name = "locked", nullable = false)
+	public boolean isLocked() {
+		return locked;
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+
+	@Column(name = "disabled", nullable = false)
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)

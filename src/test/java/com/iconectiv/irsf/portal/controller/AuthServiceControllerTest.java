@@ -1,13 +1,11 @@
 package com.iconectiv.irsf.portal.controller;
 
-import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,12 +24,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -68,7 +66,8 @@ public class AuthServiceControllerTest {
 		user.setLastUpdated(new Date());
 		user.setLastUpdatedBy("guiuser01");
 		user.setPassword("irsf");
-		user.setActive(true);
+		user.setLocked(false);
+		user.setDisabled(false);
 		user.setFirstName("first");
 		user.setLastName("last");
 		user.setEmail("user@iconectiv.com");
