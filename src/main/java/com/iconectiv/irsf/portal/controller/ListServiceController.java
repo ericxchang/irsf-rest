@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
@@ -39,7 +40,7 @@ class ListServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			ListDefintion listDef = listService.getListDetails(listName);
-			rv = makeSuccessResult(listDef);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listDef);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
@@ -52,7 +53,7 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
-	// TO support junit testing
+
 	@RequestMapping(value = "/list/{listName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header, @PathVariable String listName) {

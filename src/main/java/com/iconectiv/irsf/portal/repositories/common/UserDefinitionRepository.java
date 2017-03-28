@@ -2,8 +2,10 @@ package com.iconectiv.irsf.portal.repositories.common;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 
@@ -18,5 +20,9 @@ public interface UserDefinitionRepository extends CrudRepository<UserDefinition,
 	List<UserDefinition> findAllByCustomerName(String customerName);
 
 	UserDefinition findOneByUserName(String userName);
+
+    @Modifying
+    @Transactional	
+    void deleteByUserName(String userName);
 	
 }

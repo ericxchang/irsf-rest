@@ -163,11 +163,18 @@ public class BaseRestController {
 		return makeSuccessResult(result);
 	}
 
-	protected ResponseEntity<String> makeSuccessResult(String key, Object value) {
+	protected ResponseEntity<String> makeSuccessResult(String message) {
+		Map<String, Object> result = new HashMap<>();
+		result.put(MESSAGE, message);
+		return makeSuccessResult(result);
+	}
+
+	protected ResponseEntity<String> makeSuccessResult(String message, String key, Object value) {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> dataMap = new HashMap<>();
 		dataMap.put(key, value);
 		result.put("data", dataMap);
+		result.put(MESSAGE, message);
 		return makeSuccessResult(result);
 	}
 
@@ -180,11 +187,12 @@ public class BaseRestController {
 	 *            JSON value for the value to send to the client
 	 * @return response entity to return to spring
 	 */
-	protected ResponseEntity<String> makeSuccessResult(Object value) {
+	protected ResponseEntity<String> makeSuccessResult(String message, Object value) {
 		Map<String, Object> result = new HashMap<>();
 		if (value != null) {
 			result.put("data", value);
 		}
+		result.put(MESSAGE, message);
 		return makeSuccessResult(result);
 	}
 

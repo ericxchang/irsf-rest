@@ -1,10 +1,12 @@
 package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -24,8 +26,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Date;
-
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,6 +42,8 @@ public class AuthServiceControllerTest {
 	@Autowired MockHttpServletRequest request;
 	@Autowired
 	CustomerDefinitionRepository custRepo;
+	@Autowired
+	UserDefinitionRepository userRepo;
 	
 	private MockMvc mockMvc;
 	private static String token;
@@ -57,17 +59,14 @@ public class AuthServiceControllerTest {
 
 	@Test
 	public void testCreateUserRequest() throws Exception {
-		CustomerDefinition customer = custRepo.findOneBySchemaName("cust01");
+		CustomerDefinition customer = custRepo.findOneBySchemaName("cust03");
 		
 		UserDefinition user = new UserDefinition();
-		user.setUserName("guiuser01");
+		user.setUserName("guiuser03");
 		user.setCustomerId(customer.getId());
 		user.setRole(PermissionRole.CustAdmin.value());	
-		user.setLastUpdated(new Date());
 		user.setLastUpdatedBy("guiuser01");
 		user.setPassword("irsf");
-		user.setLocked(false);
-		user.setDisabled(false);
 		user.setFirstName("first");
 		user.setLastName("last");
 		user.setEmail("user@iconectiv.com");
@@ -77,7 +76,9 @@ public class AuthServiceControllerTest {
 		
 		log.info(result);
 		
-		assertTrue(result.lastIndexOf("success") > 1);
+		assertTrue(result.lastIndexOf(MessageDefinition.Create_User_Success) > 1);
+		
+		userRepo.deleteByUserName("guiuser03");
 	}
 
 	@Test
@@ -88,7 +89,7 @@ public class AuthServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/blacklist").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -103,7 +104,7 @@ public class AuthServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/blacklist").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

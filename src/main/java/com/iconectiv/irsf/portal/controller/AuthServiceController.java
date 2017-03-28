@@ -2,6 +2,7 @@ package com.iconectiv.irsf.portal.controller;
 
 
 import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.exception.AuthException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.service.UserService;
@@ -75,7 +76,7 @@ public class AuthServiceController extends BaseRestController {
 		try {
 			UserDefinition user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.createUser(user);
-			rv = makeSuccessResult(user);
+			rv = makeSuccessResult(MessageDefinition.Create_User_Success);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
@@ -93,7 +94,7 @@ public class AuthServiceController extends BaseRestController {
 		try {
 			UserDefinition user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.updateUser(user);
-			rv = makeSuccessResult(user);
+			rv = makeSuccessResult(MessageDefinition.Update_User_Success);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
@@ -111,7 +112,7 @@ public class AuthServiceController extends BaseRestController {
 		try {
 			UserDefinition user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.changePassword(user);
-			rv = makeSuccessResult("Password is updated successfully");
+			rv = makeSuccessResult(MessageDefinition.Change_Password_Success);
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
