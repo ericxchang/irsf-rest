@@ -55,17 +55,21 @@ class ListUploadController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
 
             Integer listId;
+            final boolean isInitialLoading;
+            
 			if (listName != null && id == null) {
 				CustomerContextHolder.setSchema(loginUser.getSchemaName());				
 				listId = listService.createListDefinition(loginUser, listName, listType);
+				isInitialLoading = true;
 			} else if (id != null){
 				listId = id;
+				isInitialLoading = false;
 			} else {
 				throw new AppException("Invalid request parameter: must provide either listName or listId");
 			}
 
             Arrays.asList(files).stream().forEach(file -> {
-				saveSingleFile(loginUser, listId, listType, file, delimiter);
+				saveSingleFile(loginUser, listId, listType, file, delimiter, isInitialLoading);
 			});
 			rv = makeSuccessResult();
 		} catch (SecurityException e) {
@@ -81,14 +85,14 @@ class ListUploadController extends BaseRestController {
 	}
 
 	@Async
-	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter) {
+	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
 		try {
 			ListDefintion listDef = listDefRepo.findOne(listId);
 			
 			if (listDef != null) {
 				ListUploadRequest uploadRequest = listService.saveUploadRequest(user, listDef, file, delimiter);
 				uploadRequest.setListDefintion(listDef);
-				listService.processListUploadRequest(uploadRequest);
+				listService.processListUploadRequest(uploadRequest, isInitialLoading);
 			} else {
 				throw new AppException("Invalid list definition id " + listId);
 			}

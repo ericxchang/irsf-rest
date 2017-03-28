@@ -14,7 +14,7 @@ public interface ListService {
 
 	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter);
 
-	void processListUploadRequest(ListUploadRequest uploadRequest);
+	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
 
 	void deleteListDefinition(String listName);
 

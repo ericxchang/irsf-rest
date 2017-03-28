@@ -63,6 +63,10 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 				entityManager.clear();
 			}
 		}
+		entityManager.flush();
+		entityManager.clear();
+
+		if (log.isDebugEnabled()) log.debug("Completed batch insert");
 		return;
 	}
 

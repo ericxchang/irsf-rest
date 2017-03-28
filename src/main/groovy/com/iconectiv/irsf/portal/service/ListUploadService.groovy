@@ -72,12 +72,12 @@ class ListUploadService {
             return
         }
 
-        if (reason.size() > 100) {
+        if (reason && reason.size() > 100) {
             errorList.append("line $index The Reason field is over the max length of 100\n")
             return
         }
 
-        if (notes.size() > 100) {
+        if (notes && notes.size() > 100) {
             errorList.append("line $index The Notes field is over the max length of 100\n")
             return
         }

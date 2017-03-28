@@ -25,6 +25,7 @@ public class ListUploadRequest implements java.io.Serializable {
 	private Integer id;
 	private Integer listRefId;
 	private ListDefintion listDefintion;
+	private String fileName;
 	private String delimiter;
 	private String status;
 	private String errorData;
@@ -77,6 +78,15 @@ public class ListUploadRequest implements java.io.Serializable {
 
 	public void setListDefintion(ListDefintion listDefintion) {
 		this.listDefintion = listDefintion;
+	}
+
+	@Column(name = "file_name", nullable = false, length = 45)
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	@Column(name = "delimiter", nullable = false, length = 1)

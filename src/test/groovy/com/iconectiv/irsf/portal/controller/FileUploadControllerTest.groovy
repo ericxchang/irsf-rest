@@ -91,7 +91,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 
     @Test
     void testUploadRequests() throws Exception {
-		def listName = "junit-blackList-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMdd')
+		def listName = "junit-BL-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
         try {
             withPool {
                 ["cust01", "cust02", "cust03"].eachParallel {
@@ -112,7 +112,7 @@ class FileUploadControllerTest extends GroovyTestCase {
                 }
             }
 
-            sleep(10 * 1000)
+            sleep(5 * 1000)
         } finally {
             withPool {
                 ["cust01", "cust02", "cust03"].eachParallel {
