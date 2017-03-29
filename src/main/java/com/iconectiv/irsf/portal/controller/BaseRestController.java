@@ -1,22 +1,20 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.util.JsonHelper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.AppConstants;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.util.JsonHelper;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class containing utility methods for REST API controllers.
@@ -89,17 +87,6 @@ public class BaseRestController {
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
-	/**
-	 * Create an error response (status = FAIL) with the message provided
-	 * 
-	 * @param message
-	 *            message to be provided to the caller
-	 * @param key1
-	 *            key of object to add to response
-	 * @param value1
-	 *            value of object to add for key1
-	 * @return response entity to return to spring
-	 */
 	protected ResponseEntity<String> makeErrorResult(String message, String key, Object value) {
 		Map<String, Object> result = new HashMap<>();
 		result.put(STATUS, AppConstants.FAIL);
@@ -147,7 +134,7 @@ public class BaseRestController {
 	 *            data to be returned to client
 	 * @return response entity to return to spring
 	 */
-	protected ResponseEntity<String> makeSuccessResult(Map<String, Object> data) {
+	private ResponseEntity<String> makeSuccessResult(Map<String, Object> data) {
 		data.put(STATUS, AppConstants.SUCCESS);
 		String json = JsonHelper.toJson(data);
 		return new ResponseEntity<>(json, HttpStatus.OK);
@@ -178,15 +165,7 @@ public class BaseRestController {
 		return makeSuccessResult(result);
 	}
 
-	/**
-	 * Make a success result with the additional data item provided.
-	 * 
-	 * @param key
-	 *            JSON key for the value to send to the client
-	 * @param value
-	 *            JSON value for the value to send to the client
-	 * @return response entity to return to spring
-	 */
+
 	protected ResponseEntity<String> makeSuccessResult(String message, Object value) {
 		Map<String, Object> result = new HashMap<>();
 		if (value != null) {

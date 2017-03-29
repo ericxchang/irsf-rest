@@ -58,14 +58,14 @@ public class AuthServiceControllerTest {
 	}
 
 	@Test
-	public void testCreateUserRequest() throws Exception {
+	public void testCreateUserAndLoginRequest() throws Exception {
 		CustomerDefinition customer = custRepo.findOneBySchemaName("cust03");
-		
+
 		UserDefinition user = new UserDefinition();
 		user.setUserName("guiuser03");
 		user.setCustomerId(customer.getId());
 		user.setRole(PermissionRole.CustAdmin.value());	
-		user.setLastUpdatedBy("guiuser01");
+		user.setLastUpdatedBy("guiuser03");
 		user.setPassword("irsf");
 		user.setFirstName("first");
 		user.setLastName("last");
@@ -77,7 +77,13 @@ public class AuthServiceControllerTest {
 		log.info(result);
 		
 		assertTrue(result.lastIndexOf(MessageDefinition.Create_User_Success) > 1);
-		
+
+		action = mockMvc.perform(post("/login").contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(user)));
+		result = action.andReturn().getResponse().getContentAsString();
+
+		log.info(result);
+		assertTrue(result.lastIndexOf("success") > 1);
+
 		userRepo.deleteByUserName("guiuser03");
 	}
 

@@ -9,5 +9,7 @@ public class MessageDefinition {
 	public static final String Update_User_Success = "Successfully update user account";
 	public static final String Change_Password_Success = "Password is updated successfully";
 	public static final String Process_List_Upload = "System is processing your list file";
+	public static final String Login_Success = "Successful login";
+    public static final String Delete_List_Success = "Successfully delete list";
 
 }
