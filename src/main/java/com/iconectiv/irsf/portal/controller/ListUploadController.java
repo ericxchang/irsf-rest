@@ -1,24 +1,7 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -27,8 +10,20 @@ import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.util.JsonHelper;
-
 import io.jsonwebtoken.lang.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Arrays;
+import java.util.Map;
 
 @Controller
 class ListUploadController extends BaseRestController {
@@ -71,7 +66,7 @@ class ListUploadController extends BaseRestController {
             Arrays.asList(files).stream().forEach(file -> {
 				saveSingleFile(loginUser, listId, listType, file, delimiter, isInitialLoading);
 			});
-			rv = makeSuccessResult();
+			rv = makeSuccessResult(MessageDefinition.Process_List_Upload);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {

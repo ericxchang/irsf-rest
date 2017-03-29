@@ -1,8 +1,8 @@
 package com.iconectiv.irsf.portal.controller
 
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.jwt.JWTUtil
+import com.iconectiv.irsf.portal.core.PermissionRole
+import com.iconectiv.irsf.portal.model.common.UserDefinition
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository
 import com.iconectiv.irsf.util.DateTimeHelper
 import org.junit.Before
@@ -53,11 +53,11 @@ class FileUploadControllerTest extends GroovyTestCase {
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
-		def data = this.getClass().getResource('/irsf_blacklist_large.csv').text
+		def data = this.getClass().getResource('/irsf_blacklist.csv').text
 		
 		try {
             withPool {
-                ["cust01"].eachParallel {
+                ["cust03"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
 
@@ -77,7 +77,7 @@ class FileUploadControllerTest extends GroovyTestCase {
             sleep(10 * 1000)
         } finally {
             withPool {
-                ["cust01"].eachParallel {
+                ["cust03"].eachParallel {
 					def token = createToken(it)
                     def action = mockMvc.perform(get("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()
@@ -97,8 +97,8 @@ class FileUploadControllerTest extends GroovyTestCase {
                 ["cust01", "cust02", "cust03"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
-                    MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "(732)5678903,02212016,partner provided, verizon wireless\n7325678904,02212016,partner provided, verizon wireless".getBytes())
-                    MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325AB8902,02212016,partner provided, verizon wireless".getBytes())
+                    MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
+                    MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "(732)5678904,02212016,partner provided, verizon wireless\n7325AB8902,02212016,partner provided, verizon wireless".getBytes())
 
                     MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
 					def token = createToken(it)
@@ -112,7 +112,7 @@ class FileUploadControllerTest extends GroovyTestCase {
                 }
             }
 
-            sleep(5 * 1000)
+            sleep(30 * 1000)
         } finally {
             withPool {
                 ["cust01", "cust02", "cust03"].eachParallel {
@@ -130,14 +130,14 @@ class FileUploadControllerTest extends GroovyTestCase {
     }
 	
 	def createToken(schemaName) {
-		UserDefinition loginUser = new UserDefinition();
-		loginUser.setUserName("user-${schemaName}");
-		loginUser.setCustomerId(1);
-		loginUser.setRole(PermissionRole.CustAdmin.value());	
-		loginUser.setSchemaName(schemaName);
-		loginUser.setCustomerName("customer-${schemaName}");
+		UserDefinition loginUser = new UserDefinition()
+		loginUser.setUserName("user-${schemaName}")
+		loginUser.setCustomerId(1)
+		loginUser.setRole(PermissionRole.CustAdmin.value())
+		loginUser.setSchemaName(schemaName)
+		loginUser.setCustomerName("customer-${schemaName}")
 		
-		return JWTUtil.createToken(loginUser);
+		return JWTUtil.createToken(loginUser)
 	}
 
 }

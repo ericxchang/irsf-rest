@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.EventType;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
@@ -10,12 +11,7 @@ import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
-import com.iconectiv.irsf.portal.service.AuditTrailService;
-import com.iconectiv.irsf.portal.service.EventNotificationService;
-import com.iconectiv.irsf.portal.service.FileHandlerService;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.service.ListUploadService;
-import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.service.*;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.persistence.EntityManagerFactory;
+import java.util.*;
 
 /**
  * Created by echang on 1/11/2017.
@@ -83,13 +73,15 @@ public class ListServiceImpl implements ListService {
 				updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
 				auditDetail.put("status", AppConstants.FAIL);
 				auditService.saveAuditTrailLog(audit, auditDetail);
+                uploadReq.setStatus(AppConstants.FAIL);
+                listUploadRepo.save(uploadReq);
 				return;
 			}
 
 			uploadReq.setStatus(AppConstants.COMPLETE);
 			listUploadRepo.save(uploadReq);
 
-			listDetailRepo.batchUpdate(listEntries);
+            listDetailRepo.batchUpdate(listEntries);
 
 			auditDetail.put("size", String.valueOf(listEntries.size()));
 			auditDetail.put("status", AppConstants.COMPLETE);
