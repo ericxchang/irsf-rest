@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -67,6 +68,7 @@ public class UserServiceImpl implements UserService {
 		return userRepo.findAll();
 	}
 	
+	@Transactional
 	@Override
 	public void createUser(UserDefinition user) throws AuthException {
 		user.setId(null);
@@ -99,7 +101,8 @@ public class UserServiceImpl implements UserService {
 		userRepo.save(user);
 		return;		
 	}
-	
+
+    @Transactional
 	@Override
 	public void updateUser(UserDefinition user) throws AuthException {
 		if (user.getId() == null) {
@@ -113,7 +116,8 @@ public class UserServiceImpl implements UserService {
 		userRepo.save(user);
 		return;		
 	}
-	
+
+    @Transactional
 	@Override
 	public void changePassword(UserDefinition user) throws AuthException {
 		UserDefinition existingUser = userRepo.findOne(user.getId());
@@ -128,13 +132,15 @@ public class UserServiceImpl implements UserService {
 		userRepo.save(existingUser);
 		return;		
 	}
-	
+
+    @Transactional
 	@Override
 	public void deleteUser(Integer id) throws AuthException {
 		userRepo.delete(id);
 		return;
 	}
 
+    @Transactional
 	@Override
 	public void changePassword(Integer userId, String password) throws AuthException {
 		UserDefinition user = userRepo.findOne(userId);
@@ -148,6 +154,7 @@ public class UserServiceImpl implements UserService {
 		return;				
 	}
 
+    @Transactional
 	@Override
 	public void changePassword(String userName, String password) throws AuthException {
 		UserDefinition user = userRepo.findOneByUserName(userName);

@@ -53,6 +53,7 @@ public class AuditTrailServiceImpl implements AuditTrailService{
 		audit.setAction(action);
 		audit.setDetails(details);
 		audit.setLastUpdatedBy(lastUpdatedBy);
+		audit.setLastUpdated(new Date());
 		auditRepo.save(audit);
 		log.info("Save audit trail record: \n" + JsonHelper.toJson(audit));
 	}
