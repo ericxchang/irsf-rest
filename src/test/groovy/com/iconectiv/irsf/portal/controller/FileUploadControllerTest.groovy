@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
 import static groovyx.gpars.GParsPool.withPool
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -53,11 +52,11 @@ class FileUploadControllerTest extends GroovyTestCase {
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
-		def data = this.getClass().getResource('/irsf_blacklist.csv').text
+		def data = this.getClass().getResource('/irsf_blacklist_large.csv').text
 		
 		try {
             withPool {
-                ["cust03"].eachParallel {
+                ["cust01"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
 
@@ -77,7 +76,7 @@ class FileUploadControllerTest extends GroovyTestCase {
             sleep(10 * 1000)
         } finally {
             withPool {
-                ["cust03"].eachParallel {
+                ["cust01"].eachParallel {
 					def token = createToken(it)
                     def action = mockMvc.perform(get("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()

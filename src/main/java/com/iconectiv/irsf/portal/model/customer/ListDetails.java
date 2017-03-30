@@ -16,7 +16,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "list_details")
+@Table(name = "list_details", uniqueConstraints = @UniqueConstraint(columnNames={"list_ref_id", "dial_pattern"}))
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "joinAll", procedureName = "proc_list_details_range_all_vw", resultClasses = { ListDetails.class }, 
         	parameters = {

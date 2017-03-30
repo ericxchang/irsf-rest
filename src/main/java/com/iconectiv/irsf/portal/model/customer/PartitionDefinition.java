@@ -111,7 +111,7 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.ruleIds = ruleIds;
 	}
 
-	@Column(name = "status", nullable = false, length = 15)
+	@Column(name = "status", length = 15)
 	public String getStatus() {
 		return this.status;
 	}

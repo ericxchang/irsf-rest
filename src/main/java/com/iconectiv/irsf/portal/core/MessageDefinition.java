@@ -11,5 +11,6 @@ public class MessageDefinition {
 	public static final String Process_List_Upload = "System is processing your list file";
 	public static final String Login_Success = "Successful login";
     public static final String Delete_List_Success = "Successfully delete list";
-
+    public static final String Save_Partition_Success = "Successfully save partition";
+    public static java.lang.String Generating_Partition_Dataset_Success = "System is generating partition data set";
 }

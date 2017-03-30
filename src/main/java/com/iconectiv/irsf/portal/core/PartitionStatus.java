@@ -4,6 +4,7 @@ public enum PartitionStatus {
 	Fresh ("fresh"),
 	Draft ("draft"),
 	Locked ("locked"),
+	Processing("processing"),
 	;
 	
 	private String value;

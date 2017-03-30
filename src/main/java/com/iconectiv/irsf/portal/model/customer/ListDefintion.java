@@ -29,7 +29,6 @@ public class ListDefintion implements java.io.Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date lastUpdated;
 	private String createBy;
-
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date createTimestamp;
 	private List<ListUploadRequest> listUploadRequests = new ArrayList<>();

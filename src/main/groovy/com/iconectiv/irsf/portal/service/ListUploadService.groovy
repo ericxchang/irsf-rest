@@ -58,7 +58,7 @@ class ListUploadService {
         }
 
         if (dialCode == '') {
-            errorList.append("line $index does NOT have dial code\n")
+            errorList.append("line $index does not have dial code\n")
             return
         }
 

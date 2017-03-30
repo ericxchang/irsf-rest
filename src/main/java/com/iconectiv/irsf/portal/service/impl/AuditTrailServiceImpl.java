@@ -2,6 +2,7 @@ package com.iconectiv.irsf.portal.service.impl;
 
 import com.google.common.base.Joiner;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.AuditTrailRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.util.JsonHelper;
@@ -46,6 +47,21 @@ public class AuditTrailServiceImpl implements AuditTrailService{
 	}
 
 	@Override
+	public void saveAuditTrailLog(UserDefinition user, String action, String detail) {
+		saveAuditTrailLog(user.getUserName(), user.getCustomerName(), action, detail);
+	}
+
+    @Override
+    public void saveAuditTrailLog(UserDefinition user, String action, Map<String, String> auditDetails) {
+        AuditTrail audit = new AuditTrail();
+        audit.setUserName(user.getUserName());
+        audit.setCustomerName(user.getCustomerName());
+        audit.setAction(action);
+
+        saveAuditTrailLog(audit, auditDetails);
+    }
+
+    @Override
 	public void saveAuditTrailLog(String userName, String customerName, String action, String details, String lastUpdatedBy) {
 		AuditTrail audit = new AuditTrail();
 		audit.setUserName(userName);
@@ -63,4 +79,5 @@ public class AuditTrailServiceImpl implements AuditTrailService{
 		audit.setDetails(Joiner.on(",").withKeyValueSeparator("=").join(auditDetail));
 		saveAuditTrailLog(audit);
 	}
+
 }

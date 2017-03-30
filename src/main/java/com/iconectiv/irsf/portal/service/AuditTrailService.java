@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.service;
 
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 
 import java.util.Map;
 
@@ -10,6 +11,8 @@ import java.util.Map;
 public interface AuditTrailService {
     void saveAuditTrailLog(AuditTrail audit);
 	void saveAuditTrailLog(AuditTrail audit, Map<String, String> auditDetail);
+    void saveAuditTrailLog(UserDefinition user, String action, String detail);
+    void saveAuditTrailLog(UserDefinition user, String action, Map<String, String> auditDetail);
     void saveAuditTrailLog(String userName, String customerName, String action, String detail);
     void saveAuditTrailLog(String userName, String customerName, String action, String detail, String lastUpdatedBy);
 }
