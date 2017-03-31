@@ -24,6 +24,7 @@ import org.springframework.web.context.WebApplicationContext
 
 import static groovyx.gpars.GParsPool.withPool
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,7 +49,7 @@ class FileUploadControllerTest extends GroovyTestCase {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
     }
 	
-	@Test
+	//@Test
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		

@@ -17,7 +17,7 @@
      http://www.springframework.org/schema/data/jpa
      http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
-	<import resource="file:/conf/irsf/spring-jpa-customer.xml" />	
+	<import resource="file:/conf/irsf/spring-jpa-customer.xml" />
 	<context:component-scan base-package="com.iconectiv.irsf.portal.repositories" />
 
 	<!-- enable web support -->
@@ -28,10 +28,12 @@
 
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<!-- <value>classpath:spring-config-test.properties</value> -->
-			<value>file:/conf/irsf/spring-config.properties</value>
-		</property>
+        <property name="location">
+            <value>file:/conf/irsf/spring-config.properties</value>
+        </property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 	</bean>
 
 	<!-- Create DataSource Bean -->
@@ -125,14 +127,20 @@
 
 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 
-    <bean id="transactionManagerCustomer" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="customerEntityManagerFactory" />
-    </bean>    
+	<bean id="transactionManagerCustomer" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="customerEntityManagerFactory" />
+	</bean>
 
-	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.common" transaction-manager-ref="transactionManager" entity-manager-factory-ref="entityManagerFactory" repository-impl-postfix="Impl"/>
-	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.customer" transaction-manager-ref="transactionManagerCustomer" entity-manager-factory-ref="customerEntityManagerFactory" repository-impl-postfix="Impl"/>
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.common"
+		transaction-manager-ref="transactionManager"
+		entity-manager-factory-ref="entityManagerFactory"
+		repository-impl-postfix="Impl" />
+	<jpa:repositories base-package="com.iconectiv.irsf.portal.repositories.customer"
+		transaction-manager-ref="transactionManagerCustomer"
+		entity-manager-factory-ref="customerEntityManagerFactory"
+		repository-impl-postfix="Impl" />
 
 </beans>

@@ -16,7 +16,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
 @EnableAsync
-@PropertySource("file:/conf/irsf/spring-config.properties")
+@PropertySource(value="classpath:spring-config.properties", ignoreResourceNotFound = true)
+@PropertySource(value="file:/conf/irsf/spring-config.properties", ignoreResourceNotFound = true)
 public class SpringConfig {
 	private static Logger log = LoggerFactory.getLogger(SpringConfig.class);
 
