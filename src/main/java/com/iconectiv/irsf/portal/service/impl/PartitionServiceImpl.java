@@ -53,7 +53,7 @@ public class PartitionServiceImpl implements PartitionService {
     @Async
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
         try {
-            generateExportData(partition);
+            generateDraftData(partition);
 
             partition.setStatus(PartitionStatus.Draft.value());
             partition.setDraftDate(new Date());
@@ -94,7 +94,7 @@ public class PartitionServiceImpl implements PartitionService {
     @Async
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		try {
-			generateExportData(partition);
+			checkPartitionStale(partition);
 
 			partition.setStatus(PartitionStatus.Locked.value());
 			partition.setLastExportDate(new Date());
@@ -111,10 +111,30 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 	}
 
-	private void generateExportData(final PartitionDefinition partition) {
+	/*
+	 * The following condition can cause staled draft data set:
+	 * 1. BL/WL list change
+	 * 2. Rule(s) change
+	 * 3. New MobileID data set
+	 */
+    private boolean checkPartitionStale(PartitionDefinition partition) {
+		boolean isStale = false;
+		
+		Date draftTime = partition.getDraftDate();
+		if (isStale) {
+			partition.setStatus(PartitionStatus.Stale.value());
+			partitionDefRepo.save(partition);
+		}
+		
+		return isStale;
+	}
+
+	private void generateDraftData(final PartitionDefinition partition) {
 		// TODO copy data to partition_export_history; create event to send
 		// export data
-
+		
+		partition.setDraftDate(new Date());
+		partitionDefRepo.save(partition);
 	}
 
 	private void clonePartition(UserDefinition loginUser, PartitionDefinition partition) {

@@ -2,6 +2,9 @@ package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -19,7 +22,9 @@ public class EventNotification implements java.io.Serializable {
 	private Integer referenceId;
 	private String message;
 	private String status;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
 	private Date createTimestamp;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
 	private Date acknowledgeTimestamp;
 	private String lastUpdatedBy;
 
