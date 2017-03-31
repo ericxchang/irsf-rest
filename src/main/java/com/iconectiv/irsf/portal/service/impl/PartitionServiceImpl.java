@@ -41,7 +41,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     @Override
     public void refreshPartition(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-        String status = validateParitionStatus(partition);
+        validateParitionStatus(partition);
 
         partition.setStatus(PartitionStatus.Processing.value());
         partitionDefRepo.save(partition);
