@@ -67,7 +67,7 @@ public class AuthServiceController extends BaseRestController {
             auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "login", request.getRemoteAddr());
 			
 			String token = JWTUtil.createToken(loginUser);
-			rv = makeSuccessResult(token);
+			rv = makeSuccessResult("successful login", token);
 		} catch (Exception e) {
 			log.error("Failed to login: ", e);
 			rv = makeErrorResult(e);

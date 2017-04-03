@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `irsfmast` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE  IF NOT EXISTS `irsfmast` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `irsfmast`;
 -- MySQL dump 10.13  Distrib 5.6.23, for Win64 (x86_64)
 --
@@ -465,6 +465,35 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `NDC_UPDATE` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `NDC_UPDATE`()
+BEGIN
+DECLARE cnt INT;
+
+SELECT count(*)
+FROM information_schema.tables
+WHERE table_name = 'list_details' and 
+table_schema = 'cust01' into cnt;
+if cnt=1 then
+update cust01.list_details 
+set match_cc_ndc= 
+irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
+end if;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `iprn_dial_pattern_vw`
@@ -511,4 +540,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-21 16:26:33
+-- Dump completed on 2017-04-02 22:13:03

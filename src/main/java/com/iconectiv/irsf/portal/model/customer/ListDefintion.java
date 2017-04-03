@@ -20,6 +20,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "list_defintion", uniqueConstraints = @UniqueConstraint(columnNames = "list_name"))
 public class ListDefintion implements java.io.Serializable {
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String customerName;
 	private String listName;
