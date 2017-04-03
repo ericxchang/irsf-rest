@@ -1,5 +1,7 @@
 package com.iconectiv.irsf.portal.service
 
+import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository
@@ -121,7 +123,39 @@ class ListUploadService {
 		listEntries.add(listDetails)
 	}
 
-    //check duplicate dial code in the input file
+	
+	void validateListEntry(ListDetails listDetail) throws AppException {
+        if (listDetail.dialPattern == '') {
+            throw new AppException("Miss Dial Pattern")
+        }
+		
+		if (!listDetail.listRefId) {
+			throw new AppException("Miss List ID")			
+		}
+
+        if ( ! (listDetail.dialPattern ==~ /^\d+$/) ) {
+            throw new AppException("Dial Pattern contains non digit character")
+        }
+
+        if (listDetail.dialPattern.size() > 15) {
+            throw new AppException("Dial Pattern is over the max length of 15")
+        }
+
+        if (listDetail.reason && listDetail.reason.size() > 100) {
+            throw new AppException("The Reason field is over the max length of 100")
+        }
+
+        if (listDetail.notes && listDetail.notes.size() > 100) {
+            throw new AppException("The Notes field is over the max length of 100")
+        }
+
+        if (hasDialCodeInDB(listDetail.dialPattern, listDetail.listRefId)) {
+            throw new AppException("Dial Pattern <${listDetail.dialPattern}> already exists in the same list\n")
+        }
+
+	}
+	
+	//check duplicate dial code in the input file
     boolean hasDuplicateEntry(listEntries, dialPattern) {
         listEntries.each {
             if (it.dialPattern.equals(dialPattern)) {

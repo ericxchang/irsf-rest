@@ -42,7 +42,7 @@ class RuleServiceController extends BaseRestController {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			RuleDefinition rule = ruleRepo.findOne(ruleId);
@@ -66,7 +66,7 @@ class RuleServiceController extends BaseRestController {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
@@ -91,7 +91,7 @@ class RuleServiceController extends BaseRestController {
         try {
         	RuleDefinition rule = JsonHelper.fromJson(value, RuleDefinition.class);
             UserDefinition loginUser = getLoginUser(header);
-            assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             ruleService.saveRule(loginUser, rule);

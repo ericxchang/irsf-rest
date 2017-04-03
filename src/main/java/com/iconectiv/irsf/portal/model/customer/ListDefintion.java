@@ -33,7 +33,8 @@ public class ListDefintion implements java.io.Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date createTimestamp;
 	private List<ListUploadRequest> listUploadRequests = new ArrayList<>();
-
+    private boolean active;
+    
 	public ListDefintion() {
 	}
 
@@ -84,6 +85,15 @@ public class ListDefintion implements java.io.Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+    @Column(name = "active", nullable = false)
+    public boolean isActive() {
+        return this.active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
 	@Column(name = "last_updated_by", nullable = false, length = 45)
 	public String getLastUpdatedBy() {

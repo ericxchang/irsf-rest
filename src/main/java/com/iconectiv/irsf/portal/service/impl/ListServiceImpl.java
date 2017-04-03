@@ -1,7 +1,9 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -189,5 +191,39 @@ public class ListServiceImpl implements ListService {
 		uploadReq.setStatus(AppConstants.FAIL);
 		uploadReq.setLastUpdated(new Date());
 		listUploadRepo.save(uploadReq);
+	}
+
+	@Transactional
+	@Override
+	public void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException {
+		if (log.isDebugEnabled()) log.debug("Adding new list entry {}", JsonHelper.toJson(listDetail));
+		
+		try {
+			listDetail.setActive(true);
+			listDetail.setLastUpdatedBy(loginUser.getUserName());
+			listDetail.setLastUpdated(new Date());
+			
+			listDetailRepo.save(listDetail);
+
+			Map<String, String> auditDetail = new LinkedHashMap<>();
+			auditDetail.put("dial pattern", listDetail.getDialPattern());
+			auditDetail.put("list Id", listDetail.getListRefId().toString());
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Entry, auditDetail);
+
+			
+			EventNotification event = new EventNotification();
+			event.setCustomerName(loginUser.getCustomerName());
+			event.setEventType(EventTypeDefinition.List_Update.value());
+			event.setReferenceId(listDetail.getListRefId());
+			event.setMessage("update list entry");
+			event.setCreateTimestamp(new Date());
+			event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
+			event.setStatus("new");
+			eventService.addEventNotification(event);
+		} catch (Exception e) {
+			log.error("Error to add list entry: \n", e);
+			throw new AppException(e.getMessage());
+		}
+
 	}
 }

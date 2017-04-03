@@ -47,7 +47,7 @@ class ListUploadController extends BaseRestController {
             Assert.notNull(delimiter);
 
 			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             Integer listId;
             final boolean isInitialLoading;

@@ -1,7 +1,9 @@
 package com.iconectiv.irsf.portal.service;
 
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,4 +21,7 @@ public interface ListService {
 	void deleteListDefinition(String listName);
 
 	ListDefintion getListDetails(String listName);
+
+	void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException;
+
 }

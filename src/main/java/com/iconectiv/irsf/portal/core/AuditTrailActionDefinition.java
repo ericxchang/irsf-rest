@@ -18,4 +18,5 @@ public class AuditTrailActionDefinition {
 
     public static final String Create_Rule = "create rule";
     public static final String Update_Rule = "update rule";
+	public static final String Update_List_Entry = "update list entry";
 }

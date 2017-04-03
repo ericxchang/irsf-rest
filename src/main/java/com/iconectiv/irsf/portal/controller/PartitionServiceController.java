@@ -40,7 +40,7 @@ class PartitionServiceController extends BaseRestController {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			PartitionDefinition partition = partitionServ.getPartitionDetails(partitionId);
@@ -64,7 +64,7 @@ class PartitionServiceController extends BaseRestController {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
@@ -89,7 +89,7 @@ class PartitionServiceController extends BaseRestController {
         try {
         	PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
             UserDefinition loginUser = getLoginUser(header);
-            assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             partitionServ.savePartition(loginUser, partition);
@@ -112,7 +112,7 @@ class PartitionServiceController extends BaseRestController {
         ResponseEntity<String> rv;
         try {
             UserDefinition loginUser = getLoginUser(header);
-            assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             if (partition.getId() == null) {
                 throw new AppException("Missing partition Id");
@@ -138,7 +138,7 @@ class PartitionServiceController extends BaseRestController {
         ResponseEntity<String> rv;
         try {
             UserDefinition loginUser = getLoginUser(header);
-            assertAuthorized(loginUser, PermissionRole.CustAdmin.value());
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             if (partition.getId() == null) {
                 throw new AppException("Missing partition Id");
