@@ -137,6 +137,7 @@ public class BaseRestController {
 	private ResponseEntity<String> makeSuccessResult(Map<String, Object> data) {
 		data.put(STATUS, AppConstants.SUCCESS);
 		String json = JsonHelper.toJson(data);
+		if (log.isDebugEnabled()) log.debug(JsonHelper.toPrettyJson(json));
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
