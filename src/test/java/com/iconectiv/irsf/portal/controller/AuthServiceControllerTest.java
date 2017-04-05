@@ -71,6 +71,8 @@ public class AuthServiceControllerTest {
 		user.setLastName("last");
 		user.setEmail("user@iconectiv.com");
 		
+		log.info(JsonHelper.toPrettyJson(user));
+		
 		ResultActions action = mockMvc.perform(post("/createUser").contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(user)));
 		String result = action.andReturn().getResponse().getContentAsString();
 		
