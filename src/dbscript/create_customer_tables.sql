@@ -30,13 +30,14 @@ CREATE TABLE `list_defintion` (
   `list_name` varchar(25) CHARACTER SET latin1 NOT NULL,
   `type` enum('WL','BL') CHARACTER SET latin1 NOT NULL,
   `description` varchar(100) DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `last_updated_by` varchar(45) CHARACTER SET latin1 NOT NULL,
   `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `create_by` varchar(45) NOT NULL,
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `list_name_UNIQUE` (`list_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +66,7 @@ CREATE TABLE `list_details` (
   KEY `match_cc_ndc_index` (`match_cc_ndc`),
   CONSTRAINT `lis_ref_id_fk` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `upload_req_ref_id_fk` FOREIGN KEY (`upload_req_ref_id`) REFERENCES `list_upload_request` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=77566 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=77583 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -87,7 +88,7 @@ CREATE TABLE `list_upload_request` (
   PRIMARY KEY (`id`),
   KEY `list_ref_id_idx` (`list_ref_id`),
   CONSTRAINT `list_ref_id` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,8 +138,9 @@ CREATE TABLE `partition_definition` (
   `last_export_date` timestamp NULL DEFAULT NULL,
   `last_updated` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(45) DEFAULT NULL,
+  `orig_partition_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +186,7 @@ CREATE TABLE `rule_definition` (
   PRIMARY KEY (`id`),
   KEY `partition_id_fk_idx` (`partition_id`),
   CONSTRAINT `partition_id_fk` FOREIGN KEY (`partition_id`) REFERENCES `partition_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,6 +231,35 @@ BEGIN
        
     end loop;
 RETURN cc_ndc_match;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `NDC_UPDATE` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `NDC_UPDATE`()
+BEGIN
+DECLARE cnt INT;
+
+SELECT count(*)
+FROM information_schema.tables
+WHERE table_name = 'list_details' and 
+table_schema = 'cust01' into cnt;
+if cnt=1 then
+update cust01.list_details 
+set match_cc_ndc= 
+irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
+end if;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -328,4 +359,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-02 22:20:45
+-- Dump completed on 2017-04-05 11:09:49

@@ -75,7 +75,8 @@ public class PartitionExportHistory implements java.io.Serializable {
         this.partitionId = partitionId;
     }
 
-    @Transient
+
+	@Transient
     public PartitionDefinition getPartitionDefinition() {
         return this.partitionDefinition;
     }

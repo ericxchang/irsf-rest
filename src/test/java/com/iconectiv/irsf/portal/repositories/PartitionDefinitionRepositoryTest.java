@@ -3,6 +3,7 @@ package com.iconectiv.irsf.portal.repositories;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,11 @@ public class PartitionDefinitionRepositoryTest {
     	CustomerContextHolder.setSchema("cust01");
 	}
 	
+	@Test
+	public void testFindByOrigPartitionId() {
+		List<PartitionDefinition> partitions = partitionRepo.findAllByOrigPartitionIdOrderByIdDesc(1);
+		log.info(JsonHelper.toPrettyJson(partitions));
+	}
 
 	@Test
 	public void testStalepartitionByBL() {

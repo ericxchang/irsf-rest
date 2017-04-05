@@ -17,6 +17,8 @@ public interface PartitionDefinitionRepository extends CrudRepository<PartitionD
     @Query("select pd from PartitionDefinition pd where pd.status <> 'locked'" )
     List<PartitionDefinition> findAllActivePartitions();
     
+    List<PartitionDefinition> findAllByOrigPartitionIdOrderByIdDesc(Integer origPartitionId);
+    
     @Modifying
     @Transactional
     @Query("update PartitionDefinition pd set pd.status='stale', pd.draftDate=null where pd.status='draft' and pd.ruleIds like %?1%")

@@ -23,6 +23,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class PartitionDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
+    private Integer origPartitionId;
 	private String customerName;
 	private String name;
 	private String description;
@@ -56,6 +57,17 @@ public class PartitionDefinition implements java.io.Serializable {
 	public void setId(Integer id) {
 		this.id = id;
 	}
+
+    @Column(name = "orig_partition_id")
+    public Integer getOrigPartitionId() {
+		return origPartitionId;
+	}
+
+
+	public void setOrigPartitionId(Integer origPartitionId) {
+		this.origPartitionId = origPartitionId;
+	}
+
 
 	@Column(name = "customer_name", nullable = false, length=45)
 	public String getCustomerName() {

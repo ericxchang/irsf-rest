@@ -138,6 +138,9 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	private void clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
+		if (partition.getOrigPartitionId() == null) {
+			partition.setOrigPartitionId(partition.getId());
+		}
 		partition.setId(null);
 		partition.setStatus(PartitionStatus.Fresh.value());
 		partition.setLastUpdated(new Date());
