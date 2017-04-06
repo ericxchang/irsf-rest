@@ -2,7 +2,10 @@ package com.iconectiv.irsf.portal.repositories;
 
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.UserService;
+import com.iconectiv.irsf.util.JsonHelper;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -31,34 +35,38 @@ public class UserDefinitionRepositoryTest {
 	
 	@Autowired
 	UserService userService;
+	@Autowired
+	UserDefinitionRepository userRepo;
 
 	@Autowired
 	BCryptPasswordEncoder encoder;
 	
 	@Test
-	public void testAdAndDeletedUserDefinition() throws Exception {
+	public void testAddAndDeletedUserDefinition() throws Exception {
 		UserDefinition user = new UserDefinition();
 		String raw = "1234";
 
 		user.setUserName("junitTestUser");
+		user.setCustomerId(1);
 		user.setRole(PermissionRole.Admin.value());
 		user.setFirstName("admin");
 		user.setLastName("junit");
 		user.setCreateTimestamp(new Date());
 		user.setLastUpdated(new Date());
 		user.setPassword(raw);
-		userService.updateUser(user);
+		userService.createUser(user);
 		
-		UserDefinition loginUser = userService.findUserByName("junitTestUser");
+		UserDefinition loginUser = userRepo.findOneByUserName("junitTestUser");
+		
+		log.info(JsonHelper.toPrettyJson(loginUser));
+		
 		assertNotNull(loginUser);
 		
-		log.info("in db: {}", loginUser.getPassword());
+		
 		boolean result = encoder.matches(raw, loginUser.getPassword());
 		
-		log.info("login pass match result: " + result);
+		assertTrue(result);
 
-		//log.info(JsonHelper.toPrettyJson(loginUser));
-		
 		userService.deleteUser(user.getId());		
 	}
 }

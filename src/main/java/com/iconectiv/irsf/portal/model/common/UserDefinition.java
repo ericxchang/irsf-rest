@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -97,7 +98,8 @@ public class UserDefinition implements java.io.Serializable {
 		this.password = password;
 	}
 
-	@Column(name = "first_name", nullable = false, length = 45)
+	//@Column(name = "first_name", nullable = false, length = 45)
+	@Transient	
 	public String getFirstName() {
 		return this.firstName;
 	}
@@ -106,7 +108,8 @@ public class UserDefinition implements java.io.Serializable {
 		this.firstName = firstName;
 	}
 
-	@Column(name = "last_name", nullable = false, length = 45)
+	//@Column(name = "last_name", nullable = false, length = 45)
+	@Transient	
 	public String getLastName() {
 		return this.lastName;
 	}
@@ -115,7 +118,8 @@ public class UserDefinition implements java.io.Serializable {
 		this.lastName = lastName;
 	}
 
-	@Column(name = "phone", length = 45)
+	//@Column(name = "phone", length = 45)
+	@Transient	
 	public String getPhone() {
 		return this.phone;
 	}
@@ -124,7 +128,8 @@ public class UserDefinition implements java.io.Serializable {
 		this.phone = phone;
 	}
 
-	@Column(name = "email", length = 45)
+	//@Column(name = "email", length = 45)
+	@Transient	
 	public String getEmail() {
 		return this.email;
 	}
@@ -199,6 +204,7 @@ public class UserDefinition implements java.io.Serializable {
 	}
 
 	@Transient
+	@JsonIgnore
 	public Map<String, Object> getMap() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", this.id);

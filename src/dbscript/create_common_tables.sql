@@ -37,6 +37,15 @@ CREATE TABLE `audit_trail` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `audit_trail`
+--
+
+LOCK TABLES `audit_trail` WRITE;
+/*!40000 ALTER TABLE `audit_trail` DISABLE KEYS */;
+/*!40000 ALTER TABLE `audit_trail` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `cc_ndc_index`
 --
 
@@ -48,6 +57,15 @@ CREATE TABLE `cc_ndc_index` (
   PRIMARY KEY (`cc_ndc`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cc_ndc_index`
+--
+
+LOCK TABLES `cc_ndc_index` WRITE;
+/*!40000 ALTER TABLE `cc_ndc_index` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cc_ndc_index` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `country`
@@ -75,6 +93,15 @@ CREATE TABLE `country` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `country`
+--
+
+LOCK TABLES `country` WRITE;
+/*!40000 ALTER TABLE `country` DISABLE KEYS */;
+/*!40000 ALTER TABLE `country` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `customer_definition`
 --
 
@@ -94,8 +121,18 @@ CREATE TABLE `customer_definition` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `customer_name_UNIQUE` (`customer_name`),
   UNIQUE KEY `schema_name_UNIQUE` (`schema_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_definition`
+--
+
+LOCK TABLES `customer_definition` WRITE;
+/*!40000 ALTER TABLE `customer_definition` DISABLE KEYS */;
+INSERT INTO `customer_definition` VALUES (1,'cust01','customer-01',NULL,NULL,1,NULL,NULL,'db init'),(2,'cust02','customer-02',NULL,NULL,1,NULL,NULL,'db init'),(3,'cust03','customer-03',NULL,NULL,1,NULL,NULL,'db init');
+/*!40000 ALTER TABLE `customer_definition` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `domain_elements`
@@ -110,6 +147,15 @@ CREATE TABLE `domain_elements` (
   PRIMARY KEY (`domain`,`domain_value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `domain_elements`
+--
+
+LOCK TABLES `domain_elements` WRITE;
+/*!40000 ALTER TABLE `domain_elements` DISABLE KEYS */;
+/*!40000 ALTER TABLE `domain_elements` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `event_notification`
@@ -129,8 +175,17 @@ CREATE TABLE `event_notification` (
   `acknowledge_timestamp` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `event_notification`
+--
+
+LOCK TABLES `event_notification` WRITE;
+/*!40000 ALTER TABLE `event_notification` DISABLE KEYS */;
+/*!40000 ALTER TABLE `event_notification` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `iprn`
@@ -165,8 +220,17 @@ CREATE TABLE `iprn` (
   KEY `iprn_prime3_indx` (`prime_minus_3`),
   KEY `iprn_prime2_indx` (`prime_minus_2`),
   KEY `iprn_tos_indx` (`tos`)
-) ENGINE=InnoDB AUTO_INCREMENT=183715 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `iprn`
+--
+
+LOCK TABLES `iprn` WRITE;
+/*!40000 ALTER TABLE `iprn` DISABLE KEYS */;
+/*!40000 ALTER TABLE `iprn` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Temporary view structure for view `iprn_dial_pattern_vw`
@@ -222,8 +286,17 @@ CREATE TABLE `iprn_special_unallocated` (
   PRIMARY KEY (`id`),
   KEY `iprnsa_iso2_indx` (`iso2`),
   KEY `iprnsa_tos_indx` (`tos`)
-) ENGINE=InnoDB AUTO_INCREMENT=1149986 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `iprn_special_unallocated`
+--
+
+LOCK TABLES `iprn_special_unallocated` WRITE;
+/*!40000 ALTER TABLE `iprn_special_unallocated` DISABLE KEYS */;
+/*!40000 ALTER TABLE `iprn_special_unallocated` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Temporary view structure for view `iprn_vw`
@@ -280,8 +353,17 @@ CREATE TABLE `ndc` (
   PRIMARY KEY (`id`),
   KEY `ndc_tos_indx` (`tos`),
   KEY `ndc_iso2_indx` (`iso2`)
-) ENGINE=InnoDB AUTO_INCREMENT=1752216 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ndc`
+--
+
+LOCK TABLES `ndc` WRITE;
+/*!40000 ALTER TABLE `ndc` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ndc` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `prem_rng_file_load_tracker`
@@ -300,8 +382,17 @@ CREATE TABLE `prem_rng_file_load_tracker` (
   `notes` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
   `spring_batch_job_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `prem_rng_file_load_tracker`
+--
+
+LOCK TABLES `prem_rng_file_load_tracker` WRITE;
+/*!40000 ALTER TABLE `prem_rng_file_load_tracker` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prem_rng_file_load_tracker` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `premium`
@@ -334,8 +425,17 @@ CREATE TABLE `premium` (
   KEY `prn_supp_indx` (`supplement`),
   KEY `prn_prov_indx` (`provider`),
   KEY `prn_lst_ipdt` (`last_update`)
-) ENGINE=InnoDB AUTO_INCREMENT=183715 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `premium`
+--
+
+LOCK TABLES `premium` WRITE;
+/*!40000 ALTER TABLE `premium` DISABLE KEYS */;
+/*!40000 ALTER TABLE `premium` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `range_ndc`
@@ -365,8 +465,17 @@ CREATE TABLE `range_ndc` (
   KEY `rng_ndc_ccndc_indx` (`cc_ndc`),
   KEY `rng_ndc_supp_indx` (`supplement`),
   KEY `rng_ndc_prov_indx` (`provider`)
-) ENGINE=InnoDB AUTO_INCREMENT=2750716 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `range_ndc`
+--
+
+LOCK TABLES `range_ndc` WRITE;
+/*!40000 ALTER TABLE `range_ndc` DISABLE KEYS */;
+/*!40000 ALTER TABLE `range_ndc` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `unalloc_alloc`
@@ -386,8 +495,17 @@ CREATE TABLE `unalloc_alloc` (
   PRIMARY KEY (`id`),
   KEY `unalloc_iso2_indx` (`iso2`),
   KEY `unalloc_ndc_indx` (`ndc`)
-) ENGINE=InnoDB AUTO_INCREMENT=2009680 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `unalloc_alloc`
+--
+
+LOCK TABLES `unalloc_alloc` WRITE;
+/*!40000 ALTER TABLE `unalloc_alloc` DISABLE KEYS */;
+/*!40000 ALTER TABLE `unalloc_alloc` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `user_definition`
@@ -402,8 +520,8 @@ CREATE TABLE `user_definition` (
   `customer_id` int(11) DEFAULT NULL,
   `role` varchar(45) DEFAULT NULL COMMENT 'system admin, customer admin, user ',
   `password` varchar(100) NOT NULL,
-  `first_name` varchar(45) NOT NULL,
-  `last_name` varchar(45) NOT NULL,
+  `first_name` varchar(45) DEFAULT NULL,
+  `last_name` varchar(45) DEFAULT NULL,
   `phone` varchar(45) DEFAULT NULL,
   `email` varchar(45) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
@@ -414,8 +532,17 @@ CREATE TABLE `user_definition` (
   UNIQUE KEY `user_name_UNIQUE` (`user_name`),
   KEY `customer_id_fk_idx` (`customer_id`),
   CONSTRAINT `customer_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customer_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_definition`
+--
+
+LOCK TABLES `user_definition` WRITE;
+/*!40000 ALTER TABLE `user_definition` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_definition` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Dumping events for database 'irsfmast'
@@ -540,4 +667,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-02 22:13:03
+-- Dump completed on 2017-04-06 13:24:30
