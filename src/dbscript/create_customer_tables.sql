@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `cust01` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `cust01`;
 -- MySQL dump 10.13  Distrib 5.6.23, for Win64 (x86_64)
 --
 -- Host: nj01app5050    Database: cust01
@@ -222,4 +224,4 @@ CREATE TABLE `rule_definition` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-10 16:31:29
+-- Dump completed on 2017-04-11 13:00:55
