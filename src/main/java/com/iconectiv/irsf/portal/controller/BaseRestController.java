@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -127,6 +128,23 @@ public class BaseRestController {
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
+
+	protected  <T> ResponseEntity<String> makeSuccessResult(Page<T> pageData) {
+		Map<String, Object> result = new HashMap<>();
+		result.put(STATUS, AppConstants.SUCCESS);
+		result.put("messages", "");
+		result.put("data", pageData.getContent());
+		result.put("first", pageData.isFirst());
+		result.put("last", pageData.isLast());
+		result.put("totalCount", pageData.getTotalElements());
+		result.put("totalPage", pageData.getTotalPages());
+		result.put("pageNumber", pageData.getNumber());
+		result.put("count", pageData.getNumberOfElements());
+		String json = JsonHelper.toJson(result);
+		return new ResponseEntity<>(json, HttpStatus.OK);
+	}
+
+	
 	/**
 	 * Make a success result with the additional the data provided.
 	 * 

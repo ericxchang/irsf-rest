@@ -3,8 +3,11 @@ package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
+import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AuthException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
@@ -17,9 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +39,9 @@ public class AuthServiceController extends BaseRestController {
 	UserService userService;
 	@Autowired
     UserDefinitionRepository userRepo;
+	@Autowired
+	CustomerDefinitionRepository customerRepo;
+	
 	@Autowired
     AuditTrailService auditService;
 	@Autowired
@@ -48,6 +59,7 @@ public class AuthServiceController extends BaseRestController {
 			UserDefinition user = JsonHelper.fromJson(value, UserDefinition.class, true);
 			UserDefinition loginUser = userRepo.findOneByUserName(user.getUserName());
 			
+			
 			if (loginUser == null) {
 				throw new AuthException("Invalid user Id");
 			}
@@ -64,6 +76,15 @@ public class AuthServiceController extends BaseRestController {
 				throw new AuthException("Password is NOT correct");
 			}
 
+			if (loginUser.getCustomerId() != null) {
+				CustomerDefinition customer = customerRepo.findOne(loginUser.getCustomerId());
+				
+				if (!customer.isActive()) {
+					throw new AuthException("Customer " + customer.getCustomerName() + " is NOT active");
+				}
+			}
+			
+			
             auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "login", request.getRemoteAddr());
 			
 			String token = JWTUtil.createToken(loginUser);
@@ -80,10 +101,12 @@ public class AuthServiceController extends BaseRestController {
 
 	@RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> createUserRequest(@RequestBody String userJson) {
+	public ResponseEntity<String> createUserRequest(@RequestHeader Map<String, String> header, @RequestBody String userJson) {
 		ResponseEntity<String> rv;
         UserDefinition user = null;
 		try {
+			validateAdminUser(header);
+			
             user = JsonHelper.fromJson(userJson, UserDefinition.class);
 
             userService.createUser(user);
@@ -102,11 +125,13 @@ public class AuthServiceController extends BaseRestController {
 
 	@RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> updateUserRequest(@RequestBody String userJson) {
+	public ResponseEntity<String> updateUserRequest(@RequestHeader Map<String, String> header, @RequestBody String userJson) {
 		ResponseEntity<String> rv;
         UserDefinition user = null;
         try {
-            user = JsonHelper.fromJson(userJson, UserDefinition.class);
+			validateAdminUser(header);
+
+			user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.updateUser(user);
 			rv = makeSuccessResult(MessageDefinition.Update_User_Success);
             auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "update user", "success updated user " + user.getUserName(), "system");
@@ -123,9 +148,12 @@ public class AuthServiceController extends BaseRestController {
 
 	@RequestMapping(value = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> changePasswordRequest(@RequestBody String userJson) {
+	public ResponseEntity<String> changePasswordRequest(@RequestHeader Map<String, String> header, @RequestBody String userJson) {
 		ResponseEntity<String> rv;
 		try {
+			
+			validateAdminUser(header);
+
 			UserDefinition user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.changePassword(user);
 			rv = makeSuccessResult(MessageDefinition.Change_Password_Success, user);
@@ -138,6 +166,26 @@ public class AuthServiceController extends BaseRestController {
 			log.debug(JsonHelper.toPrettyJson(rv));
 		}
 		return rv;
+	}
+
+	/*
+	 * Temporary solution since we don't account management GUI yet. Validate login user has admin privilege 
+	 */
+	private void validateAdminUser(Map<String, String> header) throws AuthException {
+		String userId = header.get("userId");
+		String password = header.get("password");
+		
+		assertNotNull(userId);
+		assertNotNull(password);
+		
+		UserDefinition loginUser = userRepo.findOneByUserName(userId);
+		if (!encoder.matches(password, loginUser.getPassword())) {
+			throw new AuthException("Password is NOT correct");
+		}
+		
+		if (!loginUser.getRole().equals(PermissionRole.Admin.value())) {
+			throw new AuthException("Not authorized User ID");
+		}
 	}
 
 }

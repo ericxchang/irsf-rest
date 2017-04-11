@@ -49,7 +49,7 @@ class FileUploadControllerTest extends GroovyTestCase {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
     }
 	
-	//@Test
+	@Test
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		

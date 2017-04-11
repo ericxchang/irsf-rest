@@ -77,7 +77,8 @@ public class CustomerDefinition implements java.io.Serializable {
 		this.customerName = customerName;
 	}
 
-	@Column(name = "phone", length = 45)
+	//@Column(name = "phone", length = 45)
+	@Transient
 	public String getPhone() {
 		return this.phone;
 	}
@@ -86,7 +87,8 @@ public class CustomerDefinition implements java.io.Serializable {
 		this.phone = phone;
 	}
 
-	@Column(name = "email", length = 45)
+	//@Column(name = "email", length = 45)
+	@Transient
 	public String getEmail() {
 		return this.email;
 	}

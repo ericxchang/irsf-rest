@@ -43,7 +43,7 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 		return query.getResultList();
 	}
 
-	@Value("${hibernate.jdbc.batch_size}")
+	@Value("${jdbc.batch_size:500}")
 	private int batchSize;
 	 
 	@Override

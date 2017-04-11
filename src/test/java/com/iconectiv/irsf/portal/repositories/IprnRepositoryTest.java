@@ -16,8 +16,9 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import com.iconectiv.irsf.portal.model.common.Iprn;
 import com.iconectiv.irsf.portal.model.common.IprnDialPatternVw;
-import com.iconectiv.irsf.portal.repositories.common.IprnDialPatternVwRepository;
+import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.util.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,16 +27,16 @@ import com.iconectiv.irsf.util.JsonHelper;
         DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class})
 
-public class IprnDialPatternVwRepositoryTest {
-	private static Logger log = LoggerFactory.getLogger(IprnDialPatternVwRepositoryTest.class);
+public class IprnRepositoryTest {
+	private static Logger log = LoggerFactory.getLogger(IprnRepositoryTest.class);
 	
 	@Autowired
-	IprnDialPatternVwRepository repository;
+	IprnRepository repository;
 	
 	@Test
-	public void testQueryIprnDialPatternVw() throws Exception {
-		PageRequest page = new PageRequest(0, 5);
-		Page<IprnDialPatternVw> result = repository.findAll(page);
+	public void testQueryIprn() throws Exception {
+		PageRequest page = new PageRequest(3, 5);
+		Page<Iprn> result = repository.findAll(page);
 		log.info(JsonHelper.toJson(result));
 	}
 
