@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `cust01` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `cust01`;
 -- MySQL dump 10.13  Distrib 5.6.23, for Win64 (x86_64)
 --
 -- Host: nj01app5050    Database: cust01
@@ -58,7 +56,7 @@ CREATE TABLE `list_details` (
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_by` varchar(45) NOT NULL,
-  `match_cc_ndc` varchar(64) DEFAULT NULL,
+  `match_cc_ndc` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `listId_dial_index` (`list_ref_id`,`dial_pattern`),
   KEY `list_ref_id_idx` (`list_ref_id`),
@@ -66,8 +64,26 @@ CREATE TABLE `list_details` (
   KEY `match_cc_ndc_index` (`match_cc_ndc`),
   CONSTRAINT `lis_ref_id_fk` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `upload_req_ref_id_fk` FOREIGN KEY (`upload_req_ref_id`) REFERENCES `list_upload_request` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=77583 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=77581 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 trigger updateNDC after insert on list_details for each row
+begin
+   update list_details set match_cc_ndc=irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `list_upload_request`
@@ -88,7 +104,7 @@ CREATE TABLE `list_upload_request` (
   PRIMARY KEY (`id`),
   KEY `list_ref_id_idx` (`list_ref_id`),
   CONSTRAINT `list_ref_id` FOREIGN KEY (`list_ref_id`) REFERENCES `list_defintion` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,159 +212,6 @@ CREATE TABLE `rule_definition` (
 --
 -- Dumping routines for database 'cust01'
 --
-/*!50003 DROP FUNCTION IF EXISTS `getMaxMatchCCNDCPattern` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` FUNCTION `getMaxMatchCCNDCPattern`(dial_pattern VARCHAR(15)) RETURNS varchar(15) CHARSET utf8
-BEGIN
-	DECLARE cc_ndc_match VARCHAR(15) ;
-    DECLARE max_digits INT;
-    DECLARE min_digits INT;
-    DECLARE right_pos INT;
-	set max_digits = 15;
-    set min_digits = 2;
-    set right_pos  = max_digits;
-    if   (max_digits > length(dial_pattern) ) then
-        set max_digits = length(dial_pattern);
-        set right_pos = max_digits;
-	end if;
-    sloop:LOOP
- 		if (right_pos < min_digits) then
-			RETURN null;
-		 end if;
-        SELECT cc_ndc INTO cc_ndc_match FROM cc_ndc_index WHERE cc_ndc= substr(dial_pattern,1,right_pos);
-		if (cc_ndc_match is not null) then
-			RETURN cc_ndc_match;
-        end if;
-        set right_pos = right_pos-1;
-       
-    end loop;
-RETURN cc_ndc_match;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `NDC_UPDATE` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `NDC_UPDATE`()
-BEGIN
-DECLARE cnt INT;
-
-SELECT count(*)
-FROM information_schema.tables
-WHERE table_name = 'list_details' and 
-table_schema = 'cust01' into cnt;
-if cnt=1 then
-update cust01.list_details 
-set match_cc_ndc= 
-irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
-end if;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `proc_list_details_all_test_vw` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `proc_list_details_all_test_vw`(IN list_id INT)
-BEGIN
-SET @_list_id = list_id;
-PREPARE stmt FROM "SELECT ld.*, rt.* from (select * from list_details ld WHERE ld.list_ref_id = ?) ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=irsfmast.getMaxMatchCCNDCPattern(ld.dial_pattern)";
-EXECUTE stmt USING @_list_id;
-DEALLOCATE PREPARE stmt;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `proc_list_details_range_all_vw` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `proc_list_details_range_all_vw`(IN list_id INT)
-BEGIN
-SET @_list_id = list_id;
-PREPARE stmt FROM "SELECT ld.*, rt.* 
-from (  select irsfmast.getMaxMatchCCNDCPattern(dial_pattern) 
-as match_ccndc, ld.* from list_details ld WHERE list_ref_id = ? ) 
-ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_ccndc";
-
-
-
-EXECUTE stmt USING @_list_id;
-DEALLOCATE PREPARE stmt;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `proc_list_details_range_vw` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `proc_list_details_range_vw`(IN list_id INT, IN row_start INT, IN num_recs INT)
-BEGIN
-DECLARE cnt INT;
-SET @_list_id = list_id;
-SET @_row_start = row_start;
-SET @_num_recs = num_recs;
- if (row_start is null) then
- 	SET @_row_start = 0;
- end if;
- if (num_recs is null) then
- 	select count(*) INTO cnt from list_details where list_ref_id=list_id;
- 	SET @_num_recs = cnt;
- end if;
-
-PREPARE stmt FROM "SELECT ld.*, rt.* from (  select irsfmast.getMaxMatchCCNDCPattern(dial_pattern) as match_ccndc, ld.* from list_details ld WHERE list_ref_id = ?  limit ?, ?) ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_ccndc";
-EXECUTE stmt USING @_list_id,@_row_start,@_num_recs;
-DEALLOCATE PREPARE stmt;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -359,4 +222,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-05 11:09:49
+-- Dump completed on 2017-04-10 16:31:29

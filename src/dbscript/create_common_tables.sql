@@ -615,6 +615,28 @@ update cust01.list_details
 set match_cc_ndc= 
 irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
 end if;
+
+SELECT count(*)
+FROM information_schema.tables
+WHERE table_name = 'list_details' and 
+table_schema = 'cust02' into cnt;
+if cnt=1 then
+update cust02.list_details 
+set match_cc_ndc= 
+irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
+end if;
+
+SELECT count(*)
+FROM information_schema.tables
+WHERE table_name = 'list_details' and 
+table_schema = 'cust03' into cnt;
+if cnt=1 then
+update cust03.list_details 
+set match_cc_ndc= 
+irsfmast.getMaxMatchCCNDCPattern(dial_pattern);
+end if;
+
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
