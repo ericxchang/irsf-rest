@@ -1,6 +1,24 @@
 package com.iconectiv.irsf.portal.controller;
 
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
@@ -12,24 +30,6 @@ import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
 import com.iconectiv.irsf.util.JsonHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class AuthServiceController extends BaseRestController {
@@ -175,8 +175,8 @@ public class AuthServiceController extends BaseRestController {
 		String userId = header.get("userId");
 		String password = header.get("password");
 		
-		assertNotNull(userId);
-		assertNotNull(password);
+		Assert.notNull(userId, "Missing userId in header");
+		Assert.notNull(password, "Missing password in header");
 		
 		UserDefinition loginUser = userRepo.findOneByUserName(userId);
 		if (!encoder.matches(password, loginUser.getPassword())) {
