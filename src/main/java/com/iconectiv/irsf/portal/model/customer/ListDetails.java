@@ -43,6 +43,7 @@ public class ListDetails implements java.io.Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date lastUpdated;
 	private String lastUpdatedBy;
+	private String matchCCNDC;
 
 	// join from range_ndc table
 	private String termCountry;
@@ -114,6 +115,16 @@ public class ListDetails implements java.io.Serializable {
 
 	public void setDialPattern(String dialPattern) {
 		this.dialPattern = dialPattern;
+	}
+
+		
+	@Column(name = "match_cc_ndc", nullable = false, length = 15)
+	public String getMatchCCNDC() {
+		return matchCCNDC;
+	}
+
+	public void setMatchCCNDC(String matchCCNDC) {
+		this.matchCCNDC = matchCCNDC;
 	}
 
 	@Column(name = "reason", length = 100)

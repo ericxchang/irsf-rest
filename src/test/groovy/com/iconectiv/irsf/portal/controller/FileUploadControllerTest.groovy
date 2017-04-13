@@ -53,7 +53,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
-		def data = this.getClass().getResource('/irsf_blacklist_large.csv').text
+		def data = this.getClass().getResource('/irsf_blacklist.csv').text
 		
 		try {
             withPool {

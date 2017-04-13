@@ -19,6 +19,8 @@ class ListUploadService {
 
     @Autowired
     private ListDetailsRepository listDetailRepo
+	@Autowired
+	MobileIdDataService midDataService;
 
 	void parseBlackWhiteListData(ListUploadRequest uploadReq, List<ListDetails> listEntries, StringBuilder errorList) {
         def headerMap = parseHeader(uploadReq, uploadReq.delimiter)
@@ -117,6 +119,7 @@ class ListUploadService {
 
         listDetails.listRefId = uploadReq.listRefId
         listDetails.upLoadRefId = uploadReq.id
+		listDetails.matchCCNDC = midDataService.findMatchingCCNDC(dialCode)
         listDetails.active = true
         listDetails.lastUpdated = new Date()
         listDetails.lastUpdatedBy = uploadReq.lastUpdatedBy
@@ -157,9 +160,9 @@ class ListUploadService {
 	
 	//check duplicate dial code in the input file
     boolean hasDuplicateEntry(listEntries, dialPattern) {
-        listEntries.each {
-            if (it.dialPattern.equals(dialPattern)) {
-                return true
+        for (def listDetail : listEntries) {
+            if (listDetail.dialPattern.equals(dialPattern)) {
+				return true;			
             }
         }
         return false

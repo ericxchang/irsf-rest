@@ -1,7 +1,7 @@
 package com.iconectiv.irsf.portal.repositories;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +13,6 @@ public interface ReadOnlyRepository<T, ID extends Serializable> extends PagingAn
 
     T findOne(ID id);
 
-    List<T> findAll();
-    
     Page<T> findAll(Pageable pageable);
 
 }

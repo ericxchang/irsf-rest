@@ -87,7 +87,7 @@
 				</prop>
 				<prop key="net.sf.ehcache.configurationResourceName">/ehcache.xml</prop>
 				<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
-				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+				<prop key="hibernate.jdbc.batch_size">${jdbc.batch_size}</prop>
 				<prop key="hibernate.order_inserts">true</prop>
 				<prop key="hibernate.order_updates">true</prop>
 				<prop key="hibernate.use_sql_comments">false</prop>
@@ -115,7 +115,7 @@
 				</prop>
 				<prop key="net.sf.ehcache.configurationResourceName">/ehcache.xml</prop>
 				<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
-				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+				<prop key="hibernate.jdbc.batch_size">${jdbc.batch_size}</prop>
 				<prop key="hibernate.order_inserts">true</prop>
 				<prop key="hibernate.order_updates">true</prop>
 				<prop key="hibernate.use_sql_comments">false</prop>
