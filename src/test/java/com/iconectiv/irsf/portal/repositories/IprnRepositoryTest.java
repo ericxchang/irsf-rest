@@ -1,7 +1,5 @@
 package com.iconectiv.irsf.portal.repositories;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -17,7 +15,6 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import com.iconectiv.irsf.portal.model.common.Iprn;
-import com.iconectiv.irsf.portal.model.common.IprnDialPatternVw;
 import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.util.JsonHelper;
 
