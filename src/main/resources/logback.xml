@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/tmp/irsf-rest.log</file>
+		<file>/apps/irsf/logs/irsf-rest.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover. Make sure the path matches the one in the file element or else
              the rollover logs are placed in the working directory. -->
-            <fileNamePattern>/tmp/irst_rest_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>/apps/irsf/logs/irst_rest_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>5MB</maxFileSize>
@@ -21,9 +21,8 @@
     </appender>
 
 
-	<logger name="com.iconectiv" level="DEBUG">
-	</logger>
-
+	<logger name="com.iconectiv" level="DEBUG" />
+    <logger name="org.springframework" level="INFO" />
 
 	<root level="INFO">
 		<appender-ref ref="FILE" />

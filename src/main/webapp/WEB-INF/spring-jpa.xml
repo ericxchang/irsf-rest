@@ -17,7 +17,7 @@
      http://www.springframework.org/schema/data/jpa
      http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
-	<import resource="file:/conf/irsf/spring-jpa-customer.xml" />
+	<import resource="file:/apps/irsf/conf/spring-jpa-customer.xml" />
 	<context:component-scan base-package="com.iconectiv.irsf.portal.repositories" />
 
 	<!-- enable web support -->
@@ -29,7 +29,7 @@
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location">
-            <value>file:/conf/irsf/spring-config.properties</value>
+            <value>file:/apps/irsf/conf/spring-config.properties</value>
         </property>
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 		<property name="ignoreResourceNotFound" value="true" />

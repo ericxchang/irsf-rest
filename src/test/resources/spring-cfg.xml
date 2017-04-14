@@ -39,6 +39,7 @@
 		<property name="caches">
 			<set>
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="ccNDC" />
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="country" />
 			</set>
 		</property>
 	</bean>

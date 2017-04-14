@@ -31,4 +31,10 @@ public class MobileIdDataServiceTest {
 		assertTrue(midDataService.findMatchingCCNDC("12814759123").equals("12814759"));
 		assertTrue(midDataService.findMatchingCCNDC("13128833456789").equals("1312883"));
 	}
+	
+	@Test
+	public void testFindMatchCountry() throws Exception {
+		assertTrue(midDataService.findMatchingCountry("1", "AI").getCountry().equals("Anguilla"));
+		assertTrue(midDataService.findMatchingCountry("1", "AG").getCountry().equals("Antigua and Barbuda"));
+	}
 }

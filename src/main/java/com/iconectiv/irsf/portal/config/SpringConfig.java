@@ -8,7 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 /**
  * Created by echang on 1/11/2017.
@@ -16,9 +21,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
 @EnableAsync
+@EnableScheduling
+@EnableWebSocketMessageBroker
 @PropertySource(value="classpath:spring-config.properties", ignoreResourceNotFound = true)
 @PropertySource(value="file:/conf/irsf/spring-config.properties", ignoreResourceNotFound = true)
-public class SpringConfig {
+public class SpringConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	private static Logger log = LoggerFactory.getLogger(SpringConfig.class);
 
 	@Autowired
@@ -32,4 +39,14 @@ public class SpringConfig {
 		return configurer;
 	}
 
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/topic", "/queue");
+        config.setApplicationDestinationPrefixes("/app");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/irsf-websocket").withSockJS();
+    }
 }

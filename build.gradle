@@ -79,6 +79,9 @@ dependencies {
 	compile 'org.springframework.security:spring-security-web'
 	compile 'org.springframework.security:spring-security-config'
 	compile 'org.springframework:spring-tx'
+	compile 'org.springframework:spring-websocket'
+    compile 'org.springframework:spring-messaging'
+	
 	compile 'org.hibernate:hibernate-core'
 	compile 'org.hibernate:hibernate-entitymanager'
 	compile 'org.aspectj:aspectjrt'
@@ -108,6 +111,7 @@ dependencies {
 
 	compile 'io.jsonwebtoken:jjwt:0.7.0'
 
+    compile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.13'
 
 	compile 'com.google.guava:guava'
 	
@@ -115,6 +119,7 @@ dependencies {
 	compile 'com.googlecode.webutilities:webutilities:0.0.8'
 	
 	compile 'org.codehaus.gpars:gpars:1.2.1'
+	
 
 	testCompile 'org.springframework:spring-test'	
 	testCompile 'junit:junit'
