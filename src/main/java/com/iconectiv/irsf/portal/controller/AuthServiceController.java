@@ -102,6 +102,7 @@ public class AuthServiceController extends BaseRestController {
 	@RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> createUserRequest(@RequestHeader Map<String, String> header, @RequestBody String userJson) {
+		if (log.isDebugEnabled()) log.info(JsonHelper.toJson(header));
 		ResponseEntity<String> rv;
         UserDefinition user = null;
 		try {
@@ -172,7 +173,7 @@ public class AuthServiceController extends BaseRestController {
 	 * Temporary solution since we don't account management GUI yet. Validate login user has admin privilege 
 	 */
 	private void validateAdminUser(Map<String, String> header) throws AuthException {
-		String userId = header.get("userId");
+		String userId = header.get("userid");
 		String password = header.get("password");
 		
 		Assert.notNull(userId, "Missing userId in header");
