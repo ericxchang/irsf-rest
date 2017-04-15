@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Controller
-class ListUploadController extends BaseRestController {
+public class ListUploadController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(ListUploadController.class);
 
 	@Autowired
