@@ -23,7 +23,7 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 	@Autowired
 	EntityManagerFactory customerEntityManagerFactory;
 
-	@SuppressWarnings("unchecked")
+/*	@SuppressWarnings("unchecked")
 	@Override
 	public List<ListDetails> queryJoinByListRefId(int listId) {
 		log.info("Call stored procedure ...");
@@ -31,18 +31,7 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 		query.setParameter("list_id", listId);
 		return query.getResultList();
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<ListDetails> queryJoinByListRefId(int listId, int startId, int size) {
-		log.info("Call stored procedure ...");
-		Query query = customerEntityManagerFactory.createEntityManager().createNamedStoredProcedureQuery("joinRange");
-		query.setParameter("list_id", listId);
-		query.setParameter("row_start", startId);
-		query.setParameter("num_recs", size);
-		return query.getResultList();
-	}
-
+*/
 	@Value("${jdbc.batch_size:500}")
 	private int batchSize;
 	 

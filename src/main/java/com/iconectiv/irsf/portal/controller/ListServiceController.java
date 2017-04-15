@@ -32,8 +32,6 @@ class ListServiceController extends BaseRestController {
 	@Autowired
 	private ListService listService;
 	@Autowired
-	private ListDefinitionRepository listRepo;
-	@Autowired
 	private ListUploadService uploadService;
 	@Autowired
 	private AuditTrailService auditService;
@@ -53,9 +51,9 @@ class ListServiceController extends BaseRestController {
 			List<ListDefintion> topLists;
 			
 			if (listType.equals(ListType.Black.value())) {
-				topLists = listRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(ListType.Black.value(), true);
+				topLists = listService.getTop3ListDefinition(ListType.Black.value());
 			} else {
-				topLists = listRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(ListType.White.value(), true);
+				topLists = listService.getTop3ListDefinition(ListType.White.value());
 			}
 			rv = makeSuccessResult(MessageDefinition.Query_Success, topLists);
 		} catch (SecurityException e) {
@@ -71,9 +69,30 @@ class ListServiceController extends BaseRestController {
 	}
 
 
+	@RequestMapping(value = "/listDetail/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getListDataByListId(@RequestHeader Map<String, String> header, @PathVariable int listId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			List<ListDetails> listDetailData = listService.getListDetailDataByListId(listId);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listDetailData);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
+
 	@RequestMapping(value = "/list/{listName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getListDetails(@RequestHeader Map<String, String> header, @PathVariable String listName) {
+	public ResponseEntity<String> getListDefintiontDetails(@RequestHeader Map<String, String> header, @PathVariable String listName) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);

@@ -17,7 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name = "list_details", uniqueConstraints = @UniqueConstraint(columnNames={"list_ref_id", "dial_pattern"}))
-@NamedStoredProcedureQueries({
+/*@NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(name = "joinAll", procedureName = "proc_list_details_range_all_vw", resultClasses = { ListDetails.class }, 
         	parameters = {
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "list_id", type = Integer.class) 
@@ -29,6 +29,7 @@ import static javax.persistence.GenerationType.IDENTITY;
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "num_recs", type = Integer.class)
         	}) 
         })
+*/
 public class ListDetails implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
@@ -55,12 +56,40 @@ public class ListDetails implements java.io.Serializable {
 	private String ndc;
 	private String locality;
 	private String provider;
+	private String billingId;
 	private String supplement;
-	private String jobId;
-	private Date loadDate;
 
 	public ListDetails() {
 	}
+
+	public ListDetails(Integer id, Integer listRefId, Integer upLoadRefId, String dialPattern, String reason, String notes, Date customerDate,
+			boolean active, Date lastUpdated, String lastUpdatedBy,String matchCCNDC, String termCountry, String ccNdc, String iso2, String code,
+			String tos, String tosdesc, String ndc, String locality,String provider, String billingId,String supplement ) {
+		this.id = id;
+		this.listRefId = listRefId;
+		this.upLoadRefId = upLoadRefId;
+		this.dialPattern = dialPattern;
+		this.reason = reason;
+		this.notes = notes;
+		this.customerDate = customerDate;
+		this.active = active;
+		this.lastUpdated = lastUpdated;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.matchCCNDC = matchCCNDC;
+		this.termCountry = termCountry;
+		this.ccNdc = ccNdc;
+		this.iso2 = iso2;
+		this.code = code;
+		this.tos = tos;
+		this.tosdesc = tosdesc;
+		this.ndc = ndc;
+		this.locality = locality;
+		this.provider = provider;
+		this.billingId = billingId;
+		this.supplement = supplement;
+
+	}
+
 
 	@Override
 	public boolean equals(Object v) {
@@ -266,30 +295,21 @@ public class ListDetails implements java.io.Serializable {
 	}
 
 	@Transient
+	public String getBillingId() {
+		return billingId;
+	}
+
+	public void setBillingId(String billingId) {
+		this.billingId = billingId;
+	}
+
+	@Transient
 	public String getSupplement() {
 		return supplement;
 	}
 
 	public void setSupplement(String supplement) {
 		this.supplement = supplement;
-	}
-
-	@Transient
-	public String getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
-	}
-
-	@Transient
-	public Date getLoadDate() {
-		return loadDate;
-	}
-
-	public void setLoadDate(Date loadDate) {
-		this.loadDate = loadDate;
 	}
 
 }

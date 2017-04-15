@@ -80,6 +80,16 @@ public class ListServiceControllerTest {
 	}
 
 	@Test
+	public void testQueryListDataRequest() throws Exception {
+		ResultActions action = mockMvc.perform(get("/listDetail/74").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+		
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
+
+	@Test
 	public void testQueryListRequest() throws Exception {
 		ResultActions action = mockMvc.perform(get("/list/large-201703231517432").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();

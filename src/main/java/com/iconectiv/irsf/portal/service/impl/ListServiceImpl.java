@@ -1,5 +1,20 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
@@ -13,17 +28,13 @@ import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
-import com.iconectiv.irsf.portal.service.*;
+import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.portal.service.EventNotificationService;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
+import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.portal.service.ListUploadService;
 import com.iconectiv.irsf.util.JsonHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.persistence.EntityManagerFactory;
-import java.util.*;
+import com.iconectiv.irsf.util.ListHelper;
 
 /**
  * Created by echang on 1/11/2017.
@@ -32,11 +43,11 @@ import java.util.*;
 @Transactional
 public class ListServiceImpl implements ListService {
 	private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
-
+	
 	@Autowired
 	private ListUploadRequestRepository listUploadRepo;
 	@Autowired
-	private ListDefinitionRepository listRepo;
+	private ListDefinitionRepository listDefRepo;
 	@Autowired
 	private ListDetailsRepository listDetailRepo;
 	@Autowired
@@ -112,12 +123,13 @@ public class ListServiceImpl implements ListService {
 		ListDefintion listDefintion = new ListDefintion();
 		listDefintion.setListName(listName);
 		listDefintion.setType(listType);
+		listDefintion.setActive(true);
 		listDefintion.setCustomerName(user.getCustomerName());
 		listDefintion.setCreateBy(user.getUserName());
 		listDefintion.setLastUpdatedBy(user.getUserName());
 		listDefintion.setCreateTimestamp(new Date());
 		listDefintion.setLastUpdated(new Date());
-		listDefintion = listRepo.save(listDefintion);
+		listDefintion = listDefRepo.save(listDefintion);
 
 		return listDefintion.getId();
 	}
@@ -137,13 +149,13 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	public ListDefintion getListDetails(String listName) {
-		ListDefintion listDef = listRepo.findOneByListName(listName);
+		ListDefintion listDef = listDefRepo.findOneByListName(listName);
 
 		if (listDef == null) {
 			log.warn("list {} does not exist", listName);
 			return null;
 		}
-		listDef.setListUploadRequests(listUploadRepo.findAllByListRefId(listDef.getId()));
+		listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
 
 		listDef.getListUploadRequests().forEach(uploadReq -> {
 			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
@@ -154,7 +166,7 @@ public class ListServiceImpl implements ListService {
 	@Override
 	@Transactional
 	public void deleteListDefinition(String listName) {
-		listRepo.deleteByListName(listName);
+		listDefRepo.deleteByListName(listName);
 		return;
 	}
 
@@ -225,5 +237,37 @@ public class ListServiceImpl implements ListService {
 			throw new AppException(e.getMessage());
 		}
 
+	}
+
+	@Override
+	public List<ListDetails> getListDetailDataByListId(int listId) {
+		List<ListDetails> dataList = new ArrayList<>();
+		
+		for (Object[] row : listDetailRepo.findAllDetailsByListRefId(listId)) {
+			dataList.add( ListHelper.convertToListDetail(row) );
+		}
+		
+		return dataList;
+	}
+
+	@Override
+	public List<ListDetails> getListDetailDataByUploadId(int uploadId) {
+		List<ListDetails> dataList = new ArrayList<>();
+		
+		for (Object[] row : listDetailRepo.findAllDetailsByUpLoadRefId(uploadId)) {
+			dataList.add( ListHelper.convertToListDetail(row) );
+		}
+		
+		return dataList;
+	}
+
+	@Override
+	public List<ListDefintion> getTop3ListDefinition(String listType) {
+		List<ListDefintion> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
+		
+		for (ListDefintion listDefinition : listDefinitionData) {
+			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
+		}
+		return listDefinitionData;
 	}
 }
