@@ -135,6 +135,10 @@ public class ListServiceImpl implements ListService {
 	}
 
 	public ListUploadRequest createUploadRequest(ListDefintion listDef, String fileName, String delimiter) {
+		if (delimiter == null) {
+			delimiter = "|";
+		}
+		
 		ListUploadRequest uploadReq = new ListUploadRequest();
 		uploadReq.setFileName(fileName);
 		uploadReq.setDelimiter(delimiter);
@@ -148,11 +152,11 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public ListDefintion getListDetails(String listName) {
-		ListDefintion listDef = listDefRepo.findOneByListName(listName);
+	public ListDefintion getListDetails(int listId) {
+		ListDefintion listDef = listDefRepo.findOne(listId);
 
 		if (listDef == null) {
-			log.warn("list {} does not exist", listName);
+			log.warn("list {} does not exist", listId);
 			return null;
 		}
 		listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
@@ -165,8 +169,8 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	@Transactional
-	public void deleteListDefinition(String listName) {
-		listDefRepo.deleteByListName(listName);
+	public void deleteListDefinition(int listId) {
+		listDefRepo.delete(listId);
 		return;
 	}
 

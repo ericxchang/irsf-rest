@@ -1,5 +1,26 @@
 package com.iconectiv.irsf.portal.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.ListType;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
@@ -7,23 +28,12 @@ import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
-import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
-import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.service.ListUploadService;
 import com.iconectiv.irsf.util.JsonHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import com.iconectiv.irsf.util.ListDetailConvert;
 
 @Controller
 class ListServiceController extends BaseRestController {
@@ -31,6 +41,9 @@ class ListServiceController extends BaseRestController {
 
 	@Autowired
 	private ListService listService;
+	@Autowired
+	private ListDetailsRepository listRepo;
+	
 	@Autowired
 	private ListUploadService uploadService;
 	@Autowired
@@ -89,17 +102,55 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
+	@Value("${jdbc.query_batch_size:1000}")
+	private int batchSize;
 
-	@RequestMapping(value = "/list/{listName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/listDetail", method = RequestMethod.GET)
+	public ResponseEntity<String> getListDetailsByPage(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	        @RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "id", required = true) Integer listId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+			if (pageNo == null) {
+				pageNo = 0;
+			}
+
+			if (limit == null) {
+				limit = batchSize;
+			}
+
+			PageRequest page = new PageRequest(pageNo, limit);
+
+			Page<Object[]> listData = listRepo.findAllDetailsByListRefId(listId, page);
+	    	
+	    	final Page<ListDetails> results = listData.map(new ListDetailConvert());
+
+			rv = makeSuccessResult(results);
+		} catch (NullPointerException e1) {
+			rv = makeErrorResult(e1);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toPrettyJson(rv));
+		}
+		return rv;
+	}
+	
+
+	@RequestMapping(value = "/list/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getListDefintiontDetails(@RequestHeader Map<String, String> header, @PathVariable String listName) {
+	public ResponseEntity<String> getListDefintiontDetails(@RequestHeader Map<String, String> header, @PathVariable int listId) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			ListDefintion listDef = listService.getListDetails(listName);
+			ListDefintion listDef = listService.getListDetails(listId);
 			rv = makeSuccessResult(MessageDefinition.Query_Success, listDef);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -114,18 +165,18 @@ class ListServiceController extends BaseRestController {
 	}
 
 
-	@RequestMapping(value = "/list/{listName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/list/{listId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header, @PathVariable String listName) {
+	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header, @PathVariable int listId) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			listService.deleteListDefinition(listName);
+			listService.deleteListDefinition(listId);
 			rv = makeSuccessResult(MessageDefinition.Delete_List_Success);
-			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", listName);
+			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {

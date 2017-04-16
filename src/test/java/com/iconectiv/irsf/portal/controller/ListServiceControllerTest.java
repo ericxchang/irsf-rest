@@ -88,10 +88,29 @@ public class ListServiceControllerTest {
 		
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
+	
+	@Test
+	public void testQueryListDataPageRequest() throws Exception {
+		ResultActions action = mockMvc.perform(get("/listDetail?id=74&limit=5").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+		
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
+	
 
 	@Test
 	public void testQueryListRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/list/large-201703231517432").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		List<ListDefintion> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		
+		if (lists == null) {
+			return;
+		}
+		
+		ListDefintion listDefinition = lists.get(0);
+
+		ResultActions action = mockMvc.perform(get("/list/" + listDefinition.getId()).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -101,7 +120,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testInvalidUser() throws Exception {
-		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/1").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -116,7 +135,7 @@ public class ListServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/cust01/blacklist").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/1").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

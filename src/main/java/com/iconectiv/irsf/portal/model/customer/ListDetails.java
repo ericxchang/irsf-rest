@@ -62,35 +62,6 @@ public class ListDetails implements java.io.Serializable {
 	public ListDetails() {
 	}
 
-	public ListDetails(Integer id, Integer listRefId, Integer upLoadRefId, String dialPattern, String reason, String notes, Date customerDate,
-			boolean active, Date lastUpdated, String lastUpdatedBy,String matchCCNDC, String termCountry, String ccNdc, String iso2, String code,
-			String tos, String tosdesc, String ndc, String locality,String provider, String billingId,String supplement ) {
-		this.id = id;
-		this.listRefId = listRefId;
-		this.upLoadRefId = upLoadRefId;
-		this.dialPattern = dialPattern;
-		this.reason = reason;
-		this.notes = notes;
-		this.customerDate = customerDate;
-		this.active = active;
-		this.lastUpdated = lastUpdated;
-		this.lastUpdatedBy = lastUpdatedBy;
-		this.matchCCNDC = matchCCNDC;
-		this.termCountry = termCountry;
-		this.ccNdc = ccNdc;
-		this.iso2 = iso2;
-		this.code = code;
-		this.tos = tos;
-		this.tosdesc = tosdesc;
-		this.ndc = ndc;
-		this.locality = locality;
-		this.provider = provider;
-		this.billingId = billingId;
-		this.supplement = supplement;
-
-	}
-
-
 	@Override
 	public boolean equals(Object v) {
 		if (v instanceof ListDetails) {
@@ -147,7 +118,7 @@ public class ListDetails implements java.io.Serializable {
 	}
 
 		
-	@Column(name = "match_cc_ndc", nullable = false, length = 15)
+	@Column(name = "match_cc_ndc", length = 15)
 	public String getMatchCCNDC() {
 		return matchCCNDC;
 	}

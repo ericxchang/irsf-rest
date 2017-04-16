@@ -21,9 +21,9 @@ public interface ListService {
 
 	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
 
-	void deleteListDefinition(String listName);
+	void deleteListDefinition(int listId);
 
-	ListDefintion getListDetails(String listName);
+	ListDefintion getListDetails(int listId);
 
 	void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException;
 	
