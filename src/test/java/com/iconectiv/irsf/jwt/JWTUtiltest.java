@@ -28,6 +28,7 @@ public class JWTUtiltest {
 
 	@Test
 	public void testParseToken() {
+		/*
 		UserDefinition loginUser = new UserDefinition();
 		loginUser.setUserName("guiuser01");
 		loginUser.setCustomerId(1);
@@ -35,7 +36,8 @@ public class JWTUtiltest {
 		loginUser.setSchemaName("cust01");
 		
 		String token = JWTUtil.createToken(loginUser);
-
+		*/
+		String token = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmFtZSI6InVzZXIwMSIsInJvbGUiOiJ1c2VyIiwiY3VzdG9tZXJJZCI6MSwiZW5jcnlwdGlvbktleSI6Im1vYklkLTIwMTctMDQtMTkgMTY6NDA6NTUuMCIsInN1YiI6Imlyc2YgcG9ydGFsIGp3dCIsImF1ZCI6Imlyc2YtcmVzdCIsImlzcyI6Imljb25lY3RpdiIsImlhdCI6MTQ5MjcxMjk4N30.uPgLNuW3ItmUIde34qN7j90mKG-L60cQpiXZI68Lc2A";
 		Object claims = JWTUtil.parseToken(token);
 		log.info(JsonHelper.toPrettyJson(claims));
 	}

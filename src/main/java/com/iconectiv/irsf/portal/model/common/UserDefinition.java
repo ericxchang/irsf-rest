@@ -39,6 +39,8 @@ public class UserDefinition implements java.io.Serializable {
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 
+	private String encryptionKey;
+	
 	public UserDefinition() {
 	}
 
@@ -201,6 +203,15 @@ public class UserDefinition implements java.io.Serializable {
 
 	public void setSchemaName(String schemaName) {
 		this.schemaName = schemaName;
+	}
+
+	@Transient
+	public String getEncryptionKey() {
+		return encryptionKey;
+	}
+
+	public void setEncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
 	}
 
 	@Transient

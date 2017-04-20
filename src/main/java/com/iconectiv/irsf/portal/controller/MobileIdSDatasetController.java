@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -65,9 +66,7 @@ class MobileIdDatasetController extends BaseRestController {
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
-		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toPrettyJson(rv));
-		}
+
 		return rv;
 	}
 
@@ -104,7 +103,7 @@ class MobileIdDatasetController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/rangeNdc", method = RequestMethod.GET)
+	@RequestMapping(value = "/rangeNDC", method = RequestMethod.GET)
 	public ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
@@ -122,7 +121,9 @@ class MobileIdDatasetController extends BaseRestController {
 				Page<RangeNdc> results = rangeNdcRepo.findAll(page);
 				rv = makeSuccessResult(results);
 			} else {
-				Iterable<RangeNdc> results = rangeNdcRepo.findAll();
+				List<RangeNdc> results = rangeNdcRepo.findAll();
+				
+				if (log.isDebugEnabled()) log.debug("Total size of range_ndc: " + results.size());
 				rv = makeSuccessResult("", results);
 			}
 
@@ -131,9 +132,7 @@ class MobileIdDatasetController extends BaseRestController {
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}
-		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toPrettyJson(rv));
-		}
+
 		return rv;
 	}
 }

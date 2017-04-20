@@ -26,7 +26,7 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 	@Override
 	@Scheduled(cron = "0 6 0 ? * *")
 	public void checkNewMobileIdUpdate() {
-		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobildIdUpdate.value());
+		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
 		
 		if (lastUpdatedDate == null || lastUpdatedDate.compareTo(event.getCreateTimestamp()) < 0) {
 			lastUpdatedDate = event.getCreateTimestamp();
@@ -38,7 +38,7 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 
 	}
 
-	@CacheEvict(cacheNames = {"ccNDC", "country"}, allEntries = true)
+	@CacheEvict(cacheNames = {"ccNDC", "country", "rangeNDC"}, allEntries = true)
 	private void handleMobileIdDataReloadEvent() {
 		log.info("Clear cached data ....");
 	}

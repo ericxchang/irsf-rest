@@ -20,12 +20,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AuthException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
@@ -41,6 +44,8 @@ public class AuthServiceController extends BaseRestController {
     UserDefinitionRepository userRepo;
 	@Autowired
 	CustomerDefinitionRepository customerRepo;
+	@Autowired
+	EventNotificationRepository eventRepo;
 	
 	@Autowired
     AuditTrailService auditService;
@@ -84,6 +89,8 @@ public class AuthServiceController extends BaseRestController {
 				}
 			}
 			
+			EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
+			loginUser.setEncryptionKey("mobId-" + event.getCreateTimestamp());
 			
             auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "login", request.getRemoteAddr());
 			

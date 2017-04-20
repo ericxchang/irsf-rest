@@ -5,7 +5,7 @@ public enum EventTypeDefinition {
 	Rule_Update ("Rule Update"),
 	Partition_Update ("Partition Update"),
 	Dataset_Update ("DateSet Update"), 
-	MobildIdUpdate ("MobileId Update"),
+	MobileIdUpdate ("RefreshData"),
 	;
 	
 	private String eventType;

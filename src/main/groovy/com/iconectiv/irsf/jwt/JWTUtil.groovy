@@ -40,6 +40,7 @@ class JWTUtil {
 		loginUser.userName = jws.getBody().get("userName")
 		loginUser.role = jws.getBody().get("role")
 		loginUser.customerId = jws.getBody().get("customerId")
+		loginUser.encryptionKey = jws.getBody().get("encryptionKey")
         return loginUser
     }
 
@@ -59,6 +60,10 @@ class JWTUtil {
 		
 		if (loginUser.schemaName) {
 			userMap['schemaName'] = loginUser.schemaName
+		}
+		
+		if (loginUser.encryptionKey) {
+			userMap['encryptionKey'] = loginUser.encryptionKey
 		}
 		return createToken(AppConstants.Subject, AppConstants.Audience, userMap);
 	}
