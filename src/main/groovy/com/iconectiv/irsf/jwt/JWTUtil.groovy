@@ -32,10 +32,12 @@ class JWTUtil {
         return builder.signWith(SignatureAlgorithm.HS256, AppConstants.SecretKey).compact()
     }
 
-    static Jws<Claims> parseToken(String jwt) {
+    static UserDefinition parseToken(String jwt) {
         Jws<Claims> jws = Jwts.parser().setSigningKey(AppConstants.SecretKey).parseClaimsJws(jwt);
 		if (log.isDebugEnabled()) log.debug(JsonHelper.toJson(jws))
-        return jws
+		
+		
+        return JsonHelper.parse(jws.getBody(), UserDefinition)
     }
 
 	public static String createToken(UserDefinition loginUser) {
