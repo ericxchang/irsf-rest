@@ -43,7 +43,7 @@ public class BaseRestController {
 	protected UserDefinition getLoginUser(Map<String, String> header) {
 		try {
 			log.debug(JsonHelper.toPrettyJson(header));
-			String token = header.get("Authorization");
+			String token = header.get("authorization");
 			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
 			
 			Jws<Claims> claims = JWTUtil.parseToken(token.substring(7));
