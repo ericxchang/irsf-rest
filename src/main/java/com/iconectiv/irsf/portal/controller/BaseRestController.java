@@ -3,12 +3,16 @@ package com.iconectiv.irsf.portal.controller;
 import com.google.common.base.Joiner;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.util.JsonHelper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,9 @@ public class BaseRestController {
 	private static Logger log = LoggerFactory.getLogger(BaseRestController.class);
 	private static final String STATUS = "status";
 	private static final String MESSAGE = "message";
+	
+	@Autowired
+	private CustomerDefinitionRepository custRepo;
 
 	protected void assertAuthorized(UserDefinition loginUser, String permission) {
 		if (loginUser == null) {
@@ -46,7 +53,15 @@ public class BaseRestController {
 			String token = header.get("authorization");
 			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
 
-			return JWTUtil.parseToken(token.substring(7));
+			UserDefinition loginUser = JWTUtil.parseToken(token.substring(7));
+			if (loginUser.getCustomerId() != null) {
+				CustomerDefinition customer = custRepo.findOne(loginUser.getCustomerId());
+				if (customer == null) {
+					throw new AppException("User has invalid customer id");
+				}
+				loginUser.setSchemaName(customer.getSchemaName());
+			}
+			return loginUser;
 		} catch (Exception e) {
 			log.error("Error to parse JWT:", e);
 			return null;
