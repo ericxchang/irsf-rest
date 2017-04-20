@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.google.common.base.Joiner;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ public class BaseRestController {
 
 	protected UserDefinition getLoginUser(Map<String, String> header) {
 		try {
+			log.debug(JsonHelper.toPrettyJson(header));
 			String token = header.get("Authorization");
 			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
 			
