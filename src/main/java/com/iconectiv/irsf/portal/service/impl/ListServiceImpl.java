@@ -152,6 +152,22 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
+	public ListDefintion getListDetails(String listName) {
+		ListDefintion listDef = listDefRepo.findOneByListName(listName);
+
+		if (listDef == null) {
+			log.warn("list {} does not exist", listName);
+			return null;
+		}
+		listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
+
+		listDef.getListUploadRequests().forEach(uploadReq -> {
+			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
+		});
+		return listDef;
+	}
+
+	@Override
 	public ListDefintion getListDetails(int listId) {
 		ListDefintion listDef = listDefRepo.findOne(listId);
 
@@ -165,6 +181,13 @@ public class ListServiceImpl implements ListService {
 			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
 		});
 		return listDef;
+	}
+
+	@Override
+	@Transactional
+	public void deleteListDefinition(String listName) {
+		listDefRepo.deleteByListName(listName);
+		return;
 	}
 
 	@Override

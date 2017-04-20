@@ -25,6 +25,7 @@ import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.ListType;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
@@ -141,16 +142,27 @@ class ListServiceController extends BaseRestController {
 	}
 	
 
-	@RequestMapping(value = "/list/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getListDefintiontDetails(@RequestHeader Map<String, String> header, @PathVariable int listId) {
+	public ResponseEntity<String> getListDefintiontDetails(@RequestHeader Map<String, String> header, 
+			@RequestParam(value = "listId", required = false) Integer listId, 
+			@RequestParam(value = "listName", required = false) String listName) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			ListDefintion listDef = listService.getListDetails(listId);
+			
+			ListDefintion listDef;
+			
+			if (listName != null) {
+				listDef = listService.getListDetails(listName);				
+			} else if (listId != null) {
+				listDef = listService.getListDetails(listId);				
+			} else {
+				throw new AppException("Either listName or listId should be defined");
+			}
 			rv = makeSuccessResult(MessageDefinition.Query_Success, listDef);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -165,16 +177,28 @@ class ListServiceController extends BaseRestController {
 	}
 
 
-	@RequestMapping(value = "/list/{listId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/list", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header, @PathVariable int listId) {
+	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header,
+			@RequestParam(value = "listId", required = false) Integer listId, 
+			@RequestParam(value = "listName", required = false) String listName) {
+
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			listService.deleteListDefinition(listId);
+			
+			if (listName != null) {
+				listService.deleteListDefinition(listName);
+			} else if (listId != null) {
+				listService.deleteListDefinition(listId);
+			} else {
+				throw new AppException("Either listName or listId should be defined");
+			}
+	
+			
 			rv = makeSuccessResult(MessageDefinition.Delete_List_Success);
 			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
 		} catch (SecurityException e) {

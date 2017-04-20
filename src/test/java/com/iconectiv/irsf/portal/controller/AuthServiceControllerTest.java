@@ -97,7 +97,7 @@ public class AuthServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/blacklist").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/blacklist").header("authorization", "Bearer ")).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -112,7 +112,7 @@ public class AuthServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/blacklist").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/blacklist").header("authorization", "Bearer " + token)).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);

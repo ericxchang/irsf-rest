@@ -72,7 +72,7 @@ public class RuleServiceControllerTest  {
 	}
 
     private void queryRule(RuleDefinition rule) throws Exception {
-        ResultActions action = mockMvc.perform(get("/rule/" + rule.getId()).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+        ResultActions action = mockMvc.perform(get("/rule/" + rule.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
 
         log.info(result);
@@ -83,7 +83,7 @@ public class RuleServiceControllerTest  {
     private void updateRule(RuleDefinition rule) throws Exception {
 		rule.setDialPatternType(DialPatternType.Prime3.value());
 
-        ResultActions action = mockMvc.perform(post("/rule/save").header("Authorization", "Bearer " + token)
+        ResultActions action = mockMvc.perform(post("/rule/save").header("authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(rule)));
         String result = action.andReturn().getResponse().getContentAsString();
         log.info(result);
@@ -99,7 +99,7 @@ public class RuleServiceControllerTest  {
 		rule.setLastUpdatedBy("junit");
 		rule.setPartitionId(4);
 
-		ResultActions action = mockMvc.perform(post("/rule/save").header("Authorization", "Bearer " + token)
+		ResultActions action = mockMvc.perform(post("/rule/save").header("authorization", "Bearer " + token)
 			.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(rule)));
 		String result = action.andReturn().getResponse().getContentAsString();
 

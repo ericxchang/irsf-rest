@@ -71,7 +71,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testQueryTopListRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/lists/BL").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/lists/BL").header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -81,7 +81,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testQueryListDataRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/listDetail/74").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/listDetail/74").header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -91,7 +91,7 @@ public class ListServiceControllerTest {
 	
 	@Test
 	public void testQueryListDataPageRequest() throws Exception {
-		ResultActions action = mockMvc.perform(get("/listDetail?id=74&limit=5").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/listDetail?id=74&limit=5").header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -110,7 +110,7 @@ public class ListServiceControllerTest {
 		
 		ListDefintion listDefinition = lists.get(0);
 
-		ResultActions action = mockMvc.perform(get("/list/" + listDefinition.getId()).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/list/" + listDefinition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -120,7 +120,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testInvalidUser() throws Exception {
-		ResultActions action = mockMvc.perform(get("/list/1").header("Authorization", "Bearer ")).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/1").header("authorization", "Bearer ")).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -135,7 +135,7 @@ public class ListServiceControllerTest {
 		loginUser.setRole(PermissionRole.API.value());
 		token = JWTUtil.createToken(loginUser);
 		
-		ResultActions action = mockMvc.perform(get("/list/1").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+		ResultActions action = mockMvc.perform(get("/list/1").header("authorization", "Bearer " + token)).andExpect(status().isForbidden());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -158,7 +158,7 @@ public class ListServiceControllerTest {
 		listDetails.setCustomerDate(new Date());
 		listDetails.setReason("add by junit");
 		
-        ResultActions action = mockMvc.perform(post("/list/save").header("Authorization", "Bearer " + token)
+        ResultActions action = mockMvc.perform(post("/list/save").header("authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(listDetails)));
         String result = action.andReturn().getResponse().getContentAsString();
         log.info(result);

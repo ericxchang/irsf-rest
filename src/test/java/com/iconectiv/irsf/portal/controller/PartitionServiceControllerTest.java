@@ -73,7 +73,7 @@ public class PartitionServiceControllerTest  {
 	}
 
     private void queryPartition(PartitionDefinition partition) throws Exception {
-        ResultActions action = mockMvc.perform(get("/partition/" + partition.getId()).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+        ResultActions action = mockMvc.perform(get("/partition/" + partition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
 
         log.info(result);
@@ -82,7 +82,7 @@ public class PartitionServiceControllerTest  {
     }
 
     private void refrehPartition(PartitionDefinition partition) throws Exception {
-        ResultActions action = mockMvc.perform(post("/partition/refresh").header("Authorization", "Bearer " + token)
+        ResultActions action = mockMvc.perform(post("/partition/refresh").header("authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(partition)));
         String result = action.andReturn().getResponse().getContentAsString();
         log.info(result);
@@ -92,7 +92,7 @@ public class PartitionServiceControllerTest  {
     private void updatePartition(PartitionDefinition partition) throws Exception {
         partition.setRuleIds("2");
 
-        ResultActions action = mockMvc.perform(post("/partition/save").header("Authorization", "Bearer " + token)
+        ResultActions action = mockMvc.perform(post("/partition/save").header("authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(partition)));
         String result = action.andReturn().getResponse().getContentAsString();
         log.info(result);
@@ -108,7 +108,7 @@ public class PartitionServiceControllerTest  {
 		partition.setLastUpdated(new Date());
 		partition.setLastUpdatedBy("junit");
 
-		ResultActions action = mockMvc.perform(post("/partition/save").header("Authorization", "Bearer " + token)
+		ResultActions action = mockMvc.perform(post("/partition/save").header("authorization", "Bearer " + token)
 			.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(partition)));
 		String result = action.andReturn().getResponse().getContentAsString();
 

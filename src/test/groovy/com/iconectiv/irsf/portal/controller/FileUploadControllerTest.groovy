@@ -66,7 +66,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 					
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile)
-                            .param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("Authorization", "Bearer " + token))
+                            .param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -79,7 +79,7 @@ class FileUploadControllerTest extends GroovyTestCase {
             withPool {
                 ["cust01"].eachParallel {
 					def token = createToken(it)
-                    def action = mockMvc.perform(get("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
+                    def action = mockMvc.perform(get("/list?listName=${listName}").header("authorization", "Bearer " + token)).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }
@@ -94,7 +94,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 		def listName = "junit-BL-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
         try {
             withPool {
-                ["cust01", "cust02", "cust03"].eachParallel {
+                ["cust01","cust02","cust03"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
                     MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
@@ -104,7 +104,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 					def token = createToken(it)
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile).file(secondFile).file(thirdFile).
-                            param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("Authorization", "Bearer " + token))
+                            param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -115,13 +115,13 @@ class FileUploadControllerTest extends GroovyTestCase {
             sleep(30 * 1000)
         } finally {
             withPool {
-                ["cust01", "cust02", "cust03"].eachParallel {
+                ["cust01","cust02","cust03"].eachParallel {
 					def token = createToken(it)
-                    def action = mockMvc.perform(get("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
+                    def action = mockMvc.perform(get("/list?listName=${listName}").header("authorization", "Bearer " + token)).andExpect(status().isOk())
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
-                    action = mockMvc.perform(delete("/list/${listName}").header("Authorization", "Bearer " + token)).andExpect(status().isOk())
+                    action = mockMvc.perform(delete("/list?listName=${listName}").header("authorization", "Bearer " + token)).andExpect(status().isOk())
                     result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }

@@ -22,8 +22,10 @@ public interface ListService {
 	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
 
 	void deleteListDefinition(int listId);
+	void deleteListDefinition(String listName);
 
 	ListDefintion getListDetails(int listId);
+	ListDefintion getListDetails(String listName);
 
 	void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException;
 	
@@ -32,4 +34,6 @@ public interface ListService {
 	List<ListDetails> getListDetailDataByUploadId(int uploadId);
 
 	List<ListDefintion> getTop3ListDefinition(String listType);
+
+
 }

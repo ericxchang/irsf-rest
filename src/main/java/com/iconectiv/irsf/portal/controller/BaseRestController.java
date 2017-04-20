@@ -30,7 +30,7 @@ public class BaseRestController {
 	private static Logger log = LoggerFactory.getLogger(BaseRestController.class);
 	private static final String STATUS = "status";
 	private static final String MESSAGE = "message";
-	
+
 	@Autowired
 	private CustomerDefinitionRepository custRepo;
 
@@ -48,24 +48,20 @@ public class BaseRestController {
 	}
 
 	protected UserDefinition getLoginUser(Map<String, String> header) {
-		try {
-			log.debug(JsonHelper.toPrettyJson(header));
-			String token = header.get("authorization");
-			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
+		log.debug(JsonHelper.toPrettyJson(header));
+		String token = header.get("authorization");
 
-			UserDefinition loginUser = JWTUtil.parseToken(token.substring(7));
-			if (loginUser.getCustomerId() != null) {
-				CustomerDefinition customer = custRepo.findOne(loginUser.getCustomerId());
-				if (customer == null) {
-					throw new AppException("User has invalid customer id");
-				}
-				loginUser.setSchemaName(customer.getSchemaName());
+		UserDefinition loginUser = JWTUtil.parseToken(token.substring(7));
+		if (loginUser.getCustomerId() != null) {
+			CustomerDefinition customer = custRepo.findOne(loginUser.getCustomerId());
+			if (customer == null) {
+				throw new SecurityException("User has invalid customer id");
 			}
-			return loginUser;
-		} catch (Exception e) {
-			log.error("Error to parse JWT:", e);
-			return null;
+			loginUser.setSchemaName(customer.getSchemaName());
+			loginUser.setCustomerName(customer.getCustomerName());
+			loginUser.setCustomerDefinition(customer);
 		}
+		return loginUser;
 	}
 
 	/**
@@ -146,8 +142,7 @@ public class BaseRestController {
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
-
-	protected  <T> ResponseEntity<String> makeSuccessResult(Page<T> pageData) {
+	protected <T> ResponseEntity<String> makeSuccessResult(Page<T> pageData) {
 		Map<String, Object> result = new HashMap<>();
 		result.put(STATUS, AppConstants.SUCCESS);
 		result.put("messages", "");
@@ -162,7 +157,6 @@ public class BaseRestController {
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
-	
 	/**
 	 * Make a success result with the additional the data provided.
 	 * 
@@ -173,7 +167,8 @@ public class BaseRestController {
 	private ResponseEntity<String> makeSuccessResult(Map<String, Object> data) {
 		data.put(STATUS, AppConstants.SUCCESS);
 		String json = JsonHelper.toJson(data);
-		if (log.isDebugEnabled()) log.debug(JsonHelper.toPrettyJson(json));
+		if (log.isDebugEnabled())
+			log.debug(JsonHelper.toPrettyJson(json));
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
@@ -201,7 +196,6 @@ public class BaseRestController {
 		result.put(MESSAGE, message);
 		return makeSuccessResult(result);
 	}
-
 
 	protected ResponseEntity<String> makeSuccessResult(String message, Object value) {
 		Map<String, Object> result = new HashMap<>();

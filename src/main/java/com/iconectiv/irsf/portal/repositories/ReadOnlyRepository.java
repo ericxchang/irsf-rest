@@ -1,7 +1,6 @@
 package com.iconectiv.irsf.portal.repositories;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
