@@ -103,7 +103,7 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@Value("${jdbc.query_batch_size:1000}")
+	@Value("${jdbc.query_batch_size}")
 	private int batchSize;
 
 	@RequestMapping(value = "/listDetail", method = RequestMethod.GET)
