@@ -45,12 +45,8 @@ public class BaseRestController {
 			log.debug(JsonHelper.toPrettyJson(header));
 			String token = header.get("authorization");
 			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
-			
-			UserDefinition loginUser  = JWTUtil.parseToken(token.substring(7));
 
-			if (log.isDebugEnabled()) log.debug(JsonHelper.toJson(loginUser));
-			
-			return loginUser;
+			return JWTUtil.parseToken(token.substring(7));
 		} catch (Exception e) {
 			log.error("Error to parse JWT:", e);
 			return null;

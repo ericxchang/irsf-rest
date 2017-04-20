@@ -36,8 +36,11 @@ class JWTUtil {
         Jws<Claims> jws = Jwts.parser().setSigningKey(AppConstants.SecretKey).parseClaimsJws(jwt);
 		if (log.isDebugEnabled()) log.debug(JsonHelper.toJson(jws))
 		
-		
-        return JsonHelper.parse(jws.getBody(), UserDefinition)
+		UserDefinition loginUser = new UserDefinition()
+		loginUser.userName = jws.getBody().get("userName")
+		loginUser.role = jws.getBody().get("role")
+		loginUser.customerId = jws.getBody().get("customerId")
+        return loginUser
     }
 
 	public static String createToken(UserDefinition loginUser) {
