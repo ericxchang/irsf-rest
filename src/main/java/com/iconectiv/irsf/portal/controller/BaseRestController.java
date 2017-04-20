@@ -41,11 +41,16 @@ public class BaseRestController {
 	protected UserDefinition getLoginUser(Map<String, String> header) {
 		try {
 			String token = header.get("Authorization");
+			if (log.isDebugEnabled()) log.debug("JWT in header: {}", token);
+			
 			Jws<Claims> claims = JWTUtil.parseToken(token.substring(7));
 
-			UserDefinition loginUser = JsonHelper.fromJson(claims.getBody(), UserDefinition.class);
+			if (log.isDebugEnabled()) log.debug("JWT body: {}", claims.getBody().toString());
+			
+			UserDefinition loginUser = JsonHelper.fromJson(claims.getBody().toString(), UserDefinition.class);
 			return loginUser;
 		} catch (Exception e) {
+			log.error("Error to parse JWT:", e);
 			return null;
 		}
 	}
