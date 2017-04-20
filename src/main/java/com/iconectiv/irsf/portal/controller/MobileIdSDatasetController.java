@@ -30,7 +30,7 @@ import com.iconectiv.irsf.util.JsonHelper;
 class MobileIdDatasetController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(MobileIdDatasetController.class);
 
-	@Value("${jdbc.query_batch_size}")
+	@Value("${jdbc.query_batch_size:10000}")
 	private int batchSize;
 	@Autowired
 	private IprnRepository iprnRepo;
