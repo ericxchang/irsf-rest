@@ -40,27 +40,26 @@ class MobileIdDatasetController extends BaseRestController {
 	private RangeNdcRepository rangeNdcRepo;
 
 	@RequestMapping(value = "/iprn", method = RequestMethod.GET)
-	public ResponseEntity<String> getIPRN(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	public ResponseEntity<String> getIPRN(@RequestHeader Map<String, String> header,
+	        @RequestParam(value = "pageNo", required = false) Integer pageNo,
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
+			if (pageNo == null) {
+				pageNo = 0;
+			}
+
 			if (limit == null) {
 				limit = batchSize;
 			}
 
-			if (pageNo != null) {
-				PageRequest page = new PageRequest(pageNo, limit);
+			PageRequest page = new PageRequest(pageNo, limit);
 
-				Page<Iprn> results = iprnRepo.findAll(page);
-				rv = makeSuccessResult(results);
-			} else {
-				Iterable<Iprn> results = iprnRepo.findAll();
-				rv = makeSuccessResult("", results);
-			}
-
+			Page<Iprn> results = iprnRepo.findAll(page);
+			rv = makeSuccessResult(results);
 		} catch (NullPointerException e1) {
 			rv = makeErrorResult(e1);
 		} catch (Exception e) {
@@ -71,7 +70,8 @@ class MobileIdDatasetController extends BaseRestController {
 	}
 
 	@RequestMapping(value = "/country", method = RequestMethod.GET)
-	public ResponseEntity<String> getCountry(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	public ResponseEntity<String> getCountry(@RequestHeader Map<String, String> header,
+	        @RequestParam(value = "pageNo", required = false) Integer pageNo,
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
@@ -104,28 +104,26 @@ class MobileIdDatasetController extends BaseRestController {
 	}
 
 	@RequestMapping(value = "/rangeNDC", method = RequestMethod.GET)
-	public ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	public ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header,
+	        @RequestParam(value = "pageNo", required = false) Integer pageNo,
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
+			if (pageNo == null) {
+				pageNo = 0;
+			}
+
 			if (limit == null) {
 				limit = batchSize;
 			}
 
-			if (pageNo != null) {
-				PageRequest page = new PageRequest(pageNo, limit);
+			PageRequest page = new PageRequest(pageNo, limit);
 
-				Page<RangeNdc> results = rangeNdcRepo.findAll(page);
-				rv = makeSuccessResult(results);
-			} else {
-				List<RangeNdc> results = rangeNdcRepo.findAll();
-				
-				if (log.isDebugEnabled()) log.debug("Total size of range_ndc: " + results.size());
-				rv = makeSuccessResult("", results);
-			}
+			Page<RangeNdc> results = rangeNdcRepo.findAll(page);
+			rv = makeSuccessResult(results);
 
 		} catch (NullPointerException e1) {
 			rv = makeErrorResult(e1);
