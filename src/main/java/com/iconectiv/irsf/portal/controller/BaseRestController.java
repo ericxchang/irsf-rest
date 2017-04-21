@@ -153,6 +153,9 @@ public class BaseRestController {
 		result.put("totalPage", pageData.getTotalPages());
 		result.put("pageNumber", pageData.getNumber());
 		result.put("count", pageData.getNumberOfElements());
+		
+		if (log.isDebugEnabled()) log.debug("page info: frist: {}, last: {}, totalCount: {}, totalPage: {}, pageNumber {}", 
+				pageData.isFirst(), pageData.isLast(), pageData.getTotalElements(), pageData.getTotalPages(), pageData.getNumber());
 		String json = JsonHelper.toJson(result);
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}

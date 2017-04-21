@@ -38,7 +38,7 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 
 	}
 
-	@CacheEvict(cacheNames = {"ccNDC", "country", "rangeNDC"}, allEntries = true)
+	@CacheEvict(cacheNames = {"ccNDC", "country"}, allEntries = true)
 	private void handleMobileIdDataReloadEvent() {
 		log.info("Clear cached data ....");
 	}

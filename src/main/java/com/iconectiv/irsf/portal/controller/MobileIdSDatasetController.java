@@ -74,8 +74,6 @@ class MobileIdDatasetController extends BaseRestController {
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
-			if (log.isDebugEnabled()) log.debug("receive rangeNDC query rquest pageNo {}", pageNo);
-			
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
@@ -99,7 +97,7 @@ class MobileIdDatasetController extends BaseRestController {
 		}
 		
 		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toPrettyJson(rv));
+			log.debug("Completed query country request");
 		}
 		return rv;
 	}
@@ -126,12 +124,16 @@ class MobileIdDatasetController extends BaseRestController {
 
 			Page<RangeNdc> results = rangeNdcRepo.findAll(page);
 			rv = makeSuccessResult(results);
+			
 
 		} catch (Exception e) {
-			log.error("Error to retieve country data", e);
+			log.error("Error to retrieve country data", e);
 			rv = makeErrorResult(e);
 		}
 
+		if (log.isDebugEnabled()) {
+			log.debug("Completed query rangeNDC  request");
+		}
 		return rv;
 	}
 }
