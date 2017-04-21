@@ -62,9 +62,7 @@ class JWTUtil {
 			userMap['schemaName'] = loginUser.schemaName
 		}
 		
-		if (loginUser.encryptionKey) {
-			userMap['encryptionKey'] = loginUser.encryptionKey
-		}
+
 		return createToken(AppConstants.Subject, AppConstants.Audience, userMap);
 	}
 }
