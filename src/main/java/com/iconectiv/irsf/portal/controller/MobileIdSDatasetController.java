@@ -1,6 +1,5 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -75,6 +74,8 @@ class MobileIdDatasetController extends BaseRestController {
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
+			if (log.isDebugEnabled()) log.debug("receive rangeNDC query rquest pageNo {}", pageNo);
+			
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
@@ -92,11 +93,11 @@ class MobileIdDatasetController extends BaseRestController {
 				rv = makeSuccessResult("", results);
 			}
 
-		} catch (NullPointerException e1) {
-			rv = makeErrorResult(e1);
 		} catch (Exception e) {
+			log.error("Error to retieve country data", e);
 			rv = makeErrorResult(e);
 		}
+		
 		if (log.isDebugEnabled()) {
 			log.debug(JsonHelper.toPrettyJson(rv));
 		}
@@ -109,6 +110,7 @@ class MobileIdDatasetController extends BaseRestController {
 	        @RequestParam(value = "limit", required = false) Integer limit) {
 		ResponseEntity<String> rv;
 		try {
+			if (log.isDebugEnabled()) log.debug("receive rangeNDC query rquest pageNo {}", pageNo);
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
@@ -125,9 +127,8 @@ class MobileIdDatasetController extends BaseRestController {
 			Page<RangeNdc> results = rangeNdcRepo.findAll(page);
 			rv = makeSuccessResult(results);
 
-		} catch (NullPointerException e1) {
-			rv = makeErrorResult(e1);
 		} catch (Exception e) {
+			log.error("Error to retieve country data", e);
 			rv = makeErrorResult(e);
 		}
 
