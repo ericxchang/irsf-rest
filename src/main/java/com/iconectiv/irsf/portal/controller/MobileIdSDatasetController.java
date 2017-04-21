@@ -23,13 +23,12 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
-import com.iconectiv.irsf.util.JsonHelper;
 
 @Controller
 class MobileIdDatasetController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(MobileIdDatasetController.class);
 
-	@Value("${jdbc.query_batch_size:10000}")
+	@Value("${jdbc.query_batch_size:100000}")
 	private int batchSize;
 	@Autowired
 	private IprnRepository iprnRepo;
