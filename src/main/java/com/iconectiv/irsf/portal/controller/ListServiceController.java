@@ -29,7 +29,9 @@ import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.service.ListUploadService;
@@ -44,6 +46,8 @@ class ListServiceController extends BaseRestController {
 	private ListService listService;
 	@Autowired
 	private ListDetailsRepository listRepo;
+	@Autowired
+	private ListUploadRequestRepository listUploadRepo;
 	
 	@Autowired
 	private ListUploadService uploadService;
@@ -82,6 +86,26 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
+
+	@RequestMapping(value = "/listUploadRequest/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getListUploadRequestByListId(@RequestHeader Map<String, String> header, @PathVariable int listId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			List<ListUploadRequest> listUploadRequests = listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listId);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listUploadRequests);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
 
 	@RequestMapping(value = "/listDetail/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
