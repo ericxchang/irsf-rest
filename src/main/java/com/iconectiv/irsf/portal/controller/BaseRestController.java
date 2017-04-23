@@ -48,7 +48,7 @@ public class BaseRestController {
 	}
 
 	protected UserDefinition getLoginUser(Map<String, String> header) {
-		log.debug(JsonHelper.toPrettyJson(header));
+		//if (log.isDebugEnabled())log.debug(JsonHelper.toPrettyJson(header));
 		String token = header.get("authorization");
 
 		UserDefinition loginUser = JWTUtil.parseToken(token.substring(7));
