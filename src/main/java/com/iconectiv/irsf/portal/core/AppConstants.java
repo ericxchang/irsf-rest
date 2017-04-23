@@ -1,5 +1,9 @@
 package com.iconectiv.irsf.portal.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class AppConstants {
 	private AppConstants() {
 	}
@@ -16,5 +20,7 @@ public class AppConstants {
 	public static final String NORECORDFOUND = "No record found";
 	public static final String BLACKLIST = "BL";
 	public static final String WHITELIST = "WL";
+	
+	public static List<String> UploadFileType = new ArrayList<>(Arrays.asList("application/vnd.ms-excel", "text/plain"));
 
 }

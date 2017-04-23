@@ -211,7 +211,7 @@ public class ListServiceImpl implements ListService {
 			return null;
 		}
 
-		if (!file.getContentType().equals("text/plain")) {
+		if (!AppConstants.UploadFileType.contains( file.getContentType() )) {
 			String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
 			log.error(errorMessage);
 			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
