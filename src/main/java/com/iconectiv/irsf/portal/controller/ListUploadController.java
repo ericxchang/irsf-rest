@@ -41,7 +41,7 @@ public class ListUploadController extends BaseRestController {
 	@ResponseBody
 	public ResponseEntity<String> multipleSave(@RequestHeader Map<String, String> header, @RequestParam("file") MultipartFile[] files,   
 	        @RequestParam("listType") String listType, @RequestParam("listName") String listName,
-	        @RequestParam("listId") Optional<Integer> id, @RequestParam("delimiter") String delimiter) {
+	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 		try {
             Assert.notNull(listType);
@@ -58,7 +58,7 @@ public class ListUploadController extends BaseRestController {
 				listId = listService.createListDefinition(loginUser, listName, listType);
 				isInitialLoading = true;
 			} else if (id != null){
-				listId = id.get();
+				listId = id;
 				isInitialLoading = false;
 			} else {
 				throw new AppException("Invalid request parameter: must provide either listName or listId");
