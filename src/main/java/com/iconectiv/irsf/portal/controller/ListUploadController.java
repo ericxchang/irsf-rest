@@ -51,9 +51,9 @@ public class ListUploadController extends BaseRestController {
 
             Integer listId;
             final boolean isInitialLoading;
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());				
             
 			if (listName != null && id == null) {
-				CustomerContextHolder.setSchema(loginUser.getSchemaName());				
 				listId = listService.createListDefinition(loginUser, listName, listType);
 				isInitialLoading = true;
 			} else if (id != null){
