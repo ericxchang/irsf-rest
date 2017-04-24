@@ -1,27 +1,23 @@
 package com.iconectiv.irsf.portal.controller;
 
-import com.google.common.base.Joiner;
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.AppConstants;
-import com.iconectiv.irsf.portal.exception.AppException;
-import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
-import com.iconectiv.irsf.util.JsonHelper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
+import com.iconectiv.irsf.util.JsonHelper;
 
 /**
  * Base class containing utility methods for REST API controllers.
@@ -154,8 +150,7 @@ public class BaseRestController {
 		result.put("pageNumber", pageData.getNumber());
 		result.put("count", pageData.getNumberOfElements());
 		
-		if (log.isDebugEnabled()) log.debug("page info: first: {}, last: {}, totalCount: {}, totalPage: {}, pageNumber {}", 
-				pageData.isFirst(), pageData.isLast(), pageData.getTotalElements(), pageData.getTotalPages(), pageData.getNumber());
+
 		String json = JsonHelper.toJson(result);
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
@@ -170,8 +165,6 @@ public class BaseRestController {
 	private ResponseEntity<String> makeSuccessResult(Map<String, Object> data) {
 		data.put(STATUS, AppConstants.SUCCESS);
 		String json = JsonHelper.toJson(data);
-		if (log.isDebugEnabled())
-			log.debug(JsonHelper.toPrettyJson(json));
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
