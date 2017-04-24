@@ -35,5 +35,7 @@ public interface ListService {
 
 	List<ListDefintion> getTop3ListDefinition(String listType);
 
+	void updateListName(UserDefinition loginUser, Integer listId, String listName);
+
 
 }

@@ -152,6 +152,21 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
+	public void updateListName(UserDefinition loginUser, Integer listId, String listName) {
+		ListDefintion listDef = listDefRepo.findOne(listId);
+		
+		if (listDef != null && !listDef.getListName().equals(listName)) {
+			listDef.setListName(listName);
+			listDef.setLastUpdated(new Date());
+			listDef.setLastUpdatedBy(loginUser.getUserName());
+			listDefRepo.save(listDef);
+			
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "rename list " + listId + " to " + listName);
+		}
+		
+	}
+	
+	@Override
 	public ListDefintion getListDetails(String listName) {
 		ListDefintion listDef = listDefRepo.findOneByListName(listName);
 
@@ -297,4 +312,6 @@ public class ListServiceImpl implements ListService {
 		}
 		return listDefinitionData;
 	}
+
+
 }
