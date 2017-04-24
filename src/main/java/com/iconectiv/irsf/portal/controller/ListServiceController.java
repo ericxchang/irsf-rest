@@ -30,6 +30,7 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
@@ -48,6 +49,8 @@ class ListServiceController extends BaseRestController {
 	private ListDetailsRepository listRepo;
 	@Autowired
 	private ListUploadRequestRepository listUploadRepo;
+	@Autowired
+	private ListDefinitionRepository listDefRepo;
 	
 	@Autowired
 	private ListUploadService uploadService;
@@ -98,6 +101,34 @@ class ListServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			List<ListUploadRequest> listUploadRequests = listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listId);
 			rv = makeSuccessResult(MessageDefinition.Query_Success, listUploadRequests);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
+	@RequestMapping(value = "/latestUploadRequest", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getLatestListUploadRequestByListId(@RequestHeader Map<String, String> header, 
+			 @RequestParam(value = "listId", required = false) Integer listId,
+			 @RequestParam(value = "listName", required = false) String listName) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			
+			if (listId == null) {
+				ListDefintion listDef = listDefRepo.findOneByListName(listName);
+				listId = listDef.getId();
+			}
+			
+			ListUploadRequest listUploadRequest = listUploadRepo.findTop1ByListRefIdOrderByLastUpdatedDesc(listId);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listUploadRequest);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
