@@ -44,8 +44,9 @@ public class ListUploadController extends BaseRestController {
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 		try {
-            Assert.notNull(listType);
+            Assert.notNull(listName);
             Assert.notNull(delimiter);
+            Assert.notNull(listType);
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -59,6 +60,7 @@ public class ListUploadController extends BaseRestController {
 				isInitialLoading = true;
 			} else if (id != null){
 				listId = id;
+				listService.updateListName(loginUser, listId, listName);
 				isInitialLoading = false;
 			} else {
 				throw new AppException("Invalid request parameter: must provide either listName or listId");
