@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
 			throw new AuthException("user id is invalid");
 		}
 		
-		user.setPassword(encoder.encode(existingUser.getPassword()));
+		user.setPassword(existingUser.getPassword());
 		user.setLastUpdated(new Date());
 		user.setCreateTimestamp(existingUser.getCreateTimestamp());
 		userRepo.save(user);
