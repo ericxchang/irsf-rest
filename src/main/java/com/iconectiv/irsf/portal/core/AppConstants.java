@@ -22,5 +22,13 @@ public class AppConstants {
 	public static final String WHITELIST = "WL";
 	
 	public static List<String> UploadFileType = new ArrayList<>(Arrays.asList("application/vnd.ms-excel", "text/plain"));
+	
+	public static int CODE = 1;
+	public static int ISO2 = 2;
+	public static int TOS = 4;
+	public static int TOSDESC = 8;
+	public static int PROVIDER=16;
+	
+	
 
 }
