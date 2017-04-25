@@ -85,5 +85,14 @@ public class MobileIdDatasetControllerTest {
 		
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
+	@Test
+	public void testQueryRangeNDCWithFilters() throws Exception {
+		ResultActions action = mockMvc.perform(get("/ndc?codeList=51&tosList=U&tosDescList=G,Geographic&providerList=Afghan Telecom").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+		
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
 
 }
