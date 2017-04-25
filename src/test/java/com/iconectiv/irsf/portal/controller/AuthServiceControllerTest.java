@@ -91,6 +91,38 @@ public class AuthServiceControllerTest {
 	}
 
 	@Test
+	public void testUpdateUser() throws Exception {
+		UserDefinition user = userRepo.findOneByUserName("user01");
+		user.setLastUpdated(null);
+		user.setCreateTimestamp(null);
+		user.setPassword(null);
+
+		log.info(JsonHelper.toPrettyJson(user));
+		
+		ResultActions action = mockMvc.perform(post("/updateUser").header("userid", "admin").header("password", "irsfadmin")
+				.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(user)));
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+
+	}
+	
+	@Test
+	public void testChangePassword() throws Exception {
+		UserDefinition user = new UserDefinition();
+		user.setUserName("user01");
+		user.setPassword("irsf");
+		log.info(JsonHelper.toPrettyJson(user));
+		
+		ResultActions action = mockMvc.perform(post("/changePassword").header("userid", "admin").header("password", "irsfadmin")
+				.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(user)));
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+
+	}
+
+	@Test
 	public void testLogin() throws Exception {
 		UserDefinition loginUser = new UserDefinition();
 		loginUser.setUserName("user01");

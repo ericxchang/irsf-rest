@@ -113,7 +113,6 @@ public class AuthServiceController extends BaseRestController {
 
             userService.createUser(user);
 			rv = makeSuccessResult(MessageDefinition.Create_User_Success);
-            auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "create user", "success created user " + user.getUserName(), "system");
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
             auditService.saveAuditTrailLog("system", "", "create user", "fail " + e.getMessage(), "system");
@@ -136,7 +135,6 @@ public class AuthServiceController extends BaseRestController {
 			user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.updateUser(user);
 			rv = makeSuccessResult(MessageDefinition.Update_User_Success);
-            auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "update user", "success updated user " + user.getUserName(), "system");
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
             auditService.saveAuditTrailLog("system", "", "update user", "fail " + e.getMessage(), "system");
@@ -159,7 +157,6 @@ public class AuthServiceController extends BaseRestController {
 			UserDefinition user = JsonHelper.fromJson(userJson, UserDefinition.class);
 			userService.changePassword(user);
 			rv = makeSuccessResult(MessageDefinition.Change_Password_Success, user);
-            auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "change password", "success");
 		} catch (Exception e) {
 			rv = makeErrorResult(e);
 		}

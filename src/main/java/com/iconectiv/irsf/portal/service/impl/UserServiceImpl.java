@@ -6,6 +6,7 @@ import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
+import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,8 @@ public class UserServiceImpl implements UserService {
 	private UserDefinitionRepository userRepo;
 	@Autowired
 	private CustomerDefinitionRepository customerRepo;
+	@Autowired
+	private AuditTrailService auditService;
 	
 	@Autowired
 	BCryptPasswordEncoder encoder;	
@@ -99,6 +102,9 @@ public class UserServiceImpl implements UserService {
 		user.setCreateTimestamp(new Date());
 		
 		userRepo.save(user);
+		
+        auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "create user", "success created user " + user.getUserName(), "system");
+
 		return;		
 	}
 
@@ -110,17 +116,31 @@ public class UserServiceImpl implements UserService {
 		} 
 
 		UserDefinition existingUser = userRepo.findOne(user.getId());
-		user.setPassword(existingUser.getPassword());
-
 		
+		if (existingUser == null) {
+			throw new AuthException("user id is invalid");
+		}
+		
+		user.setPassword(encoder.encode(existingUser.getPassword()));
+		user.setLastUpdated(new Date());
+		user.setCreateTimestamp(existingUser.getCreateTimestamp());
 		userRepo.save(user);
+		
+        auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "update user", "success updated user " + user.getUserName(), "system");
+
 		return;		
 	}
 
     @Transactional
 	@Override
 	public void changePassword(UserDefinition user) throws AuthException {
-		UserDefinition existingUser = userRepo.findOne(user.getId());
+		UserDefinition existingUser = null;
+		
+		if (user.getId() != null) {
+			existingUser = userRepo.findOne(user.getId());
+		} else if (user.getUserName() != null) {
+			existingUser = userRepo.findOneByUserName(user.getUserName());
+		}
 		
 		if (existingUser == null) {
 			throw new AuthException("user id is invalid");
@@ -151,6 +171,7 @@ public class UserServiceImpl implements UserService {
 		
 		user.setPassword(encoder.encode(password));
 		userRepo.save(user);
+        auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "change password", "success");
 		return;				
 	}
 
