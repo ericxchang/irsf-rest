@@ -3,6 +3,7 @@ package com.iconectiv.irsf.portal.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,15 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.core.RangeNdcQueryFilter;
+import com.iconectiv.irsf.portal.core.TosAndTosDescType;
 import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Iprn;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
@@ -28,6 +34,7 @@ import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @Controller
 class MobileIdDatasetController extends BaseRestController {
@@ -196,6 +203,61 @@ class MobileIdDatasetController extends BaseRestController {
 			}
 			
 			Page<RangeNdc> results = mobileIdDataService.findRangeNdcbyFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
+			rv = makeSuccessResult(results);
+			
+
+		} catch (Exception e) {
+			log.error("Error to retrieve rangeNDC data", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("Completed query rangeNDC request");
+		}
+		return rv;
+	}
+	
+	@RequestMapping(value = "/findRangeNdc", method = RequestMethod.POST,
+			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public  @ResponseBody ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header,
+			 @RequestBody String value, Locale locale) {
+		ResponseEntity<String> rv;
+		try {
+			
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+			RangeNdcQueryFilter filter =  JsonHelper.fromJson(value, RangeNdcQueryFilter.class);
+         
+			if (filter.getPageNo() == null) {
+				filter.setPageNo(0);
+			}
+
+			if (filter.getLimit() == null) {
+				filter.setLimit(batchSize);
+			}
+			
+			if (log.isDebugEnabled()) log.debug("receive ndc query rquest pageNo {}", filter.getPageNo());
+			
+			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+			List<String> codeList = filter.getCodeList();
+			List<String> iso2List = filter.getIso2List();
+			List<String> tosList = filter.getTosList();
+			if (tosList == null)
+				tosList = new ArrayList<String>();
+			List<String> tosDescList = new ArrayList<String>();
+			for (TosAndTosDescType o: filter.getTosDescLis()) {
+				if (!o.getTos().isEmpty() && !o.getTosDesc().isEmpty()) {
+					tosDescList.add(o.getTos()+","+o.getTosDesc());
+				}
+				else if (!o.getTos().isEmpty() && o.getTosDesc().isEmpty()){
+					tosList.add(o.getTos());
+				}
+			}
+			
+			List<String> providerList = filter.getProviderList();
+	
+			Page<RangeNdc> results = mobileIdDataService.findRangeNdcbyFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
+			
 			rv = makeSuccessResult(results);
 			
 
