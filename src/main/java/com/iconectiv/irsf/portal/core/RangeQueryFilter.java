@@ -16,6 +16,8 @@ public class RangeQueryFilter {
 	private Integer pageNo;
 	private Integer limit;
 	
+	private String dataSource;
+	
 	public List<String> getCodeList() {
 		return codeList;
 	}
@@ -64,6 +66,12 @@ public class RangeQueryFilter {
 	}
 	public void setLimit(Integer limit) {
 		this.limit = limit;
+	}
+	public String getDataSource() {
+		return dataSource;
+	}
+	public void setDataSource(String dataSource) {
+		this.dataSource = dataSource;
 	}
 	
 	
