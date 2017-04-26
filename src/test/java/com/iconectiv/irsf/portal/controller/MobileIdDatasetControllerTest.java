@@ -30,7 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.core.RangeNdcQueryFilter;
+import com.iconectiv.irsf.portal.core.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
@@ -112,7 +112,7 @@ public class MobileIdDatasetControllerTest {
 		tosDescList.add("G,Geographic");
 		providerList.add("Aircel");
 		
-		RangeNdcQueryFilter filter =  new RangeNdcQueryFilter();
+		RangeQueryFilter filter =  new RangeQueryFilter();
 		filter.setCodeList(codeList); 
 		filter.setIso2List(iso2List);
 		filter.setProviderList(providerList);

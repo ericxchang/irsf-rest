@@ -28,6 +28,8 @@ public class AppConstants {
 	public static int TOS = 4;
 	public static int TOSDESC = 8;
 	public static int PROVIDER=16;
+	public static int AFTER_LAST_OBSERVED = 32;
+	public static int BEFORE_LAST_OBSERVED = 64;
 	
 	
 

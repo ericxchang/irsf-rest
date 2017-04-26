@@ -24,10 +24,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.core.RangeNdcQueryFilter;
+import com.iconectiv.irsf.portal.core.RangeQueryFilter;
 import com.iconectiv.irsf.portal.core.TosAndTosDescType;
 import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Iprn;
+import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
@@ -202,7 +203,7 @@ class MobileIdDatasetController extends BaseRestController {
 				rule += AppConstants.PROVIDER;
 			}
 			
-			Page<RangeNdc> results = mobileIdDataService.findRangeNdcbyFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
+			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
 			rv = makeSuccessResult(results);
 			
 
@@ -226,7 +227,7 @@ class MobileIdDatasetController extends BaseRestController {
 			
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
-			RangeNdcQueryFilter filter =  JsonHelper.fromJson(value, RangeNdcQueryFilter.class);
+			RangeQueryFilter filter =  JsonHelper.fromJson(value, RangeQueryFilter.class);
          
 			if (filter.getPageNo() == null) {
 				filter.setPageNo(0);
@@ -273,9 +274,9 @@ class MobileIdDatasetController extends BaseRestController {
 			filter.setTosList(tosList);
 			List<String> providerList = filter.getProviderList();
 	
-			log.info("filter: {}", JsonHelper.toPrettyJson(filter));
+			log.info("/findRangeNdc: filter: {}", JsonHelper.toPrettyJson(filter));
 			
-			Page<RangeNdc> results = mobileIdDataService.findRangeNdcbyFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
+			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
 			
 			rv = makeSuccessResult(results);
 			
@@ -287,6 +288,71 @@ class MobileIdDatasetController extends BaseRestController {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Completed query rangeNDC request");
+		}
+		return rv;
+	}
+	
+	@RequestMapping(value = "/findPremium", method = RequestMethod.POST,
+			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public  @ResponseBody ResponseEntity<String> getPremiumrange(@RequestHeader Map<String, String> header,
+			 @RequestBody String value, Locale locale) {
+		ResponseEntity<String> rv;
+		try {
+			
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+			RangeQueryFilter filter =  JsonHelper.fromJson(value, RangeQueryFilter.class);
+         
+			if (filter.getPageNo() == null) {
+				filter.setPageNo(0);
+			}
+
+			if (filter.getLimit() == null) {
+				filter.setLimit(batchSize);
+			}
+			
+			if (log.isDebugEnabled()) log.debug("receive ndc query rquest pageNo {}", filter.getPageNo());
+			
+			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+			List<String> codeList = filter.getCodeList();
+			List<String> iso2List = filter.getIso2List();
+			List<String> tosList = filter.getTosList();
+			List<String> tosDescList = null;
+			List<String> tosDesc = null;
+			for (String s: filter.getTosDescList()) {
+				if (s.contains(",")){
+					if (tosDesc == null)
+						tosDesc = new ArrayList<String>();
+					
+					tosDesc.add(s);
+				}
+				else{
+					if (tosList == null)
+						tosList = new ArrayList<String>();
+					
+					tosList.add(s);
+				}
+			}
+			tosDescList = tosDesc;
+			filter.setTosDescList(tosDesc);
+			filter.setTosList(tosList);
+			List<String> providerList = filter.getProviderList();
+	
+			log.info("/findPremium: filter: {}", JsonHelper.toPrettyJson(filter));
+			
+			Page<Premium> results = mobileIdDataService.findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, filter.getAfterLastObserved(), filter.getBeforeLastObserved(), page);
+			
+			
+			rv = makeSuccessResult(results);
+			
+
+		} catch (Exception e) {
+			log.error("Error to retrieve premium range data", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("Completed query premium range request");
 		}
 		return rv;
 	}

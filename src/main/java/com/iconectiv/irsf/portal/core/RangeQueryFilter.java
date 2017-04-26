@@ -3,13 +3,16 @@ package com.iconectiv.irsf.portal.core;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RangeNdcQueryFilter {
+public class RangeQueryFilter {
 
 	private List<String> codeList;
 	private List<String> iso2List;
 	private List<String> tosList;
 	private List<String> tosDescList;
 	private List<String> providerList;
+	
+	private String beforeLastObserved;
+	private String afterLastObserved;
 	
 	private Integer pageNo;
 	private Integer limit;
@@ -43,6 +46,18 @@ public class RangeNdcQueryFilter {
 	}
 	public void setProviderList(List<String> providerList) {
 		this.providerList = providerList;
+	}
+	public String getBeforeLastObserved() {
+		return beforeLastObserved;
+	}
+	public void setBeforeLastObserved(String beforeLastObserved) {
+		this.beforeLastObserved = beforeLastObserved;
+	}
+	public String getAfterLastObserved() {
+		return afterLastObserved;
+	}
+	public void setAfterLastObserved(String afterLastObserved) {
+		this.afterLastObserved = afterLastObserved;
 	}
 	public Integer getPageNo() {
 		return pageNo;
