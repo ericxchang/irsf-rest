@@ -8,10 +8,11 @@ public class RangeNdcQueryFilter {
 	private List<String> codeList;
 	private List<String> iso2List;
 	private List<String> tosList;
-	private List<TosAndTosDescType> tosDescLis;
+	private List<String> tosDescList;
 	private List<String> providerList;
-	Integer pageNo;
-	Integer limit;
+	
+	private Integer pageNo;
+	private Integer limit;
 	
 	public List<String> getCodeList() {
 		return codeList;
@@ -31,12 +32,11 @@ public class RangeNdcQueryFilter {
 	public void setTosList(List<String> tosList) {
 		this.tosList = tosList;
 	}
-	
-	public List<TosAndTosDescType> getTosDescLis() {
-		return tosDescLis;
+	public List<String> getTosDescList() {
+		return tosDescList;
 	}
-	public void setTosDescLis(List<TosAndTosDescType> tosDescLis) {
-		this.tosDescLis = tosDescLis;
+	public void setTosDescList(List<String> tosDescList) {
+		this.tosDescList = tosDescList;
 	}
 	public List<String> getProviderList() {
 		return providerList;

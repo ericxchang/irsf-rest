@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,9 +30,11 @@ import org.springframework.web.context.WebApplicationContext;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.core.RangeNdcQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.util.JsonHelper;
 
@@ -92,6 +95,38 @@ public class MobileIdDatasetControllerTest {
 		
 		log.info(result);
 		
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
+	@Test
+	public void testFindRangeNdcWithFilterOptions() throws Exception {
+		List<String> codeList = new ArrayList<String>();
+		List<String> iso2List = new ArrayList<String>();
+		List<String> tosList = new ArrayList<String>();
+		List<String> tosDescList = new ArrayList<String>();
+		List<String> providerList = new ArrayList<String>();
+		codeList.add("93");
+		codeList.add("886");
+		iso2List.add("AL");
+		//tosList.add("U");
+		tosDescList.add("P");
+		tosDescList.add("G,Geographic");
+		providerList.add("Aircel");
+		
+		RangeNdcQueryFilter filter =  new RangeNdcQueryFilter();
+		filter.setCodeList(codeList); 
+		filter.setIso2List(iso2List);
+		filter.setProviderList(providerList);
+		filter.setTosDescList(tosDescList);		
+		filter.setTosList(tosList);
+		filter.setPageNo(0);
+		filter.setLimit(10);
+		
+		log.info(JsonHelper.toPrettyJson(filter));
+		
+		ResultActions action = mockMvc.perform(post("/findRangeNdc").header("authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(filter)));
+		String result = action.andReturn().getResponse().getContentAsString();
+		log.info(result);
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
 

@@ -242,9 +242,8 @@ class MobileIdDatasetController extends BaseRestController {
 			List<String> codeList = filter.getCodeList();
 			List<String> iso2List = filter.getIso2List();
 			List<String> tosList = filter.getTosList();
-			if (tosList == null)
-				tosList = new ArrayList<String>();
-			List<String> tosDescList = new ArrayList<String>();
+			List<String> tosDescList = null;
+			/*
 			for (TosAndTosDescType o: filter.getTosDescLis()) {
 				if (!o.getTos().isEmpty() && !o.getTosDesc().isEmpty()) {
 					tosDescList.add(o.getTos()+","+o.getTosDesc());
@@ -253,9 +252,29 @@ class MobileIdDatasetController extends BaseRestController {
 					tosList.add(o.getTos());
 				}
 			}
-			
+			*/
+			List<String> tosDesc = null;
+			for (String s: filter.getTosDescList()) {
+				if (s.contains(",")){
+					if (tosDesc == null)
+						tosDesc = new ArrayList<String>();
+					
+					tosDesc.add(s);
+				}
+				else{
+					if (tosList == null)
+						tosList = new ArrayList<String>();
+					
+					tosList.add(s);
+				}
+			}
+			tosDescList = tosDesc;
+			filter.setTosDescList(tosDesc);
+			filter.setTosList(tosList);
 			List<String> providerList = filter.getProviderList();
 	
+			log.info("filter: {}", JsonHelper.toPrettyJson(filter));
+			
 			Page<RangeNdc> results = mobileIdDataService.findRangeNdcbyFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
 			
 			rv = makeSuccessResult(results);
