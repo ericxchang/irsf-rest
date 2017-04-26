@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.core.ProviderBillingId;
 import com.iconectiv.irsf.portal.core.RangeQueryFilter;
 import com.iconectiv.irsf.portal.core.TosAndTosDescType;
 import com.iconectiv.irsf.portal.model.common.Country;
@@ -151,72 +152,7 @@ class MobileIdDatasetController extends BaseRestController {
 		return rv;
 	}
 	
-	@RequestMapping(value = "/ndc", method = RequestMethod.GET)
-	public ResponseEntity<String> getGlobalRangeNDC(@RequestHeader Map<String, String> header,
-			@RequestParam(value = "codeList", required = false) String listOfCodes,
-			@RequestParam(value = "iso2List", required = false) String listOfIso2,
-			@RequestParam(value = "tosList", required = false)  String listOfTos,
-			@RequestParam(value = "tosDescList", required = false)  String listOfTosDescs,
-			@RequestParam(value = "providerList", required = false)  String listOfProviders,
-	        @RequestParam(value = "pageNo", required = false) Integer pageNo,
-	        @RequestParam(value = "limit", required = false) Integer limit) {
-		ResponseEntity<String> rv;
-		try {
-			if (log.isDebugEnabled()) log.debug("receive ndc query rquest pageNo {}", pageNo);
-			UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
-
-			if (pageNo == null) {
-				pageNo = 0;
-			}
-
-			if (limit == null) {
-				limit = batchSize;
-			}
-
-			PageRequest page = new PageRequest(pageNo, limit);
-			List<String> codeList = new ArrayList<String>();
-			List<String> iso2List = new ArrayList<String>();
-			List<String> tosList = new ArrayList<String>();
-			List<String> tosDescList = new ArrayList<String>();
-			List<String> providerList = new ArrayList<String>();
-			
-			int rule = 0;
-			if (listOfCodes != null && !listOfCodes.isEmpty()) {
-				codeList = Arrays.asList(listOfCodes.split("|"));
-				rule += AppConstants.CODE;
-			}
-			if (listOfIso2 != null && !listOfIso2.isEmpty()) {
-				iso2List = Arrays.asList(listOfIso2.split("|"));
-				rule += AppConstants.ISO2;
-			}
-			if (listOfTos != null && !listOfTos.isEmpty()) {
-				tosList = Arrays.asList(listOfTos.split("|"));
-				rule += AppConstants.TOS;
-			}
-			if (listOfTosDescs != null && !listOfTosDescs.isEmpty()) {
-				tosDescList = Arrays.asList(listOfTosDescs.split("|"));
-				rule += AppConstants.TOSDESC;
-			}
-			if (listOfProviders != null && !listOfProviders.isEmpty()) {
-				providerList = Arrays.asList(listOfProviders.split("|"));
-				rule += AppConstants.PROVIDER;
-			}
-			
-			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
-			rv = makeSuccessResult(results);
-			
-
-		} catch (Exception e) {
-			log.error("Error to retrieve rangeNDC data", e);
-			rv = makeErrorResult(e);
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug("Completed query rangeNDC request");
-		}
-		return rv;
-	}
+	
 	
 	@RequestMapping(value = "/findRangeNdc", method = RequestMethod.POST,
 			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -228,6 +164,7 @@ class MobileIdDatasetController extends BaseRestController {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 			RangeQueryFilter filter =  JsonHelper.fromJson(value, RangeQueryFilter.class);
+			log.info("/findRangeNdc: filter: {}", JsonHelper.toPrettyJson(filter));
          
 			if (filter.getPageNo() == null) {
 				filter.setPageNo(0);
@@ -242,39 +179,40 @@ class MobileIdDatasetController extends BaseRestController {
 			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 			List<String> codeList = filter.getCodeList();
 			List<String> iso2List = filter.getIso2List();
-			List<String> tosList = filter.getTosList();
+			List<String> tosList = null;
 			List<String> tosDescList = null;
-			/*
-			for (TosAndTosDescType o: filter.getTosDescLis()) {
-				if (!o.getTos().isEmpty() && !o.getTosDesc().isEmpty()) {
-					tosDescList.add(o.getTos()+","+o.getTosDesc());
-				}
-				else if (!o.getTos().isEmpty() && o.getTosDesc().isEmpty()){
-					tosList.add(o.getTos());
-				}
-			}
-			*/
 			List<String> tosDesc = null;
-			for (String s: filter.getTosDescList()) {
-				if (s.contains(",")){
-					if (tosDesc == null)
-						tosDesc = new ArrayList<String>();
-					
-					tosDesc.add(s);
+			List<String> providerList = null;
+			if (filter.getTosDescList() != null) {
+				for (TosAndTosDescType s: filter.getTosDescList()) {
+					if (s.getTosDescs() == null || s.getTosDescs().isEmpty()){
+						if (tosList == null)
+							tosList = new ArrayList<String>();
+						
+						tosList.add(s.getTos());
+					}
+					else{
+						if (tosDescList == null)
+							tosDescList = new ArrayList<String>();
+						for (String b: s.getTosDescs()) 
+							tosDescList.add(s +"," + b);
+					}
 				}
-				else{
-					if (tosList == null)
-						tosList = new ArrayList<String>();
-					
-					tosList.add(s);
-				}
+				log.info("/findRangeNdc: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+				log.info("/findRangeNdc: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
 			}
-			tosDescList = tosDesc;
-			filter.setTosDescList(tosDesc);
-			filter.setTosList(tosList);
-			List<String> providerList = filter.getProviderList();
-	
-			log.info("/findRangeNdc: filter: {}", JsonHelper.toPrettyJson(filter));
+			
+			if (filter.getProviderList() != null) {
+				for (ProviderBillingId p: filter.getProviderList()) {
+					
+					if (providerList == null)
+						providerList = new ArrayList<String>();
+						
+					providerList.add(p.getProvider());
+				
+				}
+				log.info("/findRangeNdc: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+			}
 			
 			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
 			
@@ -302,6 +240,8 @@ class MobileIdDatasetController extends BaseRestController {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 			RangeQueryFilter filter =  JsonHelper.fromJson(value, RangeQueryFilter.class);
+			
+			log.info("/findPremium: filter: {}", JsonHelper.toPrettyJson(filter));
          
 			if (filter.getPageNo() == null) {
 				filter.setPageNo(0);
@@ -316,30 +256,41 @@ class MobileIdDatasetController extends BaseRestController {
 			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 			List<String> codeList = filter.getCodeList();
 			List<String> iso2List = filter.getIso2List();
-			List<String> tosList = filter.getTosList();
+			List<String> tosList = null;
 			List<String> tosDescList = null;
 			List<String> tosDesc = null;
-			for (String s: filter.getTosDescList()) {
-				if (s.contains(",")){
-					if (tosDesc == null)
-						tosDesc = new ArrayList<String>();
-					
-					tosDesc.add(s);
+			List<String> providerList = null;
+			if (filter.getTosDescList() != null) {
+				for (TosAndTosDescType s: filter.getTosDescList()) {
+					if (s.getTosDescs() == null || s.getTosDescs().isEmpty()){
+						if (tosList == null)
+							tosList = new ArrayList<String>();
+						
+						tosList.add(s.getTos());
+					}
+					else{
+						if (tosDescList == null)
+							tosDescList = new ArrayList<String>();
+						for (String b: s.getTosDescs()) 
+							tosDescList.add(s +"," + b);
+					}
 				}
-				else{
-					if (tosList == null)
-						tosList = new ArrayList<String>();
-					
-					tosList.add(s);
-				}
+				log.info("/findPremium: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+				log.info("/findPremium: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
 			}
-			tosDescList = tosDesc;
-			filter.setTosDescList(tosDesc);
-			filter.setTosList(tosList);
-			List<String> providerList = filter.getProviderList();
-	
-			log.info("/findPremium: filter: {}", JsonHelper.toPrettyJson(filter));
 			
+			if (filter.getProviderList() != null) {
+				for (ProviderBillingId p: filter.getProviderList()) {
+					
+					if (providerList == null)
+						providerList = new ArrayList<String>();
+						
+					providerList.add(p.getProvider());
+				
+				}
+				log.info("/findPremium: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+			}
+	
 			Page<Premium> results = mobileIdDataService.findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, filter.getAfterLastObserved(), filter.getBeforeLastObserved(), page);
 			
 			

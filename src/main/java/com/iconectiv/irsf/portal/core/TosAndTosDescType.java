@@ -1,21 +1,25 @@
 package com.iconectiv.irsf.portal.core;
 
+import java.util.List;
+
 public class TosAndTosDescType {
 	private String tos;
-	private String tosDesc;
+	private List<String> tosDescs;
 	
+	public List<String> getTosDescs() {
+		return tosDescs;
+	}
+	public void setTosDescs(List<String> tosDescs) {
+		this.tosDescs = tosDescs;
+	}
 	public String getTos() {
 		return tos;
 	}
 	public void setTos(String tos) {
 		this.tos = tos;
 	}
-	public String getTosDesc() {
-		return tosDesc;
-	}
-	public void setTosDesc(String tosDesc) {
-		this.tosDesc = tosDesc;
-	}
+	
+	
 	
 	
 }

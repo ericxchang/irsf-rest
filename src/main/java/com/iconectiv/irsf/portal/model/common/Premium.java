@@ -21,6 +21,9 @@ public class Premium implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String termCountry;
+	private String primeMinus2;
+	private String primeMinus3;
+	private String primeMinus4;
 	private String dialPattern;
 	private String dialPatternType;
 	private String iso2;
@@ -57,8 +60,39 @@ public class Premium implements java.io.Serializable {
 	public void setTermCountry(String termCountry) {
 		this.termCountry = termCountry;
 	}
+	
+	@Column(name = "prime_minus_2", length = 15)
+	public String getPrimeMinus2() {
+		return primeMinus2;
+	}
 
-	@Column(name = "dial_pattern", length = 15)
+
+	public void setPrimeMinus2(String primeMinus2) {
+		this.primeMinus2 = primeMinus2;
+	}
+
+	@Column(name = "prime_minus_3", length = 15)
+	public String getPrimeMinus3() {
+		return primeMinus3;
+	}
+
+
+	public void setPrimeMinus3(String primeMinus3) {
+		this.primeMinus3 = primeMinus3;
+	}
+
+	@Column(name = "prime_minus_4", length = 15)
+	public String getPrimeMinus4() {
+		return primeMinus4;
+	}
+
+
+	public void setPrimeMinus4(String primeMinus4) {
+		this.primeMinus4 = primeMinus4;
+	}
+
+
+	@Transient
 	public String getDialPattern() {
 		return this.dialPattern;
 	}
@@ -67,7 +101,7 @@ public class Premium implements java.io.Serializable {
 		this.dialPattern = dialPattern;
 	}
 
-	@Column(name = "dial_pattern_type", nullable = false, length = 7)
+	@Transient
 	public String getDialPatternType() {
 		return this.dialPatternType;
 	}

@@ -30,7 +30,9 @@ import org.springframework.web.context.WebApplicationContext;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.core.ProviderBillingId;
 import com.iconectiv.irsf.portal.core.RangeQueryFilter;
+import com.iconectiv.irsf.portal.core.TosAndTosDescType;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefintion;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
@@ -102,28 +104,83 @@ public class MobileIdDatasetControllerTest {
 		List<String> codeList = new ArrayList<String>();
 		List<String> iso2List = new ArrayList<String>();
 		List<String> tosList = new ArrayList<String>();
-		List<String> tosDescList = new ArrayList<String>();
-		List<String> providerList = new ArrayList<String>();
+		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
+		List<ProviderBillingId> providerList = new ArrayList<ProviderBillingId>();
+		TosAndTosDescType tosDesc = new TosAndTosDescType();
+		ProviderBillingId prov = new ProviderBillingId();
+		
 		codeList.add("93");
 		codeList.add("886");
 		iso2List.add("AL");
-		//tosList.add("U");
-		tosDescList.add("P");
-		tosDescList.add("G,Geographic");
-		providerList.add("Aircel");
+		
+		tosDesc.setTos("P");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosAndTosDescType();
+		tosDesc.setTos("G");
+		List<String> tdList = new ArrayList<String>();
+		tdList.add("Geographic");
+		tosDesc.setTosDescs(tdList);
+		
+		prov.setProvider("Aircel");
+		providerList.add(prov);
+		
 		
 		RangeQueryFilter filter =  new RangeQueryFilter();
 		filter.setCodeList(codeList); 
 		filter.setIso2List(iso2List);
 		filter.setProviderList(providerList);
 		filter.setTosDescList(tosDescList);		
-		filter.setTosList(tosList);
+	
+
 		filter.setPageNo(0);
 		filter.setLimit(10);
 		
 		log.info(JsonHelper.toPrettyJson(filter));
 		
 		ResultActions action = mockMvc.perform(post("/findRangeNdc").header("authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(filter)));
+		String result = action.andReturn().getResponse().getContentAsString();
+		log.info(result);
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
+
+	@Test
+	public void testFindPremiumWithFilterOptions() throws Exception {
+		List<String> codeList = new ArrayList<String>();
+		List<String> iso2List = new ArrayList<String>();
+		List<String> tosList = new ArrayList<String>();
+		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
+		List<ProviderBillingId> providerList = new ArrayList<ProviderBillingId>();
+		TosAndTosDescType tosDesc = new TosAndTosDescType();
+		ProviderBillingId prov = new ProviderBillingId();
+		
+		codeList.add("247");
+		codeList.add("886");
+		iso2List.add("AC");
+		//tosList.add("U");
+		tosDesc.setTos("G");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosAndTosDescType();
+		tosDesc.setTos("S");
+		List<String> tdList = new ArrayList<String>();
+		tdList.add("Operator Services");
+		tosDesc.setTosDescs(tdList);
+		tosDescList.add(tosDesc);
+		prov.setProvider("Sure South Atlantic Limited");
+		providerList.add(prov);
+		
+		RangeQueryFilter filter =  new RangeQueryFilter();
+		filter.setCodeList(codeList); 
+		filter.setIso2List(iso2List);
+		filter.setProviderList(providerList);
+		filter.setTosDescList(tosDescList);		
+		filter.setAfterLastObserved("2017-01-01");
+		filter.setPageNo(0);
+		filter.setLimit(10);
+		
+		log.info(JsonHelper.toPrettyJson(filter));
+		
+		ResultActions action = mockMvc.perform(post("/findPremium").header("authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(filter)));
 		String result = action.andReturn().getResponse().getContentAsString();
 		log.info(result);
