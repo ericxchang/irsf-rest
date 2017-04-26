@@ -23,4 +23,7 @@ public class AuditTrailActionDefinition {
     public static final String Update_List_Entry = "update list entry";
     public static final String Delete_List_Entry = "delete list data";
     public static final String Delete_List= "delete list";
+	public static final String Add_List_Record = "add list record";
+	public static final String Update_List_Record = "update list record";
+	public static final String Delete_List_Record = "delete list record";
 }

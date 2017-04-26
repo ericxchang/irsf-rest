@@ -51,6 +51,8 @@ class ListServiceController extends BaseRestController {
 	private ListUploadRequestRepository listUploadRepo;
 	@Autowired
 	private ListDefinitionRepository listDefRepo;
+	@Autowired
+	private ListDetailsRepository listDetailRepo;
 	
 	@Autowired
 	private ListUploadService uploadService;
@@ -268,20 +270,72 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
-    @RequestMapping(value = "/list/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/listDetails/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> saveRuleRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+    public ResponseEntity<String> createListDetailRecordsRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
         ResponseEntity<String> rv;
         try {
-        	ListDetails listDetail = JsonHelper.fromJson(value, ListDetails.class);
+        	ListDetails[] listDetails = JsonHelper.fromJson(value, ListDetails[].class);
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            uploadService.validateListEntry(listDetail);
-            listService.saveListEntry(loginUser, listDetail);
             
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, listDetail);
+            listService.createListDetails(loginUser, listDetails);
+            
+            rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
+
+    @RequestMapping(value = "/listDetails/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> updateListDetailRecordsRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        try {
+        	ListDetails[] listDetails = JsonHelper.fromJson(value, ListDetails[].class);
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            
+            listService.updateListDetails(loginUser, listDetails);
+            
+            rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
+
+    @RequestMapping(value = "/listDetails/delete", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> deleteListDetailRecordsRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        try {
+        	ListDetails[] listDetails = JsonHelper.fromJson(value, ListDetails[].class);
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            
+            listService.deleteListDetails(loginUser, listDetails);
+            
+            rv = makeSuccessResult(MessageDefinition.Delete_ListDetails_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {

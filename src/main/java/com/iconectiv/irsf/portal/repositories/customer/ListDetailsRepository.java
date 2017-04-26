@@ -4,8 +4,10 @@ import com.iconectiv.irsf.portal.model.customer.ListDetails;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +15,9 @@ import java.util.List;
  * Created by echang on 1/12/2017.
  */
 public interface ListDetailsRepository extends CrudRepository<ListDetails, Integer>, ListDetailsRepositoryCustomer {
+	@Query("select count(*) as size from ListDetails ld where ld.listRefId=?1")
+	int getListSizeByListId(int listId);
+	
     ListDetails findOneByListRefIdAndDialPattern(int lstRefId, String dialPattern);
 
     List<ListDetails> findAllByUpLoadRefId(int uploadRefId);
@@ -44,4 +49,6 @@ public interface ListDetailsRepository extends CrudRepository<ListDetails, Integ
     		countQuery = "select count(*) from list_details where list_ref_id = ?1",
     		nativeQuery = true)
     Page<Object[]> findAllDetailsByListRefId(int listRefId, Pageable pageable);
+    
+
 }

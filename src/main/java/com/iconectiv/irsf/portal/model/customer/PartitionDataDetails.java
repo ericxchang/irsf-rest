@@ -25,7 +25,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 	private Integer id;
     private Integer partitionId;
     private PartitionDefinition partitionDefinition;
-    private String reference;
+    private String reference;    //save list name instead of id; save rule id
     private String dialPattern;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;

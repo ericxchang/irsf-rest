@@ -13,5 +13,10 @@ public class MessageDefinition {
     public static final String Delete_List_Success = "Successfully delete list";
     public static final String Save_Partition_Success = "Successfully save partition";
 	public static final String Save_Rule_Success = "Successfully save rule";
+	public static final String Add_ListDetails_Success = "Successfully added new list records";
+	public static final String Update_ListDetails_Success = "Successfully updated list records";
+	public static final String Delete_ListDetails_Success = "Successfully deleted list records";;
     public static java.lang.String Generating_Partition_Dataset_Success = "System is generating partition data set";
+	public static final String ListSizeOverLimitError = "Failed to add list record since list size will be over the limit of ";
+
 }

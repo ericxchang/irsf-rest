@@ -27,8 +27,6 @@ public interface ListService {
 	ListDefintion getListDetails(int listId);
 	ListDefintion getListDetails(String listName);
 
-	void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException;
-	
 	List<ListDetails> getListDetailDataByListId(int listId);
 
 	List<ListDetails> getListDetailDataByUploadId(int uploadId);
@@ -36,6 +34,12 @@ public interface ListService {
 	List<ListDefintion> getTop3ListDefinition(String listType);
 
 	void updateListName(UserDefinition loginUser, Integer listId, String listName);
+
+	void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
+
+	void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
+
+	void createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 
 
 }

@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
@@ -212,6 +215,7 @@ public class ListServiceImpl implements ListService {
 		return;
 	}
 
+
 	@Override
 	@Transactional
 	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter) {
@@ -237,6 +241,19 @@ public class ListServiceImpl implements ListService {
 
 		uploadReq.setCustomerName(user.getCustomerName());
 		uploadReq.setData(fileService.getContentAsList(file));
+		
+		//check list size
+		if (listDef.getId() != null) {
+			int currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
+			
+			if (currentListSize + uploadReq.getData().size() > maxListSize) {
+				updateUploadRequestWithErrorMessage(uploadReq, MessageDefinition.ListSizeOverLimitError + maxListSize);
+				return null;
+			}
+			
+		}
+		
+		
 		return uploadReq;
 	}
 
@@ -245,40 +262,6 @@ public class ListServiceImpl implements ListService {
 		uploadReq.setStatus(AppConstants.FAIL);
 		uploadReq.setLastUpdated(new Date());
 		listUploadRepo.save(uploadReq);
-	}
-
-	@Transactional
-	@Override
-	public void saveListEntry(UserDefinition loginUser, ListDetails listDetail) throws AppException {
-		if (log.isDebugEnabled()) log.debug("Adding new list entry {}", JsonHelper.toJson(listDetail));
-		
-		try {
-			listDetail.setActive(true);
-			listDetail.setLastUpdatedBy(loginUser.getUserName());
-			listDetail.setLastUpdated(new Date());
-			
-			listDetailRepo.save(listDetail);
-
-			Map<String, String> auditDetail = new LinkedHashMap<>();
-			auditDetail.put("dial pattern", listDetail.getDialPattern());
-			auditDetail.put("list Id", listDetail.getListRefId().toString());
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Entry, auditDetail);
-
-			
-			EventNotification event = new EventNotification();
-			event.setCustomerName(loginUser.getCustomerName());
-			event.setEventType(EventTypeDefinition.List_Update.value());
-			event.setReferenceId(listDetail.getListRefId());
-			event.setMessage("update list entry");
-			event.setCreateTimestamp(new Date());
-			event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
-			event.setStatus("new");
-			eventService.addEventNotification(event);
-		} catch (Exception e) {
-			log.error("Error to add list entry: \n", e);
-			throw new AppException(e.getMessage());
-		}
-
 	}
 
 	@Override
@@ -311,6 +294,57 @@ public class ListServiceImpl implements ListService {
 			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
 		}
 		return listDefinitionData;
+	}
+
+	@Override
+	@Transactional
+	public void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+		listDetailRepo.save(Arrays.asList(listDetails));
+		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Record, "updated " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+	}
+
+	@Override
+	@Transactional
+	public void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+		listDetailRepo.delete(Arrays.asList(listDetails));
+		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+	}
+
+	@Value("${max_list_size:10000}")
+	private int maxListSize;
+	@Transactional
+	@Override
+	public void createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+		if (log.isDebugEnabled()) log.debug("the max list size is " + maxListSize);
+		if (listDetails.length < 1) {
+			return;
+		}
+		
+		int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
+		
+		if (currentListSize + listDetails.length > maxListSize) {
+			throw new AppException(MessageDefinition.ListSizeOverLimitError + maxListSize);
+		}
+		
+		
+		for (ListDetails listDetail : listDetails) {
+			listDetail.setActive(true);
+			listDetail.setLastUpdatedBy(loginUser.getUserName());
+			listDetail.setLastUpdated(new Date());
+		}
+		
+		EventNotification event = new EventNotification();
+		event.setCustomerName(loginUser.getCustomerName());
+		event.setEventType(EventTypeDefinition.List_Update.value());
+		event.setReferenceId(listDetails[0].getListRefId());
+		event.setMessage("update list entry");
+		event.setCreateTimestamp(new Date());
+		event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
+		event.setStatus("new");
+		eventService.addEventNotification(event);
+		
+		listDetailRepo.save(Arrays.asList(listDetails));
+		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 	}
 
 

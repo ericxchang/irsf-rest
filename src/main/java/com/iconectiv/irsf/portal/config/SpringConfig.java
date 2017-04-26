@@ -19,18 +19,19 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @PropertySource(value="classpath:spring-config.properties", ignoreResourceNotFound = true)
-@PropertySource(value="file:/conf/irsf/spring-config.properties", ignoreResourceNotFound = true)
+@PropertySource(value="file:/apps/irsf/conf/spring-config.properties", ignoreResourceNotFound = true)
 public class SpringConfig {
 	private static Logger log = LoggerFactory.getLogger(SpringConfig.class);
 
 	@Autowired
-	private Environment env;
+	private static Environment env;
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 		PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setIgnoreUnresolvablePlaceholders(true);
 		configurer.setIgnoreResourceNotFound(true);
+		
 		return configurer;
 	}
 

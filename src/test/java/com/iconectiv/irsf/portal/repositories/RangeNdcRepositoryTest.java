@@ -18,7 +18,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.google.gson.Gson;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
@@ -56,12 +55,12 @@ public class RangeNdcRepositoryTest {
 		
 		pageList = repository.findRangeNdcbyRule12(tosList, tosDescList, page);
 		for (RangeNdc ndc: pageList)
-			System.out.println(new Gson().toJson(ndc));
+			log.info(JsonHelper.toJson(ndc));
 		
 		
 		pageList = repository.findRangeNdcbyRule28(tosList, tosDescList, providerList, page);
 		for (RangeNdc ndc: pageList)
-			System.out.println(new Gson().toJson(ndc));
+			log.info(JsonHelper.toJson(ndc));
 		
 		
 		 
