@@ -98,7 +98,7 @@ class FileUploadControllerTest extends GroovyTestCase {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
                     MockMultipartFile secondFile = new MockMultipartFile("file", "blacklist02.txt", "text/plain", "(732)5678901,02212016,partner provided, verizon wireless\n7325678902,02212016,partner provided, verizon wireless".getBytes())
-                    MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "(732)5678904,02212016,partner provided, verizon wireless\n7325AB8902,02212016,partner provided, verizon wireless".getBytes())
+                    MockMultipartFile thirdFile = new MockMultipartFile("file", "blacklist03.txt", "text/plain", "(732)5678904|02212016|".getBytes())
 
                     MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
 					def token = createToken(it)

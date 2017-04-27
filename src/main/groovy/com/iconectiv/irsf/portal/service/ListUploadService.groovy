@@ -51,7 +51,7 @@ class ListUploadService {
     }
 	
 	void parseListLine(String item, Integer index, ListUploadRequest uploadReq, String delimiter, headerMap, listEntries, errorList) {
-		def elements = item.split(/\$delimiter/)
+		def elements = (item + delimiter).split(/\$delimiter/)
         def dialCode = elements.size() > headerMap['dialpattern'] ? elements[headerMap['dialpattern']] : ''
         def customerDate = elements.size() > headerMap['customerdate'] ? elements[headerMap['customerdate']] : null
         def reason = elements.size() > headerMap['reason'] ? elements[headerMap['reason']] : null
