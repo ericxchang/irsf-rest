@@ -1,4 +1,4 @@
-package com.iconectiv.irsf.portal.core;
+package com.iconectiv.irsf.portal.model.common;
 
 import java.util.List;
 

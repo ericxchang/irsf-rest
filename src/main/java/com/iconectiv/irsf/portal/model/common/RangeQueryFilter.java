@@ -1,6 +1,5 @@
-package com.iconectiv.irsf.portal.core;
+package com.iconectiv.irsf.portal.model.common;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RangeQueryFilter {
