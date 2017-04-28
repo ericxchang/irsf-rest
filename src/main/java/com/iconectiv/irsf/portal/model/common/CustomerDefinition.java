@@ -34,6 +34,7 @@ public class CustomerDefinition implements java.io.Serializable {
 	private String customerName;
 	private String phone;
 	private String email;
+	private String exportTarget;
 	private boolean active;
 	private Date createTimestamp;
 	private Date lastUpdated;
@@ -96,6 +97,15 @@ public class CustomerDefinition implements java.io.Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+    @Column(name="export_target", length=150)
+    public String getExportTarget() {
+        return this.exportTarget;
+    }
+    
+    public void setExportTarget(String exportTarget) {
+        this.exportTarget = exportTarget;
+    }
 
 	@Column(name = "active", nullable = false)
 	public boolean isActive() {
