@@ -5,7 +5,7 @@ import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.service.ListService;
@@ -86,7 +86,7 @@ public class ListUploadController extends BaseRestController {
 	@Async
 	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
 		try {
-			ListDefintion listDef = listDefRepo.findOne(listId);
+			ListDefinition listDef = listDefRepo.findOne(listId);
 			
 			if (listDef != null) {
 				ListUploadRequest uploadRequest = listService.saveUploadRequest(user, listDef, file, delimiter);

@@ -24,7 +24,7 @@ public class ListUploadRequest implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private Integer listRefId;
-	private ListDefintion listDefintion;
+	private ListDefinition listDefintion;
 	private String fileName;
 	private String delimiter;
 	private String status;
@@ -72,11 +72,11 @@ public class ListUploadRequest implements java.io.Serializable {
 	}
 
 	@Transient
-	public ListDefintion getListDefintion() {
+	public ListDefinition getListDefintion() {
 		return this.listDefintion;
 	}
 
-	public void setListDefintion(ListDefintion listDefintion) {
+	public void setListDefintion(ListDefinition listDefintion) {
 		this.listDefintion = listDefintion;
 	}
 

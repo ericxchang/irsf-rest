@@ -1,6 +1,6 @@
 package com.iconectiv.irsf.portal.repositories.customer;
 
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 
 import java.util.List;
 
@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by echang on 1/12/2017.
  */
-public interface ListDefinitionRepository extends CrudRepository<ListDefintion, Integer>{
-    ListDefintion findOneByListName(String listName);
+public interface ListDefinitionRepository extends CrudRepository<ListDefinition, Integer>{
+    ListDefinition findOneByListName(String listName);
 
-    List<ListDefintion> findTop3ByTypeAndActiveOrderByLastUpdatedDesc(String type, boolean active);
+    List<ListDefinition> findTop3ByTypeAndActiveOrderByLastUpdatedDesc(String type, boolean active);
     
     
     @Modifying

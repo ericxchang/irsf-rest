@@ -27,7 +27,7 @@ import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
@@ -71,7 +71,7 @@ class ListServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			List<ListDefintion> topLists;
+			List<ListDefinition> topLists;
 			
 			if (listType.equals(ListType.Black.value())) {
 				topLists = listService.getTop3ListDefinition(ListType.Black.value());
@@ -125,7 +125,7 @@ class ListServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			
 			if (listId == null) {
-				ListDefintion listDef = listDefRepo.findOneByListName(listName);
+				ListDefinition listDef = listDefRepo.findOneByListName(listName);
 				listId = listDef.getId();
 			}
 			
@@ -211,7 +211,7 @@ class ListServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			
-			ListDefintion listDef;
+			ListDefinition listDef;
 			
 			if (listName != null) {
 				listDef = listService.getListDetails(listName);				

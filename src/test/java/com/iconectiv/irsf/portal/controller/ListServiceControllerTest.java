@@ -30,7 +30,7 @@ import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.util.JsonHelper;
@@ -102,13 +102,13 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testQueryListRequest() throws Exception {
-		List<ListDefintion> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
 		
 		if (lists == null) {
 			return;
 		}
 		
-		ListDefintion listDefinition = lists.get(0);
+		ListDefinition listDefinition = lists.get(0);
 
 		ResultActions action = mockMvc.perform(get("/list/" + listDefinition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
@@ -145,13 +145,13 @@ public class ListServiceControllerTest {
 	@Test
     public void testAddListEntryRequest() throws Exception {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		List<ListDefintion> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
 		
 		if (lists == null) {
 			return;
 		}
 		
-		ListDefintion listDefinition = lists.get(0);
+		ListDefinition listDefinition = lists.get(0);
 				
 		ListDetails listDetails = new ListDetails();
 		listDetails.setListRefId(listDefinition.getId());

@@ -74,7 +74,7 @@ public class RuleDefinition implements java.io.Serializable {
         this.partitionId = partitionId;
     }
 
-    @Column(name="name", length=45)
+    @Column(name="name", length=45, nullable = false)
     public String getName() {
         return this.name;
     }

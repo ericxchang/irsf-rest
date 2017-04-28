@@ -25,7 +25,7 @@ import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
@@ -123,7 +123,7 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	public Integer createListDefinition(UserDefinition user, String listName, String listType) {
-		ListDefintion listDefintion = new ListDefintion();
+		ListDefinition listDefintion = new ListDefinition();
 		listDefintion.setListName(listName);
 		listDefintion.setType(listType);
 		listDefintion.setActive(true);
@@ -137,7 +137,7 @@ public class ListServiceImpl implements ListService {
 		return listDefintion.getId();
 	}
 
-	public ListUploadRequest createUploadRequest(ListDefintion listDef, String fileName, String delimiter) {
+	public ListUploadRequest createUploadRequest(ListDefinition listDef, String fileName, String delimiter) {
 		if (delimiter == null) {
 			delimiter = "|";
 		}
@@ -156,7 +156,7 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	public void updateListName(UserDefinition loginUser, Integer listId, String listName) {
-		ListDefintion listDef = listDefRepo.findOne(listId);
+		ListDefinition listDef = listDefRepo.findOne(listId);
 		
 		if (listDef != null && !listDef.getListName().equals(listName)) {
 			listDef.setListName(listName);
@@ -170,8 +170,8 @@ public class ListServiceImpl implements ListService {
 	}
 	
 	@Override
-	public ListDefintion getListDetails(String listName) {
-		ListDefintion listDef = listDefRepo.findOneByListName(listName);
+	public ListDefinition getListDetails(String listName) {
+		ListDefinition listDef = listDefRepo.findOneByListName(listName);
 
 		if (listDef == null) {
 			log.warn("list {} does not exist", listName);
@@ -186,8 +186,8 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public ListDefintion getListDetails(int listId) {
-		ListDefintion listDef = listDefRepo.findOne(listId);
+	public ListDefinition getListDetails(int listId) {
+		ListDefinition listDef = listDefRepo.findOne(listId);
 
 		if (listDef == null) {
 			log.warn("list {} does not exist", listId);
@@ -218,7 +218,7 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	@Transactional
-	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter) {
+	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter) {
 		ListUploadRequest uploadReq = createUploadRequest(listDef, file.getOriginalFilename(), delimiter);
 		
 		log.debug(file.getContentType());
@@ -287,10 +287,10 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public List<ListDefintion> getTop3ListDefinition(String listType) {
-		List<ListDefintion> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
+	public List<ListDefinition> getTop3ListDefinition(String listType) {
+		List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
 		
-		for (ListDefintion listDefinition : listDefinitionData) {
+		for (ListDefinition listDefinition : listDefinitionData) {
 			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
 		}
 		return listDefinitionData;

@@ -2,7 +2,7 @@ package com.iconectiv.irsf.portal.service;
 
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefintion;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 
@@ -17,21 +17,21 @@ public interface ListService {
 
 	Integer createListDefinition(UserDefinition user, String listName, String listType);
 
-	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefintion listDef, MultipartFile file, String delimiter);
+	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter);
 
 	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
 
 	void deleteListDefinition(int listId);
 	void deleteListDefinition(String listName);
 
-	ListDefintion getListDetails(int listId);
-	ListDefintion getListDetails(String listName);
+	ListDefinition getListDetails(int listId);
+	ListDefinition getListDetails(String listName);
 
 	List<ListDetails> getListDetailDataByListId(int listId);
 
 	List<ListDetails> getListDetailDataByUploadId(int uploadId);
 
-	List<ListDefintion> getTop3ListDefinition(String listType);
+	List<ListDefinition> getTop3ListDefinition(String listType);
 
 	void updateListName(UserDefinition loginUser, Integer listId, String listName);
 

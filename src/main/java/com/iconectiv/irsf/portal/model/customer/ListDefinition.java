@@ -18,8 +18,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "list_defintion", uniqueConstraints = @UniqueConstraint(columnNames = "list_name"))
-public class ListDefintion implements java.io.Serializable {
+@Table(name = "list_definition", uniqueConstraints = @UniqueConstraint(columnNames = "list_name"))
+public class ListDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String customerName;
@@ -35,7 +35,7 @@ public class ListDefintion implements java.io.Serializable {
 	private List<ListUploadRequest> listUploadRequests = new ArrayList<>();
     private boolean active;
     
-	public ListDefintion() {
+	public ListDefinition() {
 	}
 
 	@Id
