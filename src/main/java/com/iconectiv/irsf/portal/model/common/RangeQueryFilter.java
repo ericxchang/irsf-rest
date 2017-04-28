@@ -16,6 +16,9 @@ public class RangeQueryFilter {
 	private Integer limit;
 	
 	private String dataSource;
+
+	//primeMinus 2,3,4
+	private String dialPatternType;
 	
 	public List<String> getCodeList() {
 		return codeList;
@@ -72,6 +75,12 @@ public class RangeQueryFilter {
 	public void setDataSource(String dataSource) {
 		this.dataSource = dataSource;
 	}
-	
-	
+
+	public String getDialPatternType() {
+		return dialPatternType;
+	}
+
+	public void setDialPatternType(String dialPatternType) {
+		this.dialPatternType = dialPatternType;
+	}
 }
