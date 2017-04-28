@@ -243,15 +243,15 @@ public class ListServiceImpl implements ListService {
 		uploadReq.setData(fileService.getContentAsList(file));
 		
 		//check list size
+		int currentListSize = 0;
 		if (listDef.getId() != null) {
-			int currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
-			
-			if (currentListSize + uploadReq.getData().size() > maxListSize) {
-				updateUploadRequestWithErrorMessage(uploadReq, MessageDefinition.ListSizeOverLimitError + maxListSize);
-				return null;
-			}
-			
+			currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
 		}
+		if (currentListSize + uploadReq.getData().size() > maxListSize) {
+			updateUploadRequestWithErrorMessage(uploadReq, MessageDefinition.ListSizeOverLimitError + maxListSize);
+			return null;
+		}
+		
 		
 		
 		return uploadReq;

@@ -66,13 +66,13 @@ class FileHandlerService {
 
 	List<String> getContentAsList(MultipartFile file) {
 		def contents = []
-		new ByteArrayInputStream(file.getBytes()).eachLine('UTF-8') {contents.add(it)}
+		new ByteArrayInputStream(file.getBytes()).eachLine('UTF-8') {if (it) contents.add(it)}
 		return contents
 	}
 
 	List<String> getContentAsList(byte[] file) {
 		def contents = []
-		file.eachLine('UTF-8') {contents.add(it)}
+		file.eachLine('UTF-8') {if (it) contents.add(it)}
 		return contents
 	}
 

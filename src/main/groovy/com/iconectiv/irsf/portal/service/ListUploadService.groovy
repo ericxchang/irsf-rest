@@ -26,7 +26,10 @@ class ListUploadService {
         def headerMap = parseHeader(uploadReq, uploadReq.delimiter)
 		uploadReq.data.eachWithIndex {item, index ->
             if (log.isTraceEnabled()) log.trace("Parsing ${index} line: ${item}")
-			parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)
+			
+			if (item.trim()) {
+				parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)				
+			}
 		}
 		log.info("Finish parsing input file, about to insert")
 	}

@@ -17,19 +17,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name = "list_details", uniqueConstraints = @UniqueConstraint(columnNames={"list_ref_id", "dial_pattern"}))
-/*@NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "joinAll", procedureName = "proc_list_details_range_all_vw", resultClasses = { ListDetails.class }, 
-        	parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "list_id", type = Integer.class) 
-        	}),
-        @NamedStoredProcedureQuery(name = "joinRange", procedureName = "proc_list_details_range_vw", resultClasses = { ListDetails.class }, 
-        	parameters = {
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "list_id", type = Integer.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "row_start", type = Integer.class),
-                @StoredProcedureParameter(mode = ParameterMode.IN, name = "num_recs", type = Integer.class)
-        	}) 
-        })
-*/
 public class ListDetails implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
@@ -58,8 +45,37 @@ public class ListDetails implements java.io.Serializable {
 	private String provider;
 	private String billingId;
 	private String supplement;
+	private Date effectiveDate;
 
 	public ListDetails() {
+	}
+	
+	public ListDetails(int id, int listRefId, int upLoadRefId, String dialPattern, String reason, String notes, Date customerDate, 
+			boolean active, String matchCCNDC, Date lastUpdated, String lastUpdatedBy, String termCountry, String ccNdc, String iso2, 
+			String code, String tos, String tosdesc, String ndc, String locality, String provider, String billingId, String supplement,  Date effectiveDate) {
+		this.id = id;
+		this.listRefId = listRefId;
+		this.upLoadRefId = upLoadRefId;
+		this.dialPattern = dialPattern;
+		this.reason = reason;
+		this.notes = notes;
+		this.customerDate = customerDate;
+		this.active = active;
+		this.matchCCNDC = matchCCNDC;
+		this.lastUpdated = lastUpdated;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.termCountry = termCountry;
+		this.ccNdc = ccNdc;
+		this.iso2 = iso2;
+		this.code = code;
+		this.tos = tos;
+		this.tosdesc = tosdesc;
+		this.ndc = ndc;
+		this.locality = locality;
+		this.provider = provider;
+		this.billingId = billingId;
+		this.supplement = supplement;
+		this.effectiveDate = effectiveDate;				
 	}
 
 	@Override
@@ -281,6 +297,15 @@ public class ListDetails implements java.io.Serializable {
 
 	public void setSupplement(String supplement) {
 		this.supplement = supplement;
+	}
+
+	@Transient
+	public Date getEffectiveDate() {
+		return effectiveDate;
+	}
+
+	public void setEffectiveDate(Date effectiveDate) {
+		this.effectiveDate = effectiveDate;
 	}
 
 }
