@@ -1,22 +1,5 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManagerFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
@@ -31,13 +14,19 @@ import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
-import com.iconectiv.irsf.portal.service.AuditTrailService;
-import com.iconectiv.irsf.portal.service.EventNotificationService;
-import com.iconectiv.irsf.portal.service.FileHandlerService;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.service.ListUploadService;
+import com.iconectiv.irsf.portal.service.*;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.EntityManagerFactory;
+import java.util.*;
 
 /**
  * Created by echang on 1/11/2017.
@@ -314,10 +303,10 @@ public class ListServiceImpl implements ListService {
 	private int maxListSize;
 	@Transactional
 	@Override
-	public void createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+	public Iterable<ListDetails>  createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
 		if (log.isDebugEnabled()) log.debug("the max list size is " + maxListSize);
 		if (listDetails.length < 1) {
-			return;
+			return null;
 		}
 		
 		int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
@@ -343,8 +332,9 @@ public class ListServiceImpl implements ListService {
 		event.setStatus("new");
 		eventService.addEventNotification(event);
 		
-		listDetailRepo.save(Arrays.asList(listDetails));
+		Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+        return result;
 	}
 
 

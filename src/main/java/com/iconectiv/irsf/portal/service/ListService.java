@@ -5,10 +5,9 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by echang on 1/11/2017.
@@ -39,7 +38,7 @@ public interface ListService {
 
 	void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 
-	void createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
+	Iterable<ListDetails> createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 
 
 }
