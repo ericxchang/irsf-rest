@@ -57,7 +57,7 @@ public class ListServiceControllerTest {
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
-        loginUser.setUserName("guiuser01");
+        loginUser.setUserName("user01");
         loginUser.setCustomerId(1);
         loginUser.setRole(PermissionRole.CustAdmin.value());
         loginUser.setSchemaName("cust01");

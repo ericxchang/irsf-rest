@@ -7,11 +7,18 @@ import org.springframework.data.domain.Pageable;
 
 import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Premium;
+import com.iconectiv.irsf.portal.model.common.Provider;
+import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 
 public interface MobileIdDataService {
+	void cleanCache();
 	
-	void clearCcNDC();
+	List<ProviderBillingId> findProviders();
+	
+	String findProviderByBillingId(String billingId);
+	
+	List<String> findBillingIdsByProvider(String provider);
 	
 	String findMatchingCCNDC(String dialPattern);
 	

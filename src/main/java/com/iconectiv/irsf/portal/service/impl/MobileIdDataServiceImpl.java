@@ -1,14 +1,15 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,47 +17,44 @@ import org.springframework.stereotype.Service;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Premium;
+import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.repositories.common.CcNdcIndexRepository;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
+import com.iconectiv.irsf.util.ListHelper;
 
 @Service
 public class MobileIdDataServiceImpl implements MobileIdDataService {
 	private static Logger log = LoggerFactory.getLogger(MobileIdDataServiceImpl.class);
-	
+
 	Set<String> ccNdcData = new HashSet<>();
 	List<Country> countryList = new ArrayList<>();
-	
+	Map<String, String> billingIdProviderMap = new HashMap<>();
+
 	@Autowired
 	CcNdcIndexRepository ccNdcRepo;
 	@Autowired
 	CountryRepository countryRepo;
 	@Autowired
 	RangeNdcRepository rangeNdcRepo;
-	
+
 	@Autowired
 	PremiumRepository premiumRepo;
-	
-	@CacheEvict(value = "ccNDC", allEntries = true)
-	@Override
-	public void clearCcNDC() {
-		log.info("Clear ccNDC data from cache");
-	}
 
 	@Override
 	public String findMatchingCCNDC(String dialPattern) {
-		if (dialPattern == null || dialPattern.length()<1) {
+		if (dialPattern == null || dialPattern.length() < 1) {
 			return dialPattern;
 		}
 		if (ccNdcData.isEmpty()) {
 			ccNdcData = ccNdcRepo.findAllItem();
 		}
-		
-		for (int i=dialPattern.length(); i>0; i--) {
-			String value = dialPattern.substring(0, i-1);
+
+		for (int i = dialPattern.length(); i > 0; i--) {
+			String value = dialPattern.substring(0, i - 1);
 			if (ccNdcData.contains(value)) {
 				return value;
 			}
@@ -69,9 +67,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (countryList.isEmpty()) {
 			countryList = countryRepo.findAll();
 		}
-		
-		
-		for (Country country: countryList) {
+
+		for (Country country : countryList) {
 			if (country.getCode().equals(code) && country.getIso2().equals(iso2)) {
 				return country;
 			}
@@ -80,20 +77,15 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	}
 
 	@Override
-	public Page<Premium> findPremiumRangeByFilters(List<String> codeList, 
-			                                       List<String> iso2List, 
-			                                       List<String> tosList,			
-			                                       List<String> tosDescList, 
-			                                       List<String> providerList, 
-			                                       String beforeLastObserved,
-			                                       String afterLastObserved,
-			                                       Pageable page) {
-		
+	public Page<Premium> findPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList,
+	        List<String> tosDescList, List<String> providerList, String beforeLastObserved, String afterLastObserved,
+	        Pageable page) {
+
 		Page<Premium> results = null;
 		int rule = 0;
 		if (codeList != null && !codeList.isEmpty())
 			rule += AppConstants.CODE;
-		if (iso2List != null && !iso2List.isEmpty())  
+		if (iso2List != null && !iso2List.isEmpty())
 			rule += AppConstants.ISO2;
 		if (tosList != null && !tosList.isEmpty())
 			rule += AppConstants.TOS;
@@ -105,11 +97,11 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			rule += AppConstants.BEFORE_LAST_OBSERVED;
 		if (afterLastObserved != null && !afterLastObserved.isEmpty())
 			rule += AppConstants.AFTER_LAST_OBSERVED;
-		 
-		switch(rule) {
+
+		switch (rule) {
 		case 0:
 			results = premiumRepo.findAll(page);
-			
+
 			break;
 		case 1:
 			results = premiumRepo.findPremiumRangeByRule1(codeList, page);
@@ -202,7 +194,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule30(iso2List, tosList, tosDescList, providerList, page);
 			break;
 		case 31:
-			results = premiumRepo.findPremiumRangeByRule31(codeList, iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule31(codeList, iso2List, tosList, tosDescList, providerList,
+			        page);
 			break;
 		case 33:
 			results = premiumRepo.findPremiumRangeByRule33(codeList, page);
@@ -295,7 +288,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule62(iso2List, tosList, tosDescList, providerList, page);
 			break;
 		case 63:
-			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList,
+			        page);
 			break;
 		case 65:
 			results = premiumRepo.findPremiumRangeByRule65(codeList, page);
@@ -388,7 +382,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule94(iso2List, tosList, tosDescList, providerList, page);
 			break;
 		case 95:
-			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList,
+			        page);
 			break;
 		case 97:
 			results = premiumRepo.findPremiumRangeByRule97(codeList, page);
@@ -481,29 +476,26 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule126(iso2List, tosList, tosDescList, providerList, page);
 			break;
 		case 127:
-			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList,
+			        page);
 			break;
 		default:
 			break;
 
 		}
-		
+
 		return results;
 	}
 
 	@Override
-	public Page<RangeNdc> findRangeNdcByFilters(List<String> codeList, 
-			                                    List<String> iso2List, 
-			                                    List<String> tosList,			
-			                                    List<String> tosDescList, 
-			                                    List<String> providerList, 
-			                                    Pageable page) {
-		
+	public Page<RangeNdc> findRangeNdcByFilters(List<String> codeList, List<String> iso2List, List<String> tosList,
+	        List<String> tosDescList, List<String> providerList, Pageable page) {
+
 		Page<RangeNdc> results = null;
 		int rule = 0;
 		if (codeList != null && !codeList.isEmpty())
 			rule += AppConstants.CODE;
-		if (iso2List != null && !iso2List.isEmpty())  
+		if (iso2List != null && !iso2List.isEmpty())
 			rule += AppConstants.ISO2;
 		if (tosList != null && !tosList.isEmpty())
 			rule += AppConstants.TOS;
@@ -511,8 +503,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			rule += AppConstants.TOSDESC;
 		if (providerList != null && !providerList.isEmpty())
 			rule += AppConstants.PROVIDER;
-		 
-		switch(rule) {
+
+		switch (rule) {
 		case 0:
 			results = rangeNdcRepo.findAll(page);
 			break;
@@ -613,7 +605,64 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			break;
 
 		}
-		
+
+		return results;
+	}
+
+	private void getBillingIdMap() {
+		try {
+			for (Object[] row : rangeNdcRepo.findAllProviders()) {
+				this.billingIdProviderMap.put(row[0].toString(), row[1].toString());
+			}
+		} catch (Exception e) {
+			log.error("Failed to get provider data:", e);
+		}
+	}
+
+	@Override
+	public void cleanCache() {
+		this.ccNdcData.clear();
+		this.countryList.clear();
+		this.billingIdProviderMap.clear();
+	}
+
+	@Override
+	public String findProviderByBillingId(String billingId) {
+		if (this.billingIdProviderMap.isEmpty()) {
+			getBillingIdMap();
+		}
+
+		if (this.billingIdProviderMap.containsKey(billingId)) {
+			return this.billingIdProviderMap.get(billingId);
+		}
+
+		return "";
+	}
+
+	@Override
+	public List<String> findBillingIdsByProvider(String provider) {
+		List<String> billingIds = new ArrayList<>();
+		if (this.billingIdProviderMap.isEmpty()) {
+			getBillingIdMap();
+		}
+
+		this.billingIdProviderMap.forEach((k, v) -> {
+			if (v.equalsIgnoreCase(provider)) {
+				billingIds.add(k);
+			}
+
+		});
+
+		return billingIds;
+	}
+
+	@Override
+	public List<ProviderBillingId> findProviders() {
+		List<ProviderBillingId> results = new ArrayList<>();
+		for (Object[] row : rangeNdcRepo.findAllProviders()) {
+			results.add(new ProviderBillingId(row[0].toString(), row[1].toString()));
+		}
+
 		return results;
 	}
 

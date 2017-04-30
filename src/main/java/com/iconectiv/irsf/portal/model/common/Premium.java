@@ -33,6 +33,7 @@ public class Premium implements java.io.Serializable {
 	private String ndc;
 	private String locality;
 	private String provider;
+	private String billingId;
 	private String supplement;
 	private Date lastUpdate;
 
@@ -192,4 +193,12 @@ public class Premium implements java.io.Serializable {
 		this.lastUpdate = lastUpdate;
 	}
 
+    @Column(name="billing_id", length=10)
+    public String getBillingId() {
+        return this.billingId;
+    }
+    
+    public void setBillingId(String billingId) {
+        this.billingId = billingId;
+    }
 }

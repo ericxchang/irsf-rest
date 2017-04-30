@@ -1,21 +1,18 @@
 package com.iconectiv.irsf.portal.repositories.customer.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepositoryCustomer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iconectiv.irsf.portal.model.customer.ListDetails;
-import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepositoryCustomer;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer {
 	private static Logger log = LoggerFactory.getLogger(ListDetailsRepositoryImpl.class);
@@ -55,7 +52,7 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 		entityManager.flush();
 		entityManager.clear();
 
-		if (log.isDebugEnabled()) log.debug("Completed batch insert");
+		log.info("Completed list batch insert");
 		return;
 	}
 

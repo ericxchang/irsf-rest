@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
+import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.ScheduleJobService;
 
 @Service
@@ -22,6 +23,8 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 	
 	@Autowired
 	private EventNotificationRepository eventRepo;
+	@Autowired
+	private MobileIdDataService mobileIdService;
 	
 	@Override
 	@Scheduled(cron = "0 6 0 ? * *")
@@ -38,9 +41,10 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 
 	}
 
-	@CacheEvict(cacheNames = {"ccNDC", "country"}, allEntries = true)
+	@CacheEvict(cacheNames = {"ccNDC", "country", "providers"}, allEntries = true)
 	private void handleMobileIdDataReloadEvent() {
 		log.info("Clear cached data ....");
+		mobileIdService.cleanCache();
 	}
 
 }

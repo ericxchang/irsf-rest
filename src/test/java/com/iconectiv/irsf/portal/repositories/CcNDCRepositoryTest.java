@@ -42,7 +42,7 @@ public class CcNDCRepositoryTest {
 		Set<String> ccNDC1 = repository.findAllItem();
 		log.info("return data {}", ccNDC1.size());
 		
-		midDataService.clearCcNDC();
+		midDataService.cleanCache();
 		log.info("3rd query ....");
 		Set<String> ccNDC3 = repository.findAllItem();
 		log.info("return data {}", ccNDC3.size());

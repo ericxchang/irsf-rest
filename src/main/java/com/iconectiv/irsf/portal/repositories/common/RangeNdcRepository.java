@@ -2,6 +2,7 @@ package com.iconectiv.irsf.portal.repositories.common;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,10 @@ import com.iconectiv.irsf.portal.repositories.ReadOnlyRepository;
  * Created by echang on 1/12/2017.
  */
 public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, String>{
-	
+	@Cacheable("providers") 
+	@Query("select r.billingId, r.provider from RangeNdc r where r.provider is not null group by r.provider, r.billingId")
+	List<Object[]> findAllProviders();
+
 	@Query("select p from RangeNdc p where (code in ?1 )")
 	List<RangeNdc>  findRangeNdcbyRule1(List<String> codeList);
 

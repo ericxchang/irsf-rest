@@ -2,7 +2,7 @@ package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
+import com.iconectiv.irsf.portal.model.common.Provider;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.TosAndTosDescType;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -52,7 +52,7 @@ public class MobileIdDatasetControllerTest {
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
-        loginUser.setUserName("guiuser01");
+        loginUser.setUserName("user01");
         loginUser.setCustomerId(1);
         loginUser.setRole(PermissionRole.CustAdmin.value());
         loginUser.setSchemaName("cust01");
@@ -65,14 +65,25 @@ public class MobileIdDatasetControllerTest {
 	}
 
 	@Test
-	public void testQueryIPRN() throws Exception {
-		ResultActions action = mockMvc.perform(get("/iprn").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+	public void testQueryPremium() throws Exception {
+		ResultActions action = mockMvc.perform(get("/premium").header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
 		
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
+	
+	@Test
+	public void testQueryProviders() throws Exception {
+		ResultActions action = mockMvc.perform(get("/providers").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+		String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
+		
+		assertTrue(result.lastIndexOf("success") > 1);
+	}
+	
 
 	@Test
 	public void testQueryRangeNDC() throws Exception {
@@ -83,6 +94,7 @@ public class MobileIdDatasetControllerTest {
 		
 		assertTrue(result.lastIndexOf("success") > 1);
 	}
+	
 	@Test
 	public void testQueryRangeNDCWithFilters() throws Exception {
 		ResultActions action = mockMvc.perform(get("/ndc?codeList=51&tosList=U&tosDescList=G,Geographic&providerList=Afghan Telecom").header("authorization", "Bearer " + token)).andExpect(status().isOk());
@@ -98,9 +110,9 @@ public class MobileIdDatasetControllerTest {
 		List<String> iso2List = new ArrayList<String>();
 		List<String> tosList = new ArrayList<String>();
 		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
-		List<ProviderBillingId> providerList = new ArrayList<ProviderBillingId>();
+		List<Provider> providerList = new ArrayList<Provider>();
 		TosAndTosDescType tosDesc = new TosAndTosDescType();
-		ProviderBillingId prov = new ProviderBillingId();
+		Provider prov = new Provider();
 		
 		codeList.add("93");
 		codeList.add("886");
@@ -143,9 +155,9 @@ public class MobileIdDatasetControllerTest {
 		List<String> iso2List = new ArrayList<String>();
 		List<String> tosList = new ArrayList<String>();
 		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
-		List<ProviderBillingId> providerList = new ArrayList<ProviderBillingId>();
+		List<Provider> providerList = new ArrayList<Provider>();
 		TosAndTosDescType tosDesc = new TosAndTosDescType();
-		ProviderBillingId prov = new ProviderBillingId();
+		Provider prov = new Provider();
 		
 		codeList.add("247");
 		codeList.add("886");

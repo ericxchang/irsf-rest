@@ -3,11 +3,15 @@ package com.iconectiv.irsf.portal.model.common;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,7 +35,9 @@ public class RangeNdc implements java.io.Serializable {
 	private String ndc;
 	private String locality;
 	private String provider;
+	private String billingId;
 	private String supplement;
+	private Date effectiveDate;
 
 	public RangeNdc() {
 	}
@@ -129,6 +135,15 @@ public class RangeNdc implements java.io.Serializable {
 		this.provider = provider;
 	}
 
+	@Column(name = "billing_id", length = 10)
+	public String getBillingId() {
+		return this.billingId;
+	}
+
+	public void setBillingId(String billingId) {
+		this.billingId = billingId;
+	}
+
 	@Column(name = "supplement", length = 40)
 	public String getSupplement() {
 		return this.supplement;
@@ -138,4 +153,13 @@ public class RangeNdc implements java.io.Serializable {
 		this.supplement = supplement;
 	}
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "effective_date", length = 10)
+	public Date getEffectiveDate() {
+		return this.effectiveDate;
+	}
+
+	public void setEffectiveDate(Date effectiveDate) {
+		this.effectiveDate = effectiveDate;
+	}
 }

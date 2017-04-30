@@ -2,6 +2,8 @@ package com.iconectiv.irsf.portal.service;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,5 +38,13 @@ public class MobileIdDataServiceTest {
 	public void testFindMatchCountry() throws Exception {
 		assertTrue(midDataService.findMatchingCountry("1", "AI").getCountry().equals("Anguilla"));
 		assertTrue(midDataService.findMatchingCountry("1", "AG").getCountry().equals("Antigua and Barbuda"));
+	}
+	
+	@Test
+	public void testFinProvider() throws Exception {
+		assertTrue(midDataService.findProviderByBillingId("127962").equals("1 Net Telekom"));
+		assertTrue(midDataService.findProviderByBillingId("128876").equalsIgnoreCase("zoom"));
+
+		assertTrue(midDataService.findBillingIdsByProvider("zNET telekom Zrt.").equals(Arrays.asList(new String[]{"128303"}) ));
 	}
 }

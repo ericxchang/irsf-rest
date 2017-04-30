@@ -7,7 +7,7 @@ public class RangeQueryFilter {
 	private List<String> codeList;
 	private List<String> iso2List;
 	private List<TosAndTosDescType> tosDescList;
-	private List<ProviderBillingId> providerList;
+	private List<Provider> providerList;
 	
 	private String beforeLastObserved;
 	private String afterLastObserved;
@@ -39,10 +39,10 @@ public class RangeQueryFilter {
 	public void setTosDescList(List<TosAndTosDescType> tosDescList) {
 		this.tosDescList = tosDescList;
 	}
-	public List<ProviderBillingId> getProviderList() {
+	public List<Provider> getProviderList() {
 		return providerList;
 	}
-	public void setProviderList(List<ProviderBillingId> providerList) {
+	public void setProviderList(List<Provider> providerList) {
 		this.providerList = providerList;
 	}
 	public String getBeforeLastObserved() {

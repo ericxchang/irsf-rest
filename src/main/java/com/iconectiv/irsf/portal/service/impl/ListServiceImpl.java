@@ -299,7 +299,7 @@ public class ListServiceImpl implements ListService {
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 	}
 
-	@Value("${max_list_size:10000}")
+	@Value("${max_list_size:100000}")
 	private int maxListSize;
 	@Transactional
 	@Override
