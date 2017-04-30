@@ -93,6 +93,31 @@ public class AuthServiceController extends BaseRestController {
 		return rv;
 	}
 
+	@RequestMapping(value = "/logout", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody public ResponseEntity<String> logoutRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+
+		ResponseEntity<String> rv;
+
+
+		try {
+			UserDefinition user = getLoginUser(header);
+			
+			
+			if (user == null) {
+				throw new AuthException("Invalid user Id");
+			}
+
+            auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "logout", "successful log out");
+			
+			rv = makeSuccessResult("successful logout");
+		} catch (Exception e) {
+			log.error("Failed to login: ", e);
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+	
 	@RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> createUserRequest(@RequestHeader Map<String, String> header, @RequestBody String userJson) {

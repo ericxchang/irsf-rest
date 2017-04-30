@@ -14,6 +14,8 @@ public interface EventNotificationRepository extends CrudRepository<EventNotific
     List<EventNotification> findAllByCustomerName(String customerName);
     List<EventNotification> findAllByCustomerNameAndEventType(String customerName, String eventType);
     
+    List<EventNotification> findAllByCustomerNameIsNullAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(Date createTimestamp);
+
     List<EventNotification> findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(String customerName, Date createTimestamp);
     List<EventNotification> findAllByCustomerNameAndEventTypeAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(String customerName, String eventType, Date createTimestamp);
 
