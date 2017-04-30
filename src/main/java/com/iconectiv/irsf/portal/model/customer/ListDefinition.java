@@ -34,6 +34,7 @@ public class ListDefinition implements java.io.Serializable {
 	private Date createTimestamp;
 	private List<ListUploadRequest> listUploadRequests = new ArrayList<>();
     private boolean active;
+	private String lastUploadStatus;
     
 	public ListDefinition() {
 	}
@@ -138,8 +139,21 @@ public class ListDefinition implements java.io.Serializable {
 		return this.listUploadRequests;
 	}
 
+	@Transient
+	public String getLastUploadStatus() {
+		return lastUploadStatus;
+	}
+
+	public void setLastUploadStatus(String lastUploadStatus) {
+		this.lastUploadStatus = lastUploadStatus;
+	}
+
 	public void setListUploadRequests(List<ListUploadRequest> listUploadRequests) {
 		this.listUploadRequests = listUploadRequests;
+		
+		if (!listUploadRequests.isEmpty()) {
+			this.lastUploadStatus = listUploadRequests.get(0).getStatus();
+		}
 	}
 
 }
