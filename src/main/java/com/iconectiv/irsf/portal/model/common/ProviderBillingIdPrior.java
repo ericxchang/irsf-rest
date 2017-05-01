@@ -18,14 +18,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "provider_billing_id", catalog = "irsfmast")
-public class ProviderBillingId {
+@Table(name = "provider_billing_id_prior", catalog = "staging")
+public class ProviderBillingIdPrior {
 	
 	private Integer id;
 	private String provider;
 	String billingId;
 	
-	public ProviderBillingId(String billingId, String provider) {
+	public ProviderBillingIdPrior(String billingId, String provider) {
 		this.provider = provider;
 		this.billingId = billingId;
 	}
