@@ -161,59 +161,11 @@ class MobileIdDatasetController extends BaseRestController {
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+			
+			log.info("/findRangeNdc: filter: {}", value);
 			RangeQueryFilter filter = JsonHelper.fromJson(value, RangeQueryFilter.class);
-			log.info("/findRangeNdc: filter: {}", JsonHelper.toPrettyJson(filter));
-
-			if (filter.getPageNo() == null) {
-				filter.setPageNo(0);
-			}
-
-			if (filter.getLimit() == null) {
-				filter.setLimit(batchSize);
-			}
-
-			if (log.isDebugEnabled())
-				log.debug("receive ndc query rquest pageNo {}", filter.getPageNo());
-
-			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
-			List<String> codeList = filter.getCodeList();
-			List<String> iso2List = filter.getIso2List();
-			List<String> tosList = null;
-			List<String> tosDescList = null;
-			List<String> tosDesc = null;
-			List<String> providerList = null;
-			if (filter.getTosDescList() != null) {
-				for (TosAndTosDescType s : filter.getTosDescList()) {
-					if (s.getTosDescs() == null || s.getTosDescs().isEmpty()) {
-						if (tosList == null)
-							tosList = new ArrayList<String>();
-
-						tosList.add(s.getTos());
-					} else {
-						if (tosDescList == null)
-							tosDescList = new ArrayList<String>();
-						for (String b : s.getTosDescs())
-							tosDescList.add(s + "," + b);
-					}
-				}
-				log.info("/findRangeNdc: tos filter: {}", JsonHelper.toPrettyJson(tosList));
-				log.info("/findRangeNdc: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
-			}
-
-			if (filter.getProviderList() != null) {
-				for (Provider p : filter.getProviderList()) {
-
-					if (providerList == null)
-						providerList = new ArrayList<String>();
-
-					providerList.add(p.getProvider());
-
-				}
-				log.info("/findRangeNdc: provider filter: {}", JsonHelper.toPrettyJson(providerList));
-			}
-
-			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList,
-			        providerList, page);
+			
+			Page<RangeNdc> results = mobileIdDataService.findRangeNdcByFilters(filter);
 
 			rv = makeSuccessResult(results);
 
@@ -236,60 +188,11 @@ class MobileIdDatasetController extends BaseRestController {
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+			
+			log.info("/findPremium: filter: {}", value);
 			RangeQueryFilter filter = JsonHelper.fromJson(value, RangeQueryFilter.class);
 
-			log.info("/findPremium: filter: {}", JsonHelper.toPrettyJson(filter));
-
-			if (filter.getPageNo() == null) {
-				filter.setPageNo(0);
-			}
-
-			if (filter.getLimit() == null) {
-				filter.setLimit(batchSize);
-			}
-
-			if (log.isDebugEnabled())
-				log.debug("receive ndc query rquest pageNo {}", filter.getPageNo());
-
-			PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
-			List<String> codeList = filter.getCodeList();
-			List<String> iso2List = filter.getIso2List();
-			List<String> tosList = null;
-			List<String> tosDescList = null;
-			List<String> tosDesc = null;
-			List<String> providerList = null;
-			if (filter.getTosDescList() != null) {
-				for (TosAndTosDescType s : filter.getTosDescList()) {
-					if (s.getTosDescs() == null || s.getTosDescs().isEmpty()) {
-						if (tosList == null)
-							tosList = new ArrayList<String>();
-
-						tosList.add(s.getTos());
-					} else {
-						if (tosDescList == null)
-							tosDescList = new ArrayList<String>();
-						for (String b : s.getTosDescs())
-							tosDescList.add(s + "," + b);
-					}
-				}
-				log.info("/findPremium: tos filter: {}", JsonHelper.toPrettyJson(tosList));
-				log.info("/findPremium: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
-			}
-
-			if (filter.getProviderList() != null) {
-				for (Provider p : filter.getProviderList()) {
-
-					if (providerList == null)
-						providerList = new ArrayList<String>();
-
-					providerList.add(p.getProvider());
-
-				}
-				log.info("/findPremium: provider filter: {}", JsonHelper.toPrettyJson(providerList));
-			}
-
-			Page<Premium> results = mobileIdDataService.findPremiumRangeByFilters(codeList, iso2List, tosList,
-			        tosDescList, providerList, filter.getAfterLastObserved(), filter.getBeforeLastObserved(), page);
+			Page<Premium> results = mobileIdDataService.findPremiumRangeByFilters(filter);
 
 			rv = makeSuccessResult(results);
 

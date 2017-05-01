@@ -837,7 +837,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 				providerList.add(p.getProvider());
 
 			}
-			log.info("/findRangeNdc: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+			log.info("findAllRangeNdcByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
 		}
 
 		return  findAllRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList);
