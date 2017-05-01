@@ -19,6 +19,7 @@ import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
+import com.iconectiv.irsf.portal.model.common.TosTosDesc;
 import com.iconectiv.irsf.portal.repositories.common.CcNdcIndexRepository;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
@@ -661,6 +662,20 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		List<ProviderBillingId> results = new ArrayList<>();
 		for (Object[] row : rangeNdcRepo.findAllProviders()) {
 			results.add(new ProviderBillingId(row[0].toString(), row[1].toString()));
+		}
+
+		return results;
+	}
+
+	@Override
+	public List<TosTosDesc> findAllTOS() {
+		List<TosTosDesc> results = new ArrayList<>();
+		for (Object[] row : rangeNdcRepo.findAllTOS()) {
+			if (row.length < 2 || row[1] == null) {
+				results.add(new TosTosDesc(row[0].toString(), ""));
+			} else {
+				results.add(new TosTosDesc(row[0].toString(), row[1].toString()));
+			}
 		}
 
 		return results;
