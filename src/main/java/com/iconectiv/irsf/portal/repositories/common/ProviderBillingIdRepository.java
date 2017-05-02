@@ -8,6 +8,6 @@ import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
 
 public interface ProviderBillingIdRepository extends CrudRepository<ProviderBillingId, Integer>{
 
-	List<ProviderBillingId> findByBillingId();
-	List<ProviderBillingId> findByProvider();
+	List<ProviderBillingId> findByBillingId(String billingId);
+	List<ProviderBillingId> findByProvider(String provider);
 }
