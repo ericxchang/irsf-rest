@@ -129,11 +129,12 @@ public class MobileIdDatasetControllerTest {
 		codeList.add("93");
 		codeList.add("886");
 		iso2List.add("AL");
+
 		
-		
-		tosDescList.add(tosDesc);
 		tosDesc = new TosTosDesc("G", "Geographic");
-		
+		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc("U", null);
+		tosDescList.add(tosDesc);
 		
 		prov.setProvider("Aircel");
 		providerList.add(prov);
@@ -163,9 +164,9 @@ public class MobileIdDatasetControllerTest {
 		List<String> codeList = new ArrayList<String>();
 		List<String> iso2List = new ArrayList<String>();
 		List<String> tosList = new ArrayList<String>();
-		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
+		List<TosTosDesc> tosDescList = new ArrayList<TosTosDesc>();
 		List<Provider> providerList = new ArrayList<Provider>();
-		TosAndTosDescType tosDesc = new TosAndTosDescType();
+		TosTosDesc tosDesc = new TosTosDesc();
 		Provider prov = new Provider();
 		
 		codeList.add("247");
@@ -174,12 +175,31 @@ public class MobileIdDatasetControllerTest {
 		//tosList.add("U");
 		tosDesc.setTos("G");
 		tosDescList.add(tosDesc);
-		tosDesc = new TosAndTosDescType();
+		tosDesc = new TosTosDesc();
 		tosDesc.setTos("S");
-		List<String> tdList = new ArrayList<String>();
-		tdList.add("Operator Services");
-		tosDesc.setTosDescs(tdList);
+		tosDesc.setTosdesc("Operator Services");
 		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc();
+		tosDesc.setTos("P");
+		tosDesc.setTosdesc("Wireless Page");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc();
+		tosDesc.setTos("P");
+		tosDesc.setTosdesc("Wireline Page");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc();
+		tosDesc.setTos("P");
+		tosDesc.setTosdesc("Paging");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc();
+		tosDesc.setTos("P");
+		tosDesc.setTosdesc("Auto Paging");
+		tosDescList.add(tosDesc);
+		tosDesc = new TosTosDesc();
+		tosDesc.setTos("P");
+		tosDesc.setTosdesc("Routing");
+		tosDescList.add(tosDesc);
+				
 		prov.setProvider("Sure South Atlantic Limited");
 		providerList.add(prov);
 		
@@ -188,7 +208,8 @@ public class MobileIdDatasetControllerTest {
 		filter.setIso2List(iso2List);
 		filter.setProviderList(providerList);
 		filter.setTosDescList(tosDescList);		
-		filter.setAfterLastObserved("2017-01-01");
+		//filter.setAfterLastObserved("2017-01-01");
+		filter.setNumOfMonthsSinceLastObserved(new Integer(4));
 		filter.setPageNo(0);
 		filter.setLimit(10);
 		

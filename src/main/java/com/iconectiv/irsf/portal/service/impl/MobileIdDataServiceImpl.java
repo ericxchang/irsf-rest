@@ -736,13 +736,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
-		List<String> tosList = null;
+		List<String> tosList = new ArrayList<String>();
 		List<String> tosDescList = null;
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
 			for (TosTosDesc s : filter.getTosDescList()) {
+				if (s.getTos() != null && s.getTosdesc() == null) {
+					tosList.add(s.getTos());
+					continue;
+				}
 				List<String> list =  tosMap.get(s.getTos());
 				if (list == null) {
 					list = new ArrayList<String>();
@@ -755,8 +759,6 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
 			if (tosMap.get(tos).size() == tosCount) {
-				if (tosList == null)
-					tosList = new ArrayList<String>();
 				tosList.add(tos);
 				tosMap.remove(tos);
 				
@@ -810,13 +812,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
-		List<String> tosList = null;
+		List<String> tosList =  new ArrayList<String>();
 		List<String> tosDescList = null;
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
 			for (TosTosDesc s : filter.getTosDescList()) {
+				if (s.getTos() != null && s.getTosdesc() == null) {
+					tosList.add(s.getTos());
+					continue;
+				}
 				List<String> list =  tosMap.get(s.getTos());
 				if (list == null) {
 					list = new ArrayList<String>();
@@ -829,8 +835,6 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
 			if (tosMap.get(tos).size() == tosCount) {
-				if (tosList == null)
-					tosList = new ArrayList<String>();
 				tosList.add(tos);
 				tosMap.remove(tos);
 				
@@ -891,13 +895,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
-		List<String> tosList = null;
+		List<String> tosList = new ArrayList<String>();
 		List<String> tosDescList = null;
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
 			for (TosTosDesc s : filter.getTosDescList()) {
+				if (s.getTos() != null && s.getTosdesc() == null) {
+					tosList.add(s.getTos());
+					continue;
+				}
 				List<String> list =  tosMap.get(s.getTos());
 				if (list == null) {
 					list = new ArrayList<String>();
@@ -910,8 +918,6 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
 			if (tosMap.get(tos).size() == tosCount) {
-				if (tosList == null)
-					tosList = new ArrayList<String>();
 				tosList.add(tos);
 				tosMap.remove(tos);
 				
@@ -970,13 +976,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
-		List<String> tosList = null;
+		List<String> tosList = new ArrayList<String>();
 		List<String> tosDescList = null;
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
 			for (TosTosDesc s : filter.getTosDescList()) {
+				if (s.getTos() != null && s.getTosdesc() == null) {
+					tosList.add(s.getTos());
+					continue;
+				}
 				List<String> list =  tosMap.get(s.getTos());
 				if (list == null) {
 					list = new ArrayList<String>();
@@ -989,8 +999,6 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
 			if (tosMap.get(tos).size() == tosCount) {
-				if (tosList == null)
-					tosList = new ArrayList<String>();
 				tosList.add(tos);
 				tosMap.remove(tos);
 				
