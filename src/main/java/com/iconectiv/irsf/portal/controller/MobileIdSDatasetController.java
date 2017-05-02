@@ -118,6 +118,24 @@ class MobileIdDatasetController extends BaseRestController {
 		return rv;
 	}
 
+	@RequestMapping(value = "/tos", method = RequestMethod.GET)
+	public ResponseEntity<String> getTOS(@RequestHeader Map<String, String> header) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			List<TosTosDesc> results = mobileIdDataService.findAllTOS();
+			rv = makeSuccessResult("", results);
+
+		} catch (Exception e) {
+			log.error("Error to retieve tos data", e);
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
 	@RequestMapping(value = "/rangeNDC", method = RequestMethod.GET)
 	public ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header,
 	        @RequestParam(value = "pageNo", required = false) Integer pageNo,

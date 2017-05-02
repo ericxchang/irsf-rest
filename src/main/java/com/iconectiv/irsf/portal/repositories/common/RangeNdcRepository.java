@@ -18,6 +18,10 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, String
 	@Query("select r.billingId, r.provider from RangeNdc r where r.provider is not null group by r.provider, r.billingId")
 	List<Object[]> findAllProviders();
 
+	@Cacheable("tos") 
+	@Query("select r.tos, r.tosdesc from RangeNdc r where r.tos is not null group by r.tos, r.tosdesc order by r.tos")
+	List<Object[]> findAllTOS();
+
 	@Query("select p from RangeNdc p where (code in ?1 )")
 	List<RangeNdc>  findRangeNdcbyRule1(List<String> codeList);
 

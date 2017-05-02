@@ -7,15 +7,17 @@ import org.springframework.data.domain.Pageable;
 
 import com.iconectiv.irsf.portal.model.common.Country;
 import com.iconectiv.irsf.portal.model.common.Premium;
-import com.iconectiv.irsf.portal.model.common.Provider;
 import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
+import com.iconectiv.irsf.portal.model.common.TosTosDesc;
 
 public interface MobileIdDataService {
 	void cleanCache();
 	
 	List<ProviderBillingId> findProviders();
+	
+	List<TosTosDesc> findAllTOS();
 	
 	String findProviderByBillingId(String billingId);
 	
