@@ -33,16 +33,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	List<Premium>  findPremiumRangeByRule7(List<String> codeList, List<String> iso2List, List<String> tosList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	List<Premium>  findPremiumRangeByRule8(List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule9(List<String> codeList, List<String> tosDescList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule10(List<String> iso2List, List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	List<Premium>  findPremiumRangeByRule11(List<String> codeList, List<String> iso2List, List<String> tosDescList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -81,16 +81,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule23(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	List<Premium>  findPremiumRangeByRule24(List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule25(List<String> codeList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule26(List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule27(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -126,16 +126,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	List<Premium>  findPremiumRangeByRule39(List<String> codeList, List<String> iso2List, List<String> tosList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	List<Premium>  findPremiumRangeByRule40(List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule41(List<String> codeList, List<String> tosDescList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule42(List<String> iso2List, List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	List<Premium>  findPremiumRangeByRule43(List<String> codeList, List<String> iso2List, List<String> tosDescList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -174,16 +174,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule55(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	List<Premium>  findPremiumRangeByRule56(List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule57(List<String> codeList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule58(List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule59(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -219,16 +219,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	List<Premium>  findPremiumRangeByRule71(List<String> codeList, List<String> iso2List, List<String> tosList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	List<Premium>  findPremiumRangeByRule72(List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule73(List<String> codeList, List<String> tosDescList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule74(List<String> iso2List, List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	List<Premium>  findPremiumRangeByRule75(List<String> codeList, List<String> iso2List, List<String> tosDescList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -267,16 +267,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule87(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	List<Premium>  findPremiumRangeByRule88(List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule89(List<String> codeList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule90(List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule91(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -312,16 +312,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	List<Premium>  findPremiumRangeByRule103(List<String> codeList, List<String> iso2List, List<String> tosList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	List<Premium>  findPremiumRangeByRule104(List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule105(List<String> codeList, List<String> tosDescList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	List<Premium>  findPremiumRangeByRule106(List<String> iso2List, List<String> tosDescList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	List<Premium>  findPremiumRangeByRule107(List<String> codeList, List<String> iso2List, List<String> tosDescList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -360,16 +360,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule119(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	List<Premium>  findPremiumRangeByRule120(List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule121(List<String> codeList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	List<Premium>  findPremiumRangeByRule122(List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<Premium>  findPremiumRangeByRule123(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -407,16 +407,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	Page<Premium>  findPremiumRangeByRule7(List<String> codeList, List<String> iso2List, List<String> tosList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	Page<Premium>  findPremiumRangeByRule8(List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule9(List<String> codeList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule10(List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	Page<Premium>  findPremiumRangeByRule11(List<String> codeList, List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -455,16 +455,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule23(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	Page<Premium>  findPremiumRangeByRule24(List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule25(List<String> codeList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule26(List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule27(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -500,16 +500,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	Page<Premium>  findPremiumRangeByRule39(List<String> codeList, List<String> iso2List, List<String> tosList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	Page<Premium>  findPremiumRangeByRule40(List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule41(List<String> codeList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule42(List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	Page<Premium>  findPremiumRangeByRule43(List<String> codeList, List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -548,16 +548,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule55(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	Page<Premium>  findPremiumRangeByRule56(List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule57(List<String> codeList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule58(List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule59(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -593,16 +593,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	Page<Premium>  findPremiumRangeByRule71(List<String> codeList, List<String> iso2List, List<String> tosList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	Page<Premium>  findPremiumRangeByRule72(List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule73(List<String> codeList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule74(List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	Page<Premium>  findPremiumRangeByRule75(List<String> codeList, List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -641,16 +641,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule87(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	Page<Premium>  findPremiumRangeByRule88(List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule89(List<String> codeList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule90(List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule91(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
@@ -686,16 +686,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 )")
 	Page<Premium>  findPremiumRangeByRule103(List<String> codeList, List<String> iso2List, List<String> tosList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 )")
 	Page<Premium>  findPremiumRangeByRule104(List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule105(List<String> codeList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 )")
 	Page<Premium>  findPremiumRangeByRule106(List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 )")
 	Page<Premium>  findPremiumRangeByRule107(List<String> codeList, List<String> iso2List, List<String> tosDescList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
@@ -734,16 +734,16 @@ public interface PremiumRepository extends ReadOnlyRepository<Premium, Integer>{
 	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule119(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (tosdesc in ?1 ) and (provider in ?2 )")
+	@Query("select p from Premium p where (concat(tos,',',tosdesc) in ?1 ) and (provider in ?2 )")
 	Page<Premium>  findPremiumRangeByRule120(List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (code in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule121(List<String> codeList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (iso2 in ?1 ) and (tosdesc in ?2 ) and (provider in ?3 )")
+	@Query("select p from Premium p where (iso2 in ?1 ) and (concat(tos,',',tosdesc) in ?2 ) and (provider in ?3 )")
 	Page<Premium>  findPremiumRangeByRule122(List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (tosdesc in ?3 ) and (provider in ?4 )")
+	@Query("select p from Premium p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	Page<Premium>  findPremiumRangeByRule123(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
 	@Query("select p from Premium p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")

@@ -7,12 +7,15 @@ public class TosTosDesc {
 	private String tos;
 	private String tosdesc;
 	
+	
+	public TosTosDesc() {
+		
+	}
 	public TosTosDesc(String tos, String tosdesc) {
 		this.tos = tos;
 		this.tosdesc = tosdesc;
 	}
-	
-	
+
 	public String getTos() {
 		return tos;
 	}

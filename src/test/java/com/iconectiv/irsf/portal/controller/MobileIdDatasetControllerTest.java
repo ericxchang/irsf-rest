@@ -5,6 +5,7 @@ import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.Provider;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.TosAndTosDescType;
+import com.iconectiv.irsf.portal.model.common.TosTosDesc;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.After;
@@ -120,22 +121,19 @@ public class MobileIdDatasetControllerTest {
 		List<String> codeList = new ArrayList<String>();
 		List<String> iso2List = new ArrayList<String>();
 		List<String> tosList = new ArrayList<String>();
-		List<TosAndTosDescType> tosDescList = new ArrayList<TosAndTosDescType>();
+		List<TosTosDesc> tosDescList = new ArrayList<TosTosDesc>();
 		List<Provider> providerList = new ArrayList<Provider>();
-		TosAndTosDescType tosDesc = new TosAndTosDescType();
+		TosTosDesc tosDesc = new TosTosDesc();
 		Provider prov = new Provider();
 		
 		codeList.add("93");
 		codeList.add("886");
 		iso2List.add("AL");
 		
-		tosDesc.setTos("P");
+		
 		tosDescList.add(tosDesc);
-		tosDesc = new TosAndTosDescType();
-		tosDesc.setTos("G");
-		List<String> tdList = new ArrayList<String>();
-		tdList.add("Geographic");
-		tosDesc.setTosDescs(tdList);
+		tosDesc = new TosTosDesc("G", "Geographic");
+		
 		
 		prov.setProvider("Aircel");
 		providerList.add(prov);

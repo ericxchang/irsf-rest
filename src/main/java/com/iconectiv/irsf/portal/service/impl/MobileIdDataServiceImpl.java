@@ -1,8 +1,12 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,9 +41,9 @@ import com.iconectiv.irsf.util.ListHelper;
 public class MobileIdDataServiceImpl implements MobileIdDataService {
 	private static Logger log = LoggerFactory.getLogger(MobileIdDataServiceImpl.class);
 
-	Set<String> ccNdcData = new HashSet<>();
-	List<Country> countryList = new ArrayList<>();
-	List<TosTosDesc> tosTosDescList = new ArrayList<>();
+	Set<String> ccNdcData = new HashSet<String>();
+	List<Country> countryList = new ArrayList<Country>();
+	List<TosTosDesc> tosTosDescList = new ArrayList<TosTosDesc>();
 	
 	Map<String, String> billingIdProviderMap = new HashMap<>();
 
@@ -727,33 +731,51 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 
 		if (log.isDebugEnabled())
-			log.debug("receive ndc query rquest pageNo {}", filter.getPageNo());
+			log.debug("findRangeNdcByFilters: receive ndc query rquest pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = null;
 		List<String> tosDescList = null;
-		List<String> tosDesc = null;
 		List<String> providerList = null;
-		if (filter.getTosDescList() != null) {
-			for (TosAndTosDescType s : filter.getTosDescList()) {
-				if (s.getTosDescs() == null || s.getTosDescs().isEmpty()) {
-					if (tosList == null)
-						tosList = new ArrayList<String>();
-
-					tosList.add(s.getTos());
-				} else {
-					if (tosDescList == null)
-						tosDescList = new ArrayList<String>();
-					for (String b : s.getTosDescs())
-						tosDescList.add(s + "," + b);
+		List<String> listOfTos = new ArrayList<String>();
+		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
+		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+			for (TosTosDesc s : filter.getTosDescList()) {
+				List<String> list =  tosMap.get(s.getTos());
+				if (list == null) {
+					list = new ArrayList<String>();
+					tosMap.put(s.getTos(), list);
+					listOfTos.add(s.getTos());
 				}
+				list.add(s.getTos() + "," + s.getTosdesc());
 			}
-			log.info("/findRangeNdc: tos filter: {}", JsonHelper.toPrettyJson(tosList));
-			log.info("/findRangeNdc: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		}
-
+		for (String tos: listOfTos) {
+			int tosCount = getTotalTOSCount(tos);
+			if (tosMap.get(tos).size() == tosCount) {
+				if (tosList == null)
+					tosList = new ArrayList<String>();
+				tosList.add(tos);
+				tosMap.remove(tos);
+				
+			}
+		}
+		Set<String> tosSet = tosMap.keySet();
+		Iterator it = tosSet.iterator();
+		while (it.hasNext()) {
+			if (tosDescList == null)
+				tosDescList = new ArrayList<String>();
+			
+			tosDescList.addAll(tosMap.get(it.next()));
+		}
+		if (tosList != null && !tosList.isEmpty())
+			log.info("findRangeNdcByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+		
+		if (tosDescList != null && !tosDescList.isEmpty())
+			log.info("findRangeNdcByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
+		
 		if (filter.getProviderList() != null) {
 			for (Provider p : filter.getProviderList()) {
 
@@ -763,7 +785,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 				providerList.add(p.getProvider());
 
 			}
-			log.info("/findRangeNdc: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+			log.info("findRangeNdcByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
 		}
 
 		return  findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
@@ -783,32 +805,51 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 
 		if (log.isDebugEnabled())
-			log.debug("findPremiumRangeByFilters: receive ndc query rquest pageNo {}", filter.getPageNo());
+			log.debug("findPremiumRangeByFilters: receive range premium query rquest pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = null;
 		List<String> tosDescList = null;
-		List<String> tosDesc = null;
 		List<String> providerList = null;
-		if (filter.getTosDescList() != null) {
-			for (TosAndTosDescType s : filter.getTosDescList()) {
-				if (s.getTosDescs() == null || s.getTosDescs().isEmpty()) {
-					if (tosList == null)
-						tosList = new ArrayList<String>();
-
-					tosList.add(s.getTos());
-				} else {
-					if (tosDescList == null)
-						tosDescList = new ArrayList<String>();
-					for (String b : s.getTosDescs())
-						tosDescList.add(s + "," + b);
+		List<String> listOfTos = new ArrayList<String>();
+		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
+		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+			for (TosTosDesc s : filter.getTosDescList()) {
+				List<String> list =  tosMap.get(s.getTos());
+				if (list == null) {
+					list = new ArrayList<String>();
+					tosMap.put(s.getTos(), list);
+					listOfTos.add(s.getTos());
 				}
+				list.add(s.getTos() + "," + s.getTosdesc());
 			}
-			log.info("findPremiumRangeByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
-			log.info("findPremiumRangeByFilters: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		}
+		for (String tos: listOfTos) {
+			int tosCount = getTotalTOSCount(tos);
+			if (tosMap.get(tos).size() == tosCount) {
+				if (tosList == null)
+					tosList = new ArrayList<String>();
+				tosList.add(tos);
+				tosMap.remove(tos);
+				
+			}
+		}
+		Set<String> tosSet = tosMap.keySet();
+		Iterator it = tosSet.iterator();
+		while (it.hasNext()) {
+			if (tosDescList == null)
+				tosDescList = new ArrayList<String>();
+			
+			tosDescList.addAll(tosMap.get(it.next()));
+		}
+		if (tosList != null && !tosList.isEmpty())
+			log.info("findPremiumRangeByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+		
+		if (tosDescList != null && !tosDescList.isEmpty())
+			log.info("findPremiumRangeByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
+		
 
 		if (filter.getProviderList() != null) {
 			for (Provider p : filter.getProviderList()) {
@@ -820,6 +861,12 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 			}
 			log.info("findPremiumRangeByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+		}
+		if (filter.getNumOfMonthsSinceLastObserved() != null) {
+			String observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
+			filter.setBeforeLastObserved(null);
+			filter.setAfterLastObserved(observedDate);
+			log.info("findPremiumRangeByFilters: last observed date: {}", observedDate);
 		}
 
 		return findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, filter.getAfterLastObserved(), filter.getBeforeLastObserved(), page);
@@ -846,25 +893,45 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = null;
 		List<String> tosDescList = null;
-		List<String> tosDesc = null;
 		List<String> providerList = null;
-		if (filter.getTosDescList() != null) {
-			for (TosAndTosDescType s : filter.getTosDescList()) {
-				if (s.getTosDescs() == null || s.getTosDescs().isEmpty()) {
-					if (tosList == null)
-						tosList = new ArrayList<String>();
-
-					tosList.add(s.getTos());
-				} else {
-					if (tosDescList == null)
-						tosDescList = new ArrayList<String>();
-					for (String b : s.getTosDescs())
-						tosDescList.add(s + "," + b);
+		List<String> listOfTos = new ArrayList<String>();
+		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
+		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+			for (TosTosDesc s : filter.getTosDescList()) {
+				List<String> list =  tosMap.get(s.getTos());
+				if (list == null) {
+					list = new ArrayList<String>();
+					tosMap.put(s.getTos(), list);
+					listOfTos.add(s.getTos());
 				}
+				list.add(s.getTos() + "," + s.getTosdesc());
 			}
-			log.info("findAllRangeNdcByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
-			log.info("findAllRangeNdcByFilters: tosDesce filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		}
+		for (String tos: listOfTos) {
+			int tosCount = getTotalTOSCount(tos);
+			if (tosMap.get(tos).size() == tosCount) {
+				if (tosList == null)
+					tosList = new ArrayList<String>();
+				tosList.add(tos);
+				tosMap.remove(tos);
+				
+			}
+		}
+		
+		Set<String> tosSet = tosMap.keySet();
+		Iterator it = tosSet.iterator();
+		while (it.hasNext()) {
+			if (tosDescList == null)
+				tosDescList = new ArrayList<String>();
+			
+			tosDescList.addAll(tosMap.get(it.next()));
+		}
+		if (tosList != null && !tosList.isEmpty())
+			log.info("findAllRangeNdcByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+		
+		if (tosDescList != null && !tosDescList.isEmpty())
+			log.info("findAllRangeNdcByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
+		
 
 		if (filter.getProviderList() != null) {
 			for (Provider p : filter.getProviderList()) {
@@ -884,8 +951,88 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 	@Override
 	public List<Premium> findAllPremiumRangeByFilters(RangeQueryFilter filter) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
+
+		if (filter.getPageNo() == null) {
+			filter.setPageNo(0);
+		}
+
+		if (filter.getLimit() == null) {
+			filter.setLimit(batchSize);
+		}
+
+		if (log.isDebugEnabled())
+			log.debug("findAllPremiumRangeByFilters: receive ndc query rquest pageNo {}", filter.getPageNo());
+
+		String afterLastObserved = null;
+		String beforeLastObserved = null;
+		
+		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+		List<String> codeList = filter.getCodeList();
+		List<String> iso2List = filter.getIso2List();
+		List<String> tosList = null;
+		List<String> tosDescList = null;
+		List<String> providerList = null;
+		List<String> listOfTos = new ArrayList<String>();
+		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
+		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+			for (TosTosDesc s : filter.getTosDescList()) {
+				List<String> list =  tosMap.get(s.getTos());
+				if (list == null) {
+					list = new ArrayList<String>();
+					tosMap.put(s.getTos(), list);
+					listOfTos.add(s.getTos());
+				}
+				list.add(s.getTos() + "," + s.getTosdesc());
+			}
+		}
+		for (String tos: listOfTos) {
+			int tosCount = getTotalTOSCount(tos);
+			if (tosMap.get(tos).size() == tosCount) {
+				if (tosList == null)
+					tosList = new ArrayList<String>();
+				tosList.add(tos);
+				tosMap.remove(tos);
+				
+			}
+		}
+		Set<String> tosSet = tosMap.keySet();
+		Iterator it = tosSet.iterator();
+		while (it.hasNext()) {
+			if (tosDescList == null)
+				tosDescList = new ArrayList<String>();
+			
+			tosDescList.addAll(tosMap.get(it.next()));
+		}
+		
+		if (tosList != null && !tosList.isEmpty())
+			log.info("findAllPremiumRangeByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
+		
+		if (tosDescList != null && !tosDescList.isEmpty())
+			log.info("findAllPremiumRangeByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
+		
+	  
+
+		if (filter.getProviderList() != null) {
+			for (Provider p : filter.getProviderList()) {
+
+				if (providerList == null)
+					providerList = new ArrayList<String>();
+
+				providerList.add(p.getProvider());
+
+			}
+			log.info("findAllPremiumRangeByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
+		}
+		if (filter.getNumOfMonthsSinceLastObserved() != null) {
+			String observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
+			filter.setBeforeLastObserved(null);
+			filter.setAfterLastObserved(observedDate);
+			log.info("findAllPremiumRangeByFilters: last observed date: {}", observedDate);
+		}
+	
+		return  findAllPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
+
 	}
 
 	
@@ -1414,6 +1561,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 		return results;
 		 
+	}
+
+	public String calObservedDate(int numOfMonthFromCurrentMonth) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		cal.add(Calendar.MONTH, -1 * numOfMonthFromCurrentMonth);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+		
+		return DATE_FORMAT.format(cal);
+
 	}
 
 }

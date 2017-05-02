@@ -6,11 +6,13 @@ public class RangeQueryFilter {
 
 	private List<String> codeList;
 	private List<String> iso2List;
-	private List<TosAndTosDescType> tosDescList;
+	private List<TosTosDesc> tosDescList;
 	private List<Provider> providerList;
 	
 	private String beforeLastObserved;
 	private String afterLastObserved;
+	
+	private Integer numOfMonthsSinceLastObserved;
 	
 	private Integer pageNo;
 	private Integer limit;
@@ -27,11 +29,11 @@ public class RangeQueryFilter {
 	public void setIso2List(List<String> iso2List) {
 		this.iso2List = iso2List;
 	}
-		
-	public List<TosAndTosDescType> getTosDescList() {
+
+	public List<TosTosDesc> getTosDescList() {
 		return tosDescList;
 	}
-	public void setTosDescList(List<TosAndTosDescType> tosDescList) {
+	public void setTosDescList(List<TosTosDesc> tosDescList) {
 		this.tosDescList = tosDescList;
 	}
 	public List<Provider> getProviderList() {
@@ -64,5 +66,12 @@ public class RangeQueryFilter {
 	public void setLimit(Integer limit) {
 		this.limit = limit;
 	}
+	public Integer getNumOfMonthsSinceLastObserved() {
+		return numOfMonthsSinceLastObserved;
+	}
+	public void setNumOfMonthsSinceLastObserved(Integer numOfMonthsSinceLastObserved) {
+		this.numOfMonthsSinceLastObserved = numOfMonthsSinceLastObserved;
+	}
+	
 
 }
