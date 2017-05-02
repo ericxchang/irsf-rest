@@ -19,6 +19,8 @@ public interface MobileIdDataService {
 	
 	List<TosTosDesc> findAllTOS();
 	
+	int getTotalTOSCount(String tos);
+	
 	String findProviderByBillingId(String billingId);
 	
 	List<String> findBillingIdsByProvider(String provider);

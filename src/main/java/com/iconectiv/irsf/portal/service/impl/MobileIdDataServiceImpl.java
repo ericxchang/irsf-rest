@@ -39,6 +39,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 	Set<String> ccNdcData = new HashSet<>();
 	List<Country> countryList = new ArrayList<>();
+	List<TosTosDesc> tosTosDescList = new ArrayList<>();
+	
 	Map<String, String> billingIdProviderMap = new HashMap<>();
 
 	@Value("${jdbc.query_batch_size:100000}")
@@ -678,17 +680,37 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 	@Override
 	public List<TosTosDesc> findAllTOS() {
-		List<TosTosDesc> results = new ArrayList<>();
+		if (!tosTosDescList.isEmpty()) {
+			return tosTosDescList;
+		}
+		
 		for (Object[] row : rangeNdcRepo.findAllTOS()) {
 			if (row.length < 2 || row[1] == null) {
-				results.add(new TosTosDesc(row[0].toString(), ""));
+				tosTosDescList.add(new TosTosDesc(row[0].toString(), ""));
 			} else {
-				results.add(new TosTosDesc(row[0].toString(), row[1].toString()));
+				tosTosDescList.add(new TosTosDesc(row[0].toString(), row[1].toString()));
 			}
 		}
 
-		return results;
+		return tosTosDescList;
 	}
+
+	@Override
+	public int getTotalTOSCount(String tos) {
+		int count = 0;
+		if (tosTosDescList.isEmpty()) {
+			findAllTOS();
+		}
+		
+		for (TosTosDesc item : tosTosDescList) {
+			if (item.getTos().equalsIgnoreCase(tos)) {
+				count++;
+			}
+		}
+		
+		return count;
+	}
+
 
 	@Override
 	public Page<RangeNdc> findRangeNdcByFilters(RangeQueryFilter filter) {

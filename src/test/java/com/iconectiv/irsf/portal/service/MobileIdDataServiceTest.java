@@ -47,4 +47,10 @@ public class MobileIdDataServiceTest {
 
 		assertTrue(midDataService.findBillingIdsByProvider("zNET telekom Zrt.").equals(Arrays.asList(new String[]{"128303"}) ));
 	}
+
+	@Test
+	public void testGetTosCount() throws Exception {
+		assertTrue(midDataService.getTotalTOSCount("F") == 11);
+		assertTrue(midDataService.getTotalTOSCount("U") == 1);
+	}
 }
