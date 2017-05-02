@@ -636,6 +636,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		this.ccNdcData.clear();
 		this.countryList.clear();
 		this.billingIdProviderMap.clear();
+		this.tosTosDescList.clear();
 	}
 
 	@Override
