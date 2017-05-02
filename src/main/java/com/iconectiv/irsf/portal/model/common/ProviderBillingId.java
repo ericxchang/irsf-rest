@@ -25,6 +25,8 @@ public class ProviderBillingId {
 	private String provider;
 	String billingId;
 	
+	public ProviderBillingId() {	
+	}
 	public ProviderBillingId(String billingId, String provider) {
 		this.provider = provider;
 		this.billingId = billingId;
