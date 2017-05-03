@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -31,11 +32,11 @@ public interface MobileIdDataService {
 	
 	Page<RangeNdc> findRangeNdcByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 	
-	Page<Premium> findPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, String afterLastObserved, String beforeLastObserved, Pageable pageable);
+	Page<Premium> findPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Date afterLastObserved, Date beforeLastObserved, Pageable pageable);
 
     List<RangeNdc> findAllRangeNdcByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList);
 	
-	List<Premium> findAllPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, String afterLastObserved, String beforeLastObserved);
+	List<Premium> findAllPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Date afterLastObserved, Date beforeLastObserved);
 	
     Page<RangeNdc> findRangeNdcByFilters(RangeQueryFilter filter);
 	

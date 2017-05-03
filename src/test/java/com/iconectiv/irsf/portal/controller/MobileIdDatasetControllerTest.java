@@ -168,7 +168,9 @@ public class MobileIdDatasetControllerTest {
 		List<Provider> providerList = new ArrayList<Provider>();
 		TosTosDesc tosDesc = new TosTosDesc();
 		Provider prov = new Provider();
-		
+		RangeQueryFilter filter =  new RangeQueryFilter();
+		/*
+		   
 		codeList.add("247");
 		codeList.add("886");
 		iso2List.add("AC");
@@ -203,13 +205,15 @@ public class MobileIdDatasetControllerTest {
 		prov.setProvider("Sure South Atlantic Limited");
 		providerList.add(prov);
 		
-		RangeQueryFilter filter =  new RangeQueryFilter();
+		
 		filter.setCodeList(codeList); 
 		filter.setIso2List(iso2List);
 		filter.setProviderList(providerList);
 		filter.setTosDescList(tosDescList);		
 		//filter.setAfterLastObserved("2017-01-01");
-		filter.setNumOfMonthsSinceLastObserved(new Integer(4));
+		 */
+		 
+		filter.setNumOfMonthsSinceLastObserved(new Integer(3));
 		filter.setPageNo(0);
 		filter.setLimit(10);
 		

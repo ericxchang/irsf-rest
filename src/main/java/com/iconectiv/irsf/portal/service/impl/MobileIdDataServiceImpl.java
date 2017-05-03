@@ -94,7 +94,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 	@Override
 	public Page<Premium> findPremiumRangeByFilters(List<String> codeList, List<String> iso2List, List<String> tosList,
-	        List<String> tosDescList, List<String> providerList, String beforeLastObserved, String afterLastObserved,
+	        List<String> tosDescList, List<String> providerList, Date beforeLastObserved, Date afterLastObserved,
 	        Pageable page) {
 
 		Page<Premium> results = null;
@@ -109,15 +109,16 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			rule += AppConstants.TOSDESC;
 		if (providerList != null && !providerList.isEmpty())
 			rule += AppConstants.PROVIDER;
-		if (beforeLastObserved != null && !beforeLastObserved.isEmpty())
+		if (beforeLastObserved != null)
 			rule += AppConstants.BEFORE_LAST_OBSERVED;
-		if (afterLastObserved != null && !afterLastObserved.isEmpty())
+		if (afterLastObserved != null)
 			rule += AppConstants.AFTER_LAST_OBSERVED;
 
+		log.info("findPremiumRangeByFilters(): rule: {}", rule); 
+		
 		switch (rule) {
 		case 0:
 			results = premiumRepo.findAll(page);
-
 			break;
 		case 1:
 			results = premiumRepo.findPremiumRangeByRule1(codeList, page);
@@ -210,292 +211,298 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule30(iso2List, tosList, tosDescList, providerList, page);
 			break;
 		case 31:
-			results = premiumRepo.findPremiumRangeByRule31(codeList, iso2List, tosList, tosDescList, providerList,
-			        page);
+			results = premiumRepo.findPremiumRangeByRule31(codeList, iso2List, tosList, tosDescList, providerList, page);
+			break;
+		case 32:
+			results = premiumRepo.findPremiumRangeByRule32(afterLastObserved, page);
 			break;
 		case 33:
-			results = premiumRepo.findPremiumRangeByRule33(codeList, page);
+			results = premiumRepo.findPremiumRangeByRule33(codeList, afterLastObserved, page);
 			break;
 		case 34:
-			results = premiumRepo.findPremiumRangeByRule34(iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule34(iso2List, afterLastObserved, page);
 			break;
 		case 35:
-			results = premiumRepo.findPremiumRangeByRule35(codeList, iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule35(codeList, iso2List, afterLastObserved, page);
 			break;
 		case 36:
-			results = premiumRepo.findPremiumRangeByRule36(tosList, page);
+			results = premiumRepo.findPremiumRangeByRule36(tosList, afterLastObserved, page);
 			break;
 		case 37:
-			results = premiumRepo.findPremiumRangeByRule37(codeList, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule37(codeList, tosList, afterLastObserved, page);
 			break;
 		case 38:
-			results = premiumRepo.findPremiumRangeByRule38(iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule38(iso2List, tosList, afterLastObserved, page);
 			break;
 		case 39:
-			results = premiumRepo.findPremiumRangeByRule39(codeList, iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule39(codeList, iso2List, tosList, afterLastObserved, page);
 			break;
 		case 40:
-			results = premiumRepo.findPremiumRangeByRule40(tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule40(tosDescList, afterLastObserved, page);
 			break;
 		case 41:
-			results = premiumRepo.findPremiumRangeByRule41(codeList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule41(codeList, tosDescList, afterLastObserved, page);
 			break;
 		case 42:
-			results = premiumRepo.findPremiumRangeByRule42(iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule42(iso2List, tosDescList, afterLastObserved, page);
 			break;
 		case 43:
-			results = premiumRepo.findPremiumRangeByRule43(codeList, iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule43(codeList, iso2List, tosDescList, afterLastObserved, page);
 			break;
 		case 44:
-			results = premiumRepo.findPremiumRangeByRule44(tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule44(tosList, tosDescList, afterLastObserved, page);
 			break;
 		case 45:
-			results = premiumRepo.findPremiumRangeByRule45(codeList, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule45(codeList, tosList, tosDescList, afterLastObserved, page);
 			break;
 		case 46:
-			results = premiumRepo.findPremiumRangeByRule46(iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule46(iso2List, tosList, tosDescList, afterLastObserved, page);
 			break;
 		case 47:
-			results = premiumRepo.findPremiumRangeByRule47(codeList, iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule47(codeList, iso2List, tosList, tosDescList, afterLastObserved, page);
 			break;
 		case 48:
-			results = premiumRepo.findPremiumRangeByRule48(providerList, page);
+			results = premiumRepo.findPremiumRangeByRule48(providerList, afterLastObserved, page);
 			break;
 		case 49:
-			results = premiumRepo.findPremiumRangeByRule49(codeList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule49(codeList, providerList, afterLastObserved, page);
 			break;
 		case 50:
-			results = premiumRepo.findPremiumRangeByRule50(iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule50(iso2List, providerList, afterLastObserved, page);
 			break;
 		case 51:
-			results = premiumRepo.findPremiumRangeByRule51(codeList, iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule51(codeList, iso2List, providerList, afterLastObserved, page);
 			break;
 		case 52:
-			results = premiumRepo.findPremiumRangeByRule52(tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule52(tosList, providerList, afterLastObserved, page);
 			break;
 		case 53:
-			results = premiumRepo.findPremiumRangeByRule53(codeList, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule53(codeList, tosList, providerList, afterLastObserved, page);
 			break;
 		case 54:
-			results = premiumRepo.findPremiumRangeByRule54(iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule54(iso2List, tosList, providerList, afterLastObserved, page);
 			break;
 		case 55:
-			results = premiumRepo.findPremiumRangeByRule55(codeList, iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule55(codeList, iso2List, tosList, providerList, afterLastObserved, page);
 			break;
 		case 56:
-			results = premiumRepo.findPremiumRangeByRule56(tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule56(tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 57:
-			results = premiumRepo.findPremiumRangeByRule57(codeList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule57(codeList, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 58:
-			results = premiumRepo.findPremiumRangeByRule58(iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule58(iso2List, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 59:
-			results = premiumRepo.findPremiumRangeByRule59(codeList, iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule59(codeList, iso2List, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 60:
-			results = premiumRepo.findPremiumRangeByRule60(tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule60(tosList, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 61:
-			results = premiumRepo.findPremiumRangeByRule61(codeList, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule61(codeList, tosList, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 62:
-			results = premiumRepo.findPremiumRangeByRule62(iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule62(iso2List, tosList, tosDescList, providerList, afterLastObserved, page);
 			break;
 		case 63:
-			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList,
-			        page);
+			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved, page);
+			break;
+		case 64:
+			results = premiumRepo.findPremiumRangeByRule64(beforeLastObserved, page);
 			break;
 		case 65:
-			results = premiumRepo.findPremiumRangeByRule65(codeList, page);
+			results = premiumRepo.findPremiumRangeByRule65(codeList, beforeLastObserved, page);
 			break;
 		case 66:
-			results = premiumRepo.findPremiumRangeByRule66(iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule66(iso2List, beforeLastObserved, page);
 			break;
 		case 67:
-			results = premiumRepo.findPremiumRangeByRule67(codeList, iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule67(codeList, iso2List, beforeLastObserved, page);
 			break;
 		case 68:
-			results = premiumRepo.findPremiumRangeByRule68(tosList, page);
+			results = premiumRepo.findPremiumRangeByRule68(tosList, beforeLastObserved, page);
 			break;
 		case 69:
-			results = premiumRepo.findPremiumRangeByRule69(codeList, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule69(codeList, tosList, beforeLastObserved, page);
 			break;
 		case 70:
-			results = premiumRepo.findPremiumRangeByRule70(iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule70(iso2List, tosList, beforeLastObserved, page);
 			break;
 		case 71:
-			results = premiumRepo.findPremiumRangeByRule71(codeList, iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule71(codeList, iso2List, tosList, beforeLastObserved, page);
 			break;
 		case 72:
-			results = premiumRepo.findPremiumRangeByRule72(tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule72(tosDescList, beforeLastObserved, page);
 			break;
 		case 73:
-			results = premiumRepo.findPremiumRangeByRule73(codeList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule73(codeList, tosDescList, beforeLastObserved, page);
 			break;
 		case 74:
-			results = premiumRepo.findPremiumRangeByRule74(iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule74(iso2List, tosDescList, beforeLastObserved, page);
 			break;
 		case 75:
-			results = premiumRepo.findPremiumRangeByRule75(codeList, iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule75(codeList, iso2List, tosDescList, beforeLastObserved, page);
 			break;
 		case 76:
-			results = premiumRepo.findPremiumRangeByRule76(tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule76(tosList, tosDescList, beforeLastObserved, page);
 			break;
 		case 77:
-			results = premiumRepo.findPremiumRangeByRule77(codeList, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule77(codeList, tosList, tosDescList, beforeLastObserved, page);
 			break;
 		case 78:
-			results = premiumRepo.findPremiumRangeByRule78(iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule78(iso2List, tosList, tosDescList, beforeLastObserved, page);
 			break;
 		case 79:
-			results = premiumRepo.findPremiumRangeByRule79(codeList, iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule79(codeList, iso2List, tosList, tosDescList, beforeLastObserved, page);
 			break;
 		case 80:
-			results = premiumRepo.findPremiumRangeByRule80(providerList, page);
+			results = premiumRepo.findPremiumRangeByRule80(providerList, beforeLastObserved, page);
 			break;
 		case 81:
-			results = premiumRepo.findPremiumRangeByRule81(codeList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule81(codeList, providerList, beforeLastObserved, page);
 			break;
 		case 82:
-			results = premiumRepo.findPremiumRangeByRule82(iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule82(iso2List, providerList, beforeLastObserved, page);
 			break;
 		case 83:
-			results = premiumRepo.findPremiumRangeByRule83(codeList, iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule83(codeList, iso2List, providerList, beforeLastObserved, page);
 			break;
 		case 84:
-			results = premiumRepo.findPremiumRangeByRule84(tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule84(tosList, providerList, beforeLastObserved, page);
 			break;
 		case 85:
-			results = premiumRepo.findPremiumRangeByRule85(codeList, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule85(codeList, tosList, providerList, beforeLastObserved, page);
 			break;
 		case 86:
-			results = premiumRepo.findPremiumRangeByRule86(iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule86(iso2List, tosList, providerList, beforeLastObserved, page);
 			break;
 		case 87:
-			results = premiumRepo.findPremiumRangeByRule87(codeList, iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule87(codeList, iso2List, tosList, providerList, beforeLastObserved, page);
 			break;
 		case 88:
-			results = premiumRepo.findPremiumRangeByRule88(tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule88(tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 89:
-			results = premiumRepo.findPremiumRangeByRule89(codeList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule89(codeList, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 90:
-			results = premiumRepo.findPremiumRangeByRule90(iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule90(iso2List, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 91:
-			results = premiumRepo.findPremiumRangeByRule91(codeList, iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule91(codeList, iso2List, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 92:
-			results = premiumRepo.findPremiumRangeByRule92(tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule92(tosList, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 93:
-			results = premiumRepo.findPremiumRangeByRule93(codeList, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule93(codeList, tosList, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 94:
-			results = premiumRepo.findPremiumRangeByRule94(iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule94(iso2List, tosList, tosDescList, providerList, beforeLastObserved, page);
 			break;
 		case 95:
-			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList,
-			        page);
+			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList, beforeLastObserved, page);
+			break;
+		case 96:
+			results = premiumRepo.findPremiumRangeByRule96(afterLastObserved, beforeLastObserved, page);
 			break;
 		case 97:
-			results = premiumRepo.findPremiumRangeByRule97(codeList, page);
+			results = premiumRepo.findPremiumRangeByRule97(codeList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 98:
-			results = premiumRepo.findPremiumRangeByRule98(iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule98(iso2List, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 99:
-			results = premiumRepo.findPremiumRangeByRule99(codeList, iso2List, page);
+			results = premiumRepo.findPremiumRangeByRule99(codeList, iso2List, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 100:
-			results = premiumRepo.findPremiumRangeByRule100(tosList, page);
+			results = premiumRepo.findPremiumRangeByRule100(tosList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 101:
-			results = premiumRepo.findPremiumRangeByRule101(codeList, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule101(codeList, tosList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 102:
-			results = premiumRepo.findPremiumRangeByRule102(iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule102(iso2List, tosList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 103:
-			results = premiumRepo.findPremiumRangeByRule103(codeList, iso2List, tosList, page);
+			results = premiumRepo.findPremiumRangeByRule103(codeList, iso2List, tosList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 104:
-			results = premiumRepo.findPremiumRangeByRule104(tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule104(tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 105:
-			results = premiumRepo.findPremiumRangeByRule105(codeList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule105(codeList, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 106:
-			results = premiumRepo.findPremiumRangeByRule106(iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule106(iso2List, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 107:
-			results = premiumRepo.findPremiumRangeByRule107(codeList, iso2List, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule107(codeList, iso2List, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 108:
-			results = premiumRepo.findPremiumRangeByRule108(tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule108(tosList, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 109:
-			results = premiumRepo.findPremiumRangeByRule109(codeList, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule109(codeList, tosList, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 110:
-			results = premiumRepo.findPremiumRangeByRule110(iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule110(iso2List, tosList, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 111:
-			results = premiumRepo.findPremiumRangeByRule111(codeList, iso2List, tosList, tosDescList, page);
+			results = premiumRepo.findPremiumRangeByRule111(codeList, iso2List, tosList, tosDescList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 112:
-			results = premiumRepo.findPremiumRangeByRule112(providerList, page);
+			results = premiumRepo.findPremiumRangeByRule112(providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 113:
-			results = premiumRepo.findPremiumRangeByRule113(codeList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule113(codeList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 114:
-			results = premiumRepo.findPremiumRangeByRule114(iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule114(iso2List, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 115:
-			results = premiumRepo.findPremiumRangeByRule115(codeList, iso2List, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule115(codeList, iso2List, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 116:
-			results = premiumRepo.findPremiumRangeByRule116(tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule116(tosList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 117:
-			results = premiumRepo.findPremiumRangeByRule117(codeList, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule117(codeList, tosList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 118:
-			results = premiumRepo.findPremiumRangeByRule118(iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule118(iso2List, tosList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 119:
-			results = premiumRepo.findPremiumRangeByRule119(codeList, iso2List, tosList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule119(codeList, iso2List, tosList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 120:
-			results = premiumRepo.findPremiumRangeByRule120(tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule120(tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 121:
-			results = premiumRepo.findPremiumRangeByRule121(codeList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule121(codeList, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 122:
-			results = premiumRepo.findPremiumRangeByRule122(iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule122(iso2List, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 123:
-			results = premiumRepo.findPremiumRangeByRule123(codeList, iso2List, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule123(codeList, iso2List, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 124:
-			results = premiumRepo.findPremiumRangeByRule124(tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule124(tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 125:
-			results = premiumRepo.findPremiumRangeByRule125(codeList, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule125(codeList, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 126:
-			results = premiumRepo.findPremiumRangeByRule126(iso2List, tosList, tosDescList, providerList, page);
+			results = premiumRepo.findPremiumRangeByRule126(iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		case 127:
-			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList,
-			        page);
+			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved, page);
 			break;
 		default:
+			log.error("Unknown rule: {}", rule);
 			break;
 
 		}
@@ -816,6 +823,10 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		List<String> tosDescList = null;
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
+		
+		Date beforeLastObserved = null;
+		Date afterLastObserved = null;
+		
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
 			for (TosTosDesc s : filter.getTosDescList()) {
@@ -834,7 +845,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
-			if (tosMap.get(tos).size() == tosCount) {
+			if (tosMap.get(tos).size() >= tosCount) {
 				tosList.add(tos);
 				tosMap.remove(tos);
 				
@@ -855,7 +866,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.info("findPremiumRangeByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		
 
-		if (filter.getProviderList() != null) {
+		if (filter.getProviderList() != null && !filter.getProviderList().isEmpty()) {
 			for (Provider p : filter.getProviderList()) {
 
 				if (providerList == null)
@@ -867,13 +878,13 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.info("findPremiumRangeByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
 		}
 		if (filter.getNumOfMonthsSinceLastObserved() != null) {
-			String observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
-			filter.setBeforeLastObserved(null);
-			filter.setAfterLastObserved(observedDate);
+			Date observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
+			beforeLastObserved = null;
+			afterLastObserved = observedDate;
 			log.info("findPremiumRangeByFilters: last observed date: {}", observedDate);
 		}
-
-		return findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, filter.getAfterLastObserved(), filter.getBeforeLastObserved(), page);
+		log.info("findPremiumRangeByFilters: filter: {}", filter);
+		return findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, beforeLastObserved, afterLastObserved, page);
 
 	}
 
@@ -970,8 +981,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (log.isDebugEnabled())
 			log.debug("findAllPremiumRangeByFilters: receive ndc query rquest pageNo {}", filter.getPageNo());
 
-		String afterLastObserved = null;
-		String beforeLastObserved = null;
+		Date afterLastObserved = null;
+		Date beforeLastObserved = null;
 		
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
@@ -1033,13 +1044,13 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.info("findAllPremiumRangeByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
 		}
 		if (filter.getNumOfMonthsSinceLastObserved() != null) {
-			String observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
-			filter.setBeforeLastObserved(null);
-			filter.setAfterLastObserved(observedDate);
+			Date observedDate = calObservedDate(filter.getNumOfMonthsSinceLastObserved());
+			afterLastObserved = observedDate;
+			beforeLastObserved = null;
 			log.info("findAllPremiumRangeByFilters: last observed date: {}", observedDate);
 		}
 	
-		return  findAllPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
+		return  findAllPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, beforeLastObserved, afterLastObserved);
 
 	}
 
@@ -1166,9 +1177,13 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	}
 
 	@Override
-	public List<Premium> findAllPremiumRangeByFilters(List<String> codeList, List<String> iso2List,
-			List<String> tosList, List<String> tosDescList, List<String> providerList, String afterLastObserved,
-			String beforeLastObserved) {
+	public List<Premium> findAllPremiumRangeByFilters(List<String> codeList, 
+			                                          List<String> iso2List,
+			                                          List<String> tosList, 
+			                                          List<String> tosDescList, 
+			                                          List<String> providerList, 
+			                                          Date beforeLastObserved, 
+			                                          Date afterLastObserved) {
 		List<Premium> results = null;
 		int rule = 0;
 		if (codeList != null && !codeList.isEmpty())
@@ -1181,15 +1196,14 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			rule += AppConstants.TOSDESC;
 		if (providerList != null && !providerList.isEmpty())
 			rule += AppConstants.PROVIDER;
-		if (beforeLastObserved != null && !beforeLastObserved.isEmpty())
+		if (beforeLastObserved != null )
 			rule += AppConstants.BEFORE_LAST_OBSERVED;
-		if (afterLastObserved != null && !afterLastObserved.isEmpty())
+		if (afterLastObserved != null)
 			rule += AppConstants.AFTER_LAST_OBSERVED;
 
 		switch (rule) {
 		case 0:
 			results = premiumRepo.findAll();
-
 			break;
 		case 1:
 			results = premiumRepo.findPremiumRangeByRule1(codeList);
@@ -1279,290 +1293,301 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			results = premiumRepo.findPremiumRangeByRule29(codeList, tosList, tosDescList, providerList);
 			break;
 		case 30:
-			results = premiumRepo.findPremiumRangeByRule30(iso2List, tosList, tosDescList, providerList);;
+			results = premiumRepo.findPremiumRangeByRule30(iso2List, tosList, tosDescList, providerList);
 			break;
 		case 31:
 			results = premiumRepo.findPremiumRangeByRule31(codeList, iso2List, tosList, tosDescList, providerList);
 			break;
+		case 32:
+			results = premiumRepo.findPremiumRangeByRule32(afterLastObserved);
+			break;
 		case 33:
-			results = premiumRepo.findPremiumRangeByRule33(codeList);
+			results = premiumRepo.findPremiumRangeByRule33(codeList, afterLastObserved);
 			break;
 		case 34:
-			results = premiumRepo.findPremiumRangeByRule34(iso2List);
+			results = premiumRepo.findPremiumRangeByRule34(iso2List, afterLastObserved);
 			break;
 		case 35:
-			results = premiumRepo.findPremiumRangeByRule35(codeList, iso2List);
+			results = premiumRepo.findPremiumRangeByRule35(codeList, iso2List, afterLastObserved);
 			break;
 		case 36:
-			results = premiumRepo.findPremiumRangeByRule36(tosList);
+			results = premiumRepo.findPremiumRangeByRule36(tosList, afterLastObserved);
 			break;
 		case 37:
-			results = premiumRepo.findPremiumRangeByRule37(codeList, tosList);
+			results = premiumRepo.findPremiumRangeByRule37(codeList, tosList, afterLastObserved);
 			break;
 		case 38:
-			results = premiumRepo.findPremiumRangeByRule38(iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule38(iso2List, tosList, afterLastObserved);
 			break;
 		case 39:
-			results = premiumRepo.findPremiumRangeByRule39(codeList, iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule39(codeList, iso2List, tosList, afterLastObserved);
 			break;
 		case 40:
-			results = premiumRepo.findPremiumRangeByRule40(tosDescList);
+			results = premiumRepo.findPremiumRangeByRule40(tosDescList, afterLastObserved);
 			break;
 		case 41:
-			results = premiumRepo.findPremiumRangeByRule41(codeList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule41(codeList, tosDescList, afterLastObserved);
 			break;
 		case 42:
-			results = premiumRepo.findPremiumRangeByRule42(iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule42(iso2List, tosDescList, afterLastObserved);
 			break;
 		case 43:
-			results = premiumRepo.findPremiumRangeByRule43(codeList, iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule43(codeList, iso2List, tosDescList, afterLastObserved);
 			break;
 		case 44:
-			results = premiumRepo.findPremiumRangeByRule44(tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule44(tosList, tosDescList, afterLastObserved);
 			break;
 		case 45:
-			results = premiumRepo.findPremiumRangeByRule45(codeList, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule45(codeList, tosList, tosDescList, afterLastObserved);
 			break;
 		case 46:
-			results = premiumRepo.findPremiumRangeByRule46(iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule46(iso2List, tosList, tosDescList, afterLastObserved);
 			break;
 		case 47:
-			results = premiumRepo.findPremiumRangeByRule47(codeList, iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule47(codeList, iso2List, tosList, tosDescList, afterLastObserved);
 			break;
 		case 48:
-			results = premiumRepo.findPremiumRangeByRule48(providerList);
+			results = premiumRepo.findPremiumRangeByRule48(providerList, afterLastObserved);
 			break;
 		case 49:
-			results = premiumRepo.findPremiumRangeByRule49(codeList, providerList);
+			results = premiumRepo.findPremiumRangeByRule49(codeList, providerList, afterLastObserved);
 			break;
 		case 50:
-			results = premiumRepo.findPremiumRangeByRule50(iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule50(iso2List, providerList, afterLastObserved);
 			break;
 		case 51:
-			results = premiumRepo.findPremiumRangeByRule51(codeList, iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule51(codeList, iso2List, providerList, afterLastObserved);
 			break;
 		case 52:
-			results = premiumRepo.findPremiumRangeByRule52(tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule52(tosList, providerList, afterLastObserved);
 			break;
 		case 53:
-			results = premiumRepo.findPremiumRangeByRule53(codeList, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule53(codeList, tosList, providerList, afterLastObserved);
 			break;
 		case 54:
-			results = premiumRepo.findPremiumRangeByRule54(iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule54(iso2List, tosList, providerList, afterLastObserved);
 			break;
 		case 55:
-			results = premiumRepo.findPremiumRangeByRule55(codeList, iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule55(codeList, iso2List, tosList, providerList, afterLastObserved);
 			break;
 		case 56:
-			results = premiumRepo.findPremiumRangeByRule56(tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule56(tosDescList, providerList, afterLastObserved);
 			break;
 		case 57:
-			results = premiumRepo.findPremiumRangeByRule57(codeList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule57(codeList, tosDescList, providerList, afterLastObserved);
 			break;
 		case 58:
-			results = premiumRepo.findPremiumRangeByRule58(iso2List, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule58(iso2List, tosDescList, providerList, afterLastObserved);
 			break;
 		case 59:
-			results = premiumRepo.findPremiumRangeByRule59(codeList, iso2List, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule59(codeList, iso2List, tosDescList, providerList, afterLastObserved);
 			break;
 		case 60:
-			results = premiumRepo.findPremiumRangeByRule60(tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule60(tosList, tosDescList, providerList, afterLastObserved);
 			break;
 		case 61:
-			results = premiumRepo.findPremiumRangeByRule61(codeList, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule61(codeList, tosList, tosDescList, providerList, afterLastObserved);
 			break;
 		case 62:
-			results = premiumRepo.findPremiumRangeByRule62(iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule62(iso2List, tosList, tosDescList, providerList, afterLastObserved);
 			break;
 		case 63:
-			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule63(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved);
+			break;
+		case 64:
+			results = premiumRepo.findPremiumRangeByRule64(beforeLastObserved);
 			break;
 		case 65:
-			results = premiumRepo.findPremiumRangeByRule65(codeList);
+			results = premiumRepo.findPremiumRangeByRule65(codeList, beforeLastObserved);
 			break;
 		case 66:
-			results = premiumRepo.findPremiumRangeByRule66(iso2List);
+			results = premiumRepo.findPremiumRangeByRule66(iso2List, beforeLastObserved);
 			break;
 		case 67:
-			results = premiumRepo.findPremiumRangeByRule67(codeList, iso2List);
+			results = premiumRepo.findPremiumRangeByRule67(codeList, iso2List, beforeLastObserved);
 			break;
 		case 68:
-			results = premiumRepo.findPremiumRangeByRule68(tosList);
+			results = premiumRepo.findPremiumRangeByRule68(tosList, beforeLastObserved);
 			break;
 		case 69:
-			results = premiumRepo.findPremiumRangeByRule69(codeList, tosList);
+			results = premiumRepo.findPremiumRangeByRule69(codeList, tosList, beforeLastObserved);
 			break;
 		case 70:
-			results = premiumRepo.findPremiumRangeByRule70(iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule70(iso2List, tosList, beforeLastObserved);
 			break;
 		case 71:
-			results = premiumRepo.findPremiumRangeByRule71(codeList, iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule71(codeList, iso2List, tosList, beforeLastObserved);
 			break;
 		case 72:
-			results = premiumRepo.findPremiumRangeByRule72(tosDescList);
+			results = premiumRepo.findPremiumRangeByRule72(tosDescList, beforeLastObserved);
 			break;
 		case 73:
-			results = premiumRepo.findPremiumRangeByRule73(codeList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule73(codeList, tosDescList, beforeLastObserved);
 			break;
 		case 74:
-			results = premiumRepo.findPremiumRangeByRule74(iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule74(iso2List, tosDescList, beforeLastObserved);
 			break;
 		case 75:
-			results = premiumRepo.findPremiumRangeByRule75(codeList, iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule75(codeList, iso2List, tosDescList, beforeLastObserved);
 			break;
 		case 76:
-			results = premiumRepo.findPremiumRangeByRule76(tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule76(tosList, tosDescList, beforeLastObserved);
 			break;
 		case 77:
-			results = premiumRepo.findPremiumRangeByRule77(codeList, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule77(codeList, tosList, tosDescList, beforeLastObserved);
 			break;
 		case 78:
-			results = premiumRepo.findPremiumRangeByRule78(iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule78(iso2List, tosList, tosDescList, beforeLastObserved);
 			break;
 		case 79:
-			results = premiumRepo.findPremiumRangeByRule79(codeList, iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule79(codeList, iso2List, tosList, tosDescList, beforeLastObserved);
 			break;
 		case 80:
-			results = premiumRepo.findPremiumRangeByRule80(providerList);
+			results = premiumRepo.findPremiumRangeByRule80(providerList, beforeLastObserved);
 			break;
 		case 81:
-			results = premiumRepo.findPremiumRangeByRule81(codeList, providerList);
+			results = premiumRepo.findPremiumRangeByRule81(codeList, providerList, beforeLastObserved);
 			break;
 		case 82:
-			results = premiumRepo.findPremiumRangeByRule82(iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule82(iso2List, providerList, beforeLastObserved);
 			break;
 		case 83:
-			results = premiumRepo.findPremiumRangeByRule83(codeList, iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule83(codeList, iso2List, providerList, beforeLastObserved);
 			break;
 		case 84:
-			results = premiumRepo.findPremiumRangeByRule84(tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule84(tosList, providerList, beforeLastObserved);
 			break;
 		case 85:
-			results = premiumRepo.findPremiumRangeByRule85(codeList, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule85(codeList, tosList, providerList, beforeLastObserved);
 			break;
 		case 86:
-			results = premiumRepo.findPremiumRangeByRule86(iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule86(iso2List, tosList, providerList, beforeLastObserved);
 			break;
 		case 87:
-			results = premiumRepo.findPremiumRangeByRule87(codeList, iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule87(codeList, iso2List, tosList, providerList, beforeLastObserved);
+			break;
 		case 88:
-			results = premiumRepo.findPremiumRangeByRule88(tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule88(tosDescList, providerList, beforeLastObserved);
 			break;
 		case 89:
-			results = premiumRepo.findPremiumRangeByRule89(codeList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule89(codeList, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 90:
-			results = premiumRepo.findPremiumRangeByRule90(iso2List, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule90(iso2List, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 91:
-			results = premiumRepo.findPremiumRangeByRule91(codeList, iso2List, tosDescList, providerList); 
+			results = premiumRepo.findPremiumRangeByRule91(codeList, iso2List, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 92:
-			results = premiumRepo.findPremiumRangeByRule92(tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule92(tosList, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 93:
-			results = premiumRepo.findPremiumRangeByRule93(codeList, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule93(codeList, tosList, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 94:
-			results = premiumRepo.findPremiumRangeByRule94(iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule94(iso2List, tosList, tosDescList, providerList, beforeLastObserved);
 			break;
 		case 95:
-			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule95(codeList, iso2List, tosList, tosDescList, providerList, beforeLastObserved);
+			break;
+		case 96:
+			results = premiumRepo.findPremiumRangeByRule96(afterLastObserved, beforeLastObserved);
 			break;
 		case 97:
-			results = premiumRepo.findPremiumRangeByRule97(codeList);
+			results = premiumRepo.findPremiumRangeByRule97(codeList, afterLastObserved, beforeLastObserved);
 			break;
 		case 98:
-			results = premiumRepo.findPremiumRangeByRule98(iso2List);
+			results = premiumRepo.findPremiumRangeByRule98(iso2List, afterLastObserved, beforeLastObserved);
 			break;
 		case 99:
-			results = premiumRepo.findPremiumRangeByRule99(codeList, iso2List);
+			results = premiumRepo.findPremiumRangeByRule99(codeList, iso2List, afterLastObserved, beforeLastObserved);
 			break;
 		case 100:
-			results = premiumRepo.findPremiumRangeByRule100(tosList);
+			results = premiumRepo.findPremiumRangeByRule100(tosList, afterLastObserved, beforeLastObserved);
 			break;
 		case 101:
-			results = premiumRepo.findPremiumRangeByRule101(codeList, tosList);
+			results = premiumRepo.findPremiumRangeByRule101(codeList, tosList, afterLastObserved, beforeLastObserved);
 			break;
 		case 102:
-			results = premiumRepo.findPremiumRangeByRule102(iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule102(iso2List, tosList, afterLastObserved, beforeLastObserved);
 			break;
 		case 103:
-			results = premiumRepo.findPremiumRangeByRule103(codeList, iso2List, tosList);
+			results = premiumRepo.findPremiumRangeByRule103(codeList, iso2List, tosList, afterLastObserved, beforeLastObserved);
 			break;
 		case 104:
-			results = premiumRepo.findPremiumRangeByRule104(tosDescList);
+			results = premiumRepo.findPremiumRangeByRule104(tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 105:
-			results = premiumRepo.findPremiumRangeByRule105(codeList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule105(codeList, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 106:
-			results = premiumRepo.findPremiumRangeByRule106(iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule106(iso2List, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 107:
-			results = premiumRepo.findPremiumRangeByRule107(codeList, iso2List, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule107(codeList, iso2List, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 108:
-			results = premiumRepo.findPremiumRangeByRule108(tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule108(tosList, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 109:
-			results = premiumRepo.findPremiumRangeByRule109(codeList, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule109(codeList, tosList, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 110:
-			results = premiumRepo.findPremiumRangeByRule110(iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule110(iso2List, tosList, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 111:
-			results = premiumRepo.findPremiumRangeByRule111(codeList, iso2List, tosList, tosDescList);
+			results = premiumRepo.findPremiumRangeByRule111(codeList, iso2List, tosList, tosDescList, afterLastObserved, beforeLastObserved);
 			break;
 		case 112:
-			results = premiumRepo.findPremiumRangeByRule112(providerList);
+			results = premiumRepo.findPremiumRangeByRule112(providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 113:
-			results = premiumRepo.findPremiumRangeByRule113(codeList, providerList);
+			results = premiumRepo.findPremiumRangeByRule113(codeList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 114:
-			results = premiumRepo.findPremiumRangeByRule114(iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule114(iso2List, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 115:
-			results = premiumRepo.findPremiumRangeByRule115(codeList, iso2List, providerList);
+			results = premiumRepo.findPremiumRangeByRule115(codeList, iso2List, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 116:
-			results = premiumRepo.findPremiumRangeByRule116(tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule116(tosList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 117:
-			results = premiumRepo.findPremiumRangeByRule117(codeList, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule117(codeList, tosList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 118:
-			results = premiumRepo.findPremiumRangeByRule118(iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule118(iso2List, tosList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 119:
-			results = premiumRepo.findPremiumRangeByRule119(codeList, iso2List, tosList, providerList);
+			results = premiumRepo.findPremiumRangeByRule119(codeList, iso2List, tosList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 120:
-			results = premiumRepo.findPremiumRangeByRule120(tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule120(tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 121:
-			results = premiumRepo.findPremiumRangeByRule121(codeList, tosDescList, providerList);;
+			results = premiumRepo.findPremiumRangeByRule121(codeList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 122:
-			results = premiumRepo.findPremiumRangeByRule122(iso2List, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule122(iso2List, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 123:
-			results = premiumRepo.findPremiumRangeByRule123(codeList, iso2List, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule123(codeList, iso2List, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 124:
-			results = premiumRepo.findPremiumRangeByRule124(tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule124(tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 125:
-			results = premiumRepo.findPremiumRangeByRule125(codeList, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule125(codeList, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 126:
-			results = premiumRepo.findPremiumRangeByRule126(iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule126(iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		case 127:
-			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList);
+			results = premiumRepo.findPremiumRangeByRule127(codeList, iso2List, tosList, tosDescList, providerList, afterLastObserved, beforeLastObserved);
 			break;
 		default:
+			log.error("Unknown rule: {}", rule);
 			break;
 
 		}
@@ -1571,14 +1596,17 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		 
 	}
 
-	public String calObservedDate(int numOfMonthFromCurrentMonth) {
+	public Date calObservedDate(int numOfMonthFromCurrentMonth) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.set(Calendar.DAY_OF_MONTH, 1);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
 		cal.add(Calendar.MONTH, -1 * numOfMonthFromCurrentMonth);
-		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 		
-		return DATE_FORMAT.format(cal.getTime());
+		return cal.getTime();
 
 	}
 
