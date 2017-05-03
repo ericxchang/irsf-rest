@@ -1578,7 +1578,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		cal.add(Calendar.MONTH, -1 * numOfMonthFromCurrentMonth);
 		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 		
-		return DATE_FORMAT.format(cal);
+		return DATE_FORMAT.format(cal.getTime());
 
 	}
 
