@@ -142,15 +142,16 @@ public class BaseRestController {
 		Map<String, Object> result = new HashMap<>();
 		result.put(STATUS, AppConstants.SUCCESS);
 		result.put("messages", "");
-		result.put("data", pageData.getContent());
-		result.put("first", pageData.isFirst());
-		result.put("last", pageData.isLast());
-		result.put("totalCount", pageData.getTotalElements());
-		result.put("totalPage", pageData.getTotalPages());
-		result.put("pageNumber", pageData.getNumber());
-		result.put("count", pageData.getNumberOfElements());
+		if (pageData != null) {
+			result.put("data", pageData.getContent());
+			result.put("first", pageData.isFirst());
+			result.put("last", pageData.isLast());
+			result.put("totalCount", pageData.getTotalElements());
+			result.put("totalPage", pageData.getTotalPages());
+			result.put("pageNumber", pageData.getNumber());
+			result.put("count", pageData.getNumberOfElements());
+		}
 		
-
 		String json = JsonHelper.toJson(result);
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
