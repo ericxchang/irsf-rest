@@ -51,6 +51,8 @@ class ListServiceController extends BaseRestController {
 	@Autowired
 	private ListDefinitionRepository listDefRepo;
 	@Autowired
+	private ListDetailsRepository listDetailRepo;
+	@Autowired
 	private AuditTrailService auditService;
 
 	/*
@@ -125,6 +127,27 @@ class ListServiceController extends BaseRestController {
 			
 			ListUploadRequest listUploadRequest = listUploadRepo.findTop1ByListRefIdOrderByLastUpdatedDesc(listId);
 			rv = makeSuccessResult(MessageDefinition.Query_Success, listUploadRequest);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
+	@RequestMapping(value = "/hasListDetails/{listId}/{dialPattern}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> hasListDetail(@RequestHeader Map<String, String> header, @PathVariable int listId, String dialPattern) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			
+			ListDetails hasListDetail = listDetailRepo.findOneByListRefIdAndDialPattern(listId, dialPattern);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, hasListDetail);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
