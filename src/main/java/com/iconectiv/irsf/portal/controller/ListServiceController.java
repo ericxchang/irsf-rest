@@ -304,7 +304,7 @@ class ListServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-
+            
 			Iterable<ListDetails> result = listService.createListDetails(loginUser, listDetails);
             
             rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success, result);

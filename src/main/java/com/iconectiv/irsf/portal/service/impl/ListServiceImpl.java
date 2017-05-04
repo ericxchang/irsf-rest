@@ -52,7 +52,9 @@ public class ListServiceImpl implements ListService {
 	EntityManagerFactory customerEntityManagerFactory;
 	@Autowired
 	private AuditTrailService auditService;
-
+	@Autowired
+	MobileIdDataService midDataService;
+	
 	@Transactional
 	@Override
 	public void processListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
@@ -317,7 +319,7 @@ public class ListServiceImpl implements ListService {
 		
 		
 		for (ListDetails listDetail : listDetails) {
-			listDetail.setActive(true);
+			listDetail.setMatchCCNDC( midDataService.findMatchingCCNDC(listDetail.getDialPattern()) );
 			listDetail.setLastUpdatedBy(loginUser.getUserName());
 			listDetail.setLastUpdated(new Date());
 		}

@@ -120,7 +120,6 @@ class ListUploadService {
 
         listDetails.listRefId = uploadReq.listRefId
         listDetails.upLoadRefId = uploadReq.id
-		listDetails.matchCCNDC = midDataService.findMatchingCCNDC(dialCode)
         listDetails.active = true
         listDetails.lastUpdated = new Date()
         listDetails.lastUpdatedBy = uploadReq.lastUpdatedBy
