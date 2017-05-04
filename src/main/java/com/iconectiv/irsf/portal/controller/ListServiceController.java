@@ -294,7 +294,12 @@ class ListServiceController extends BaseRestController {
     public ResponseEntity<String> createListDetailRecordsRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
         ResponseEntity<String> rv;
         try {
+        	if (log.isDebugEnabled()) log.debug("Receive data: " + value);
         	ListDetails[] listDetails = JsonHelper.fromJson(value, ListDetails[].class);
+        	
+        	if (listDetails.length < 1) {
+        		throw new AppException("received blank list");
+        	}
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 

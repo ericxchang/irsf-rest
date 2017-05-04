@@ -306,7 +306,7 @@ public class ListServiceImpl implements ListService {
 	public Iterable<ListDetails>  createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
 		if (log.isDebugEnabled()) log.debug("the max list size is " + maxListSize);
 		if (listDetails.length < 1) {
-			return null;
+			throw new AppException("received empty list");
 		}
 		
 		int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
