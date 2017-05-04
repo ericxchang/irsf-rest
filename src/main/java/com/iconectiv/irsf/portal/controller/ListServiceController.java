@@ -146,8 +146,10 @@ class ListServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			
-			ListDetails hasListDetail = listDetailRepo.findOneByListRefIdAndDialPattern(listId, dialPattern);
-			rv = makeSuccessResult(MessageDefinition.Query_Success, hasListDetail);
+			ListDetails listDetail = listDetailRepo.findOneByListRefIdAndDialPattern(listId, dialPattern);
+			
+			if (log.isDebugEnabled()) log.debug("Found existing list record: " + JsonHelper.toJson(listDetail));
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listDetail);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
