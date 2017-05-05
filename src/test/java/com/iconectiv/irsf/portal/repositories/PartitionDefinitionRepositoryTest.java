@@ -21,7 +21,9 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 
@@ -35,6 +37,8 @@ public class PartitionDefinitionRepositoryTest {
 	private static Logger log = LoggerFactory.getLogger(PartitionDefinitionRepositoryTest.class);
 	@Autowired
 	PartitionDefinitionRepository partitionRepo;
+	@Autowired
+	PartitionExportHistoryRepository exportRepo;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -44,6 +48,12 @@ public class PartitionDefinitionRepositoryTest {
 	@Test
 	public void testFindByOrigPartitionId() {
 		List<PartitionDefinition> partitions = partitionRepo.findAllByOrigPartitionIdOrderByIdDesc(1);
+		log.info(JsonHelper.toPrettyJson(partitions));
+	}
+
+	@Test
+	public void testFindByOrigPartitionIdExport() {
+		List<PartitionExportHistory> partitions = exportRepo.findAllByOrigPartitionId(1);
 		log.info(JsonHelper.toPrettyJson(partitions));
 	}
 

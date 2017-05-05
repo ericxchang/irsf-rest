@@ -255,6 +255,7 @@ public class PartitionServiceImpl implements PartitionService {
 	public List<PartitionDefinition> getAllActivePartitions() {
 		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
 		for (PartitionDefinition partition: partitions) {
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(partition.getOrigPartitionId()));
 			for (String ruleId : partition.getRuleIds().split(",")) {
 				partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
 			}

@@ -23,7 +23,7 @@ public class PartitionExportHistory implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
     private Integer partitionId;
-    private PartitionDefinition partitionDefinition;
+    private Integer origPartitionId;
     private byte[] exportFileLong;
     private byte[] exportFileShort;
     private byte[] exportWhitelist;
@@ -31,24 +31,15 @@ public class PartitionExportHistory implements java.io.Serializable {
     private Date exportDate;
     private String status;
     private String reason;
+    private PartitionDefinition partitionDefinition;
 
     public PartitionExportHistory() {
     }
 
 
-    public PartitionExportHistory(PartitionDefinition partitionDefinition, byte[] exportFileLong, byte[] exportFileShort, Date exportDate, String status) {
-        this.partitionDefinition = partitionDefinition;
-        this.exportFileLong = exportFileLong;
-        this.exportFileShort = exportFileShort;
-        this.exportDate = exportDate;
-        this.status = status;
-    }
-
-    public PartitionExportHistory(PartitionDefinition partitionDefinition, byte[] exportFileLong, byte[] exportFileShort, byte[] exportWhitelist, Date exportDate, String status, String reason) {
-        this.partitionDefinition = partitionDefinition;
-        this.exportFileLong = exportFileLong;
-        this.exportFileShort = exportFileShort;
-        this.exportWhitelist = exportWhitelist;
+    public PartitionExportHistory(int id, int origPartitionId, Date exportDate, String status, String reason) {
+        this.id = id;
+        this.origPartitionId = origPartitionId;
         this.exportDate = exportDate;
         this.status = status;
         this.reason = reason;
@@ -74,6 +65,17 @@ public class PartitionExportHistory implements java.io.Serializable {
     public void setPartitionId(Integer partitionId) {
         this.partitionId = partitionId;
     }
+
+
+    @Column(name = "orig_partition_id", nullable = false)
+    public Integer getOrigPartitionId() {
+		return origPartitionId;
+	}
+
+
+	public void setOrigPartitionId(Integer origPartitionId) {
+		this.origPartitionId = origPartitionId;
+	}
 
 
 	@Transient
