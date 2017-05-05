@@ -240,7 +240,7 @@ public class PartitionServiceImpl implements PartitionService {
 		if (partition == null) {
 			throw new AppException("Invalid partition id " + partitionId);
 		}
-
+		
 		if (partition.getRuleIds() == null) {
 		    return partition;
         }
@@ -273,7 +273,13 @@ public class PartitionServiceImpl implements PartitionService {
             action = AuditTrailActionDefinition.Update_Partition;
         }
 
-        partitionDefRepo.save(partition);
+        partition = partitionDefRepo.save(partition);
+        
+        if (partition.getOrigPartitionId() == null) {
+        	partition.setOrigPartitionId(partition.getId());
+        	partitionDefRepo.save(partition);
+        }
+        
         auditService.saveAuditTrailLog(loginUser, action, "partition id: " + partition.getId());
     }
 
