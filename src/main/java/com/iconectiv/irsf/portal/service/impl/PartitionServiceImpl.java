@@ -280,8 +280,11 @@ public class PartitionServiceImpl implements PartitionService {
 
         if (partition.getId() != null) {
             action = AuditTrailActionDefinition.Update_Partition;
+        } else {
+        	partition.setStatus(PartitionStatus.Fresh.value());
         }
         
+        partition.setCustomerName(loginUser.getCustomerName());
         partition.setLastUpdated(new Date());
         partition.setLastUpdatedBy(loginUser.getUserName());
         

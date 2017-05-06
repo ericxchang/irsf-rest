@@ -95,7 +95,6 @@ class PartitionServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            partition.setCustomerName(loginUser.getCustomerName());
 
             partitionServ.savePartition(loginUser, partition);
             rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
