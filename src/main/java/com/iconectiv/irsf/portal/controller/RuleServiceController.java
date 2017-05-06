@@ -61,9 +61,9 @@ class RuleServiceController extends BaseRestController {
 	}
 
 
-	@RequestMapping(value = "/rules", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/rules/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getActiveRuleList(@RequestHeader Map<String, String> header) {
+	public ResponseEntity<String> getActiveRuleList(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
@@ -71,7 +71,7 @@ class RuleServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-			List<RuleDefinition> rules = ruleRepo.findAllByActive(true);
+			List<RuleDefinition> rules = ruleRepo.findAllByPartitionId(partitionId);
 			rv = makeSuccessResult(MessageDefinition.Query_Success, rules);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

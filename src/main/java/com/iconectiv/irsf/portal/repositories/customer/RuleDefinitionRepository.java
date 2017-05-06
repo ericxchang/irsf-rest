@@ -12,4 +12,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface RuleDefinitionRepository extends CrudRepository<RuleDefinition, Integer>{
 
 	List<RuleDefinition> findAllByActive(boolean isActive);
+
+	List<RuleDefinition> findAllByPartitionId(Integer partitionId);
 }
