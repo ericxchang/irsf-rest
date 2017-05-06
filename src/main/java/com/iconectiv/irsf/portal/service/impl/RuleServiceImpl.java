@@ -35,24 +35,48 @@ public class RuleServiceImpl implements RuleService {
 
 	@Transactional
 	@Override
-	public void saveRule(UserDefinition loginUser, RuleDefinition rule) throws AppException {
-        String action = AuditTrailActionDefinition.Create_Rule;
+	public void updateRule(UserDefinition loginUser, RuleDefinition rule) throws AppException {
+        String action = AuditTrailActionDefinition.Update_Rule;
 
+        if (rule.getId() == null) {
+        	throw new AppException("Missing rule Id");
+        }
+        
         if (rule.getPartitionId() == null) {
         	throw new AppException("Missing partition Id");
         }
         
-        if (rule.getId() != null) {
-            action = AuditTrailActionDefinition.Update_Rule;
-        } else {
-        	rule.setCreateTimestamp(new Date());
-        	rule.setCreatedBy(loginUser.getUserName());
-        }
-
-        ruleRepo.save(rule);
+        rule.setLastUpdated(new Date());
+        rule.setLastUpdatedBy(loginUser.getUserName());
+        rule = ruleRepo.save(rule);
         auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
         
-        addRuleToPartition(loginUser, rule);
+        //TODO raise rule update event to check partition status
+	}
+
+	@Transactional
+	@Override
+	public void createRule(UserDefinition loginUser, RuleDefinition rule) throws AppException {
+        String action = AuditTrailActionDefinition.Create_Rule;
+
+        if (rule.getPartitions() == null || rule.getPartitions().isEmpty()) {
+        	throw new AppException("Need assign at least One partition");
+        }
+        
+        	rule.setCreateTimestamp(new Date());
+        	rule.setCreatedBy(loginUser.getUserName());
+        
+        rule.setLastUpdated(new Date());
+        rule.setLastUpdatedBy(loginUser.getUserName());
+
+        for (PartitionDefinition partition: rule.getPartitions()) {
+        	rule.setId(null);
+        	rule.setPartitionId(partition.getId());
+            rule = ruleRepo.save(rule);
+            auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
+            addRuleToPartition(loginUser, rule);
+        }
+        
 	}
 
 	private void addRuleToPartition(UserDefinition loginUser, RuleDefinition rule) throws AppException {

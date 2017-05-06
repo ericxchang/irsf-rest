@@ -83,7 +83,7 @@ public class RuleServiceControllerTest  {
     private void updateRule(RuleDefinition rule) throws Exception {
 		rule.setDialPatternType(DialPatternType.Prime3.value());
 
-        ResultActions action = mockMvc.perform(post("/rule/save").header("authorization", "Bearer " + token)
+        ResultActions action = mockMvc.perform(post("/rule/create").header("authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(rule)));
         String result = action.andReturn().getResponse().getContentAsString();
         log.info(result);
@@ -97,9 +97,10 @@ public class RuleServiceControllerTest  {
 		rule.setDataSource("datasource");
 		rule.setLastUpdated(new Date());
 		rule.setLastUpdatedBy("junit");
-		rule.setPartitionId(4);
+		rule.setPartitionId(1);
+		//TODO add partition list
 
-		ResultActions action = mockMvc.perform(post("/rule/save").header("authorization", "Bearer " + token)
+		ResultActions action = mockMvc.perform(post("/rule/update").header("authorization", "Bearer " + token)
 			.contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(rule)));
 		String result = action.andReturn().getResponse().getContentAsString();
 

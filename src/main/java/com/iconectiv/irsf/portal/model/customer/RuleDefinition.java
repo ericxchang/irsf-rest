@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -24,7 +25,7 @@ public class RuleDefinition implements java.io.Serializable {
 	private Integer id;
     private Integer partitionId;
     private String name;
-    private PartitionDefinition partitionDefinition;
+    private List<PartitionDefinition> partitions;
     private String dataSource;
     private String details;
     private String dialPatternType;
@@ -39,18 +40,6 @@ public class RuleDefinition implements java.io.Serializable {
     private String lastUpdatedBy;
 
     public RuleDefinition() {
-    }
-
-    public RuleDefinition(PartitionDefinition partitionDefinition, String dataSource, String details, String dialPatternType, boolean active, Date createTimestamp, String createdBy, Date lastUpdated, String lastUpdatedBy) {
-        this.partitionDefinition = partitionDefinition;
-        this.dataSource = dataSource;
-        this.details = details;
-        this.dialPatternType = dialPatternType;
-        this.active = active;
-        this.createTimestamp = createTimestamp;
-        this.createdBy = createdBy;
-        this.lastUpdated = lastUpdated;
-        this.lastUpdatedBy = lastUpdatedBy;
     }
 
     @Id
@@ -85,13 +74,13 @@ public class RuleDefinition implements java.io.Serializable {
     
 
     @Transient
-    public PartitionDefinition getPartitionDefinition() {
-        return this.partitionDefinition;
-    }
+    public List<PartitionDefinition> getPartitions() {
+		return partitions;
+	}
 
-    public void setPartitionDefinition(PartitionDefinition partitionDefinition) {
-        this.partitionDefinition = partitionDefinition;
-    }
+	public void setPartitions(List<PartitionDefinition> partitions) {
+		this.partitions = partitions;
+	}
 
     @Column(name = "data_source", nullable = false, length = 15)
     public String getDataSource() {

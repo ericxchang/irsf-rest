@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
@@ -84,7 +85,36 @@ class RuleServiceController extends BaseRestController {
 		return rv;
 	}
 
-    @RequestMapping(value = "/rule/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/rule/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> createRuleRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        try {
+        	RuleDefinition rule = JsonHelper.fromJson(value, RuleDefinition.class);
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            ruleService.createRule(loginUser, rule);
+            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, rule);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
+        } catch (Exception e) {
+        	//TODO throw trap
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
+
+    @RequestMapping(value = "/rule/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> saveRuleRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
         ResponseEntity<String> rv;
@@ -94,11 +124,16 @@ class RuleServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            ruleService.saveRule(loginUser, rule);
+            ruleService.updateRule(loginUser, rule);
             rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, rule);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
         } catch (Exception e) {
+        	//TODO throw trap
+        	log.error("Error:", e);
             rv = makeErrorResult(e);
         }
 
