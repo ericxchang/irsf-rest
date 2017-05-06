@@ -65,6 +65,14 @@ public class PartitionServiceControllerTest  {
 	}
 
 	@Test
+	public void testQueryActivePartition() throws Exception {
+        ResultActions action = mockMvc.perform(get("/partitions").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
+
+        log.info(result);
+	}
+
+	@Test
 	public void testPartitionCRUD() throws Exception {
 		PartitionDefinition partition = createPartition();
 		updatePartition(partition);
