@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ class PartitionServiceController extends BaseRestController {
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
+			log.error("Error: ", e);
 			rv = makeErrorResult(e);
 		}
 
@@ -73,6 +75,7 @@ class PartitionServiceController extends BaseRestController {
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
+			log.error("Error: ", e);
 			rv = makeErrorResult(e);
 		}
 
@@ -92,11 +95,14 @@ class PartitionServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            partition.setCustomerName(loginUser.getCustomerName());
+
             partitionServ.savePartition(loginUser, partition);
             rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+			log.error("Error: ", e);
             rv = makeErrorResult(e);
         }
 
@@ -123,6 +129,7 @@ class PartitionServiceController extends BaseRestController {
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+			log.error("Error: ", e);
             rv = makeErrorResult(e);
         }
 
@@ -149,6 +156,7 @@ class PartitionServiceController extends BaseRestController {
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+			log.error("Error: ", e);
             rv = makeErrorResult(e);
         }
 

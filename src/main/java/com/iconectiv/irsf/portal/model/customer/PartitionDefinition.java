@@ -78,7 +78,7 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.customerName = customerName;
 	}
 
-	@Column(name = "name", nullable = false, length = 45)
+	@Column(name = "name", nullable = false, length = 15)
 	public String getName() {
 		return this.name;
 	}
