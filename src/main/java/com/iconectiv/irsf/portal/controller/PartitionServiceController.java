@@ -100,8 +100,12 @@ class PartitionServiceController extends BaseRestController {
             rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
         } catch (Exception e) {
-			log.error("Error: ", e);
+        	//TODO throw trap
+        	log.error("Error:", e);
             rv = makeErrorResult(e);
         }
 
@@ -127,8 +131,12 @@ class PartitionServiceController extends BaseRestController {
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
         } catch (Exception e) {
-			log.error("Error: ", e);
+        	//TODO throw trap
+        	log.error("Error:", e);
             rv = makeErrorResult(e);
         }
 
@@ -154,8 +162,12 @@ class PartitionServiceController extends BaseRestController {
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
         } catch (Exception e) {
-			log.error("Error: ", e);
+        	//TODO throw trap
+        	log.error("Error:", e);
             rv = makeErrorResult(e);
         }
 
