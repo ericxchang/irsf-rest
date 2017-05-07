@@ -10,6 +10,9 @@ import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionReposi
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository
 import com.iconectiv.irsf.util.DateTimeHelper
 import com.iconectiv.irsf.util.JsonHelper
+
+import java.util.List;
+
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +42,14 @@ import org.springframework.test.context.web.WebAppConfiguration
 	@Before
 	void before() {
 		CustomerContextHolder.setSchema(schema)
+	}
+
+	@Test
+	void testQueryAllActivePartition() throws Exception {
+		CustomerContextHolder.setSchema("cust01");
+		def results = service.getAllActivePartitions()
+		log.info(JsonHelper.toPrettyJson(results));
+		log.info("Total return: " + results.size());
 	}
 	
 	@Test
