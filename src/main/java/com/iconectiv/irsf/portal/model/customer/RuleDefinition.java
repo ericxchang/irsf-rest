@@ -106,7 +106,7 @@ public class RuleDefinition implements java.io.Serializable {
         this.details = details.toString();
     }
 
-    @Column(name = "dial_pattern_type", nullable = false, length = 8)
+    @Column(name = "dial_pattern_type", length = 8)
     public String getDialPatternType() {
         return this.dialPatternType;
     }
