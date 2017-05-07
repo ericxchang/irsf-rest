@@ -14,6 +14,8 @@ import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,7 +54,7 @@ public class FilterDefinition implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "name", unique = true, nullable = false, length = 25)
+	@Column(name = "name", unique = true, nullable = false, length = 15)
 	public String getName() {
 		return this.name;
 	}
@@ -66,10 +68,15 @@ public class FilterDefinition implements java.io.Serializable {
 		return this.details;
 	}
 
+	@JsonSetter("details")
+	public void setDetails(JsonNode details) {
+		this.details = details.toString();
+	}
+
 	public void setDetails(String details) {
 		this.details = details;
 	}
-
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_updated", nullable = false, length = 19)
 	public Date getLastUpdated() {

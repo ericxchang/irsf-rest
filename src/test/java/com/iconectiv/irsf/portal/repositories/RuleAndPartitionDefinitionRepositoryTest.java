@@ -32,10 +32,9 @@ import java.util.Date;
 import static org.junit.Assert.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class,
-        TransactionalTestExecutionListener.class})
+@ContextConfiguration(locations = { "classpath:spring-cfg.xml", "classpath:spring-jpa.xml" })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+        TransactionalTestExecutionListener.class })
 
 public class RuleAndPartitionDefinitionRepositoryTest {
 	private static Logger log = LoggerFactory.getLogger(RuleAndPartitionDefinitionRepositoryTest.class);
@@ -43,7 +42,6 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	RuleDefinitionRepository ruleRepo;
 	@Autowired
 	PartitionDefinitionRepository partitionRepo;
-	
 
 	private PartitionDefinition createPartition() {
 		PartitionDefinition partition = new PartitionDefinition();
@@ -57,57 +55,56 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 		partition.setStatus(PartitionStatus.Draft.value());
 		partitionRepo.save(partition);
 		log.info(JsonHelper.toPrettyJson(partition));
-		
+
 		return partition;
 	}
-	
 
 	@Test
 	public void testAdAndDeleteRuleDefinition() {
-    	CustomerContextHolder.setSchema("cust01");
+		CustomerContextHolder.setSchema("cust01");
 		PartitionDefinition partition = createPartition();
-		
+
 		RuleDefinition rule = new RuleDefinition();
 		rule.setPartitionId(partition.getId());
 		rule.setActive(true);
-		//rule.setDetails("{key:value}");
+		// rule.setDetails("{key:value}");
 		rule.setCreatedBy("junit");
 		rule.setCreateTimestamp(new Date());
 		rule.setDataSource("range");
 		rule.setLastUpdated(new Date());
 		rule.setLastUpdatedBy("junit");
 		rule.setDialPatternType(DialPatternType.Prime2.value());
-		
+
 		ruleRepo.save(rule);
 		log.info(JsonHelper.toPrettyJson(rule));
-		
+
 		partitionRepo.delete(partition.getId());
-		
+
 		assertNull(ruleRepo.findOne(rule.getId()));
-		
+
 	}
-	
-	
+
 	@Test
 	public void testJsonConvertion() throws JsonValidationException, JsonProcessingException, IOException {
 		String ruleData = "{\"partitions\":[{\"partitionExportHistories\":[],\"ruleDefinitions\":[],\"id\":16,\"origPartitionId\":16,\"customerName\":\"customer-01\",\"name\":\"afdafa\",\"status\":\"fresh\",\"lastUpdated\":\"2017-05-06 21:22\",\"lastUpdatedBy\":\"user01\",\"partitionDataDetailses\":[]}],"
-				+ "\"dataSource\":\"Range NDC\",\"name\":\"rule-abc\""
-				+ ",\"details\":{\"codeList\":[],\"iso2List\":[\"AF\",\"AD\"],"
-				+ "\"tosDescList\":[{\"tos\":\"F\",\"tosdesc\":\"Eirpac Free Access\",\"selected\":null},{\"tos\":\"F\",\"tosdesc\":\"Inbound Services\",\"selected\":null},{\"tos\":\"F\",\"tosdesc\":\"Intelligent Network\",\"selected\":null}],"
-				+ "\"providerList\":[{\"provider\":\"013 Netvision\",\"billingId\":\"122501\",\"selected\":null},{\"provider\":\"1 Net Telekom\",\"billingId\":\"127962\",\"selected\":null}],"
-				+ "\"numOfMonthsSinceLastObserved\":3}"
-				+ "}";
+		        + "\"dataSource\":\"Range NDC\",\"name\":\"rule-abc\""
+		        + ",\"details\":{\"codeList\":[],\"iso2List\":[\"AF\",\"AD\"],"
+		        + "\"tosDescList\":[{\"tos\":\"F\",\"tosdesc\":\"Eirpac Free Access\",\"selected\":null},{\"tos\":\"F\",\"tosdesc\":\"Inbound Services\",\"selected\":null},{\"tos\":\"F\",\"tosdesc\":\"Intelligent Network\",\"selected\":null}],"
+		        + "\"providerList\":[{\"provider\":\"013 Netvision\",\"billingId\":\"122501\",\"selected\":null},{\"provider\":\"1 Net Telekom\",\"billingId\":\"127962\",\"selected\":null}],"
+		        + "\"numOfMonthsSinceLastObserved\":3}" + "}";
 		RuleDefinition rule = JsonHelper.fromJson(ruleData, RuleDefinition.class);
 
-		log.info(JsonHelper.toJson(rule));		
+		log.info(JsonHelper.toJson(rule));
 		
+		log.info("Range query filter: " + JsonHelper.toPrettyJson(rule.getRangeQueryFilter()));
+
 		RangeQueryFilter filterObj = JsonHelper.fromJson(rule.getDetails(), RangeQueryFilter.class);
 		filterObj.setPageNo(null);
 		filterObj.setLimit(null);
-		 ObjectMapper mapper = new ObjectMapper();
-		 
+		ObjectMapper mapper = new ObjectMapper();
+
 		JsonNode result = mapper.readTree(JsonHelper.toJson(filterObj));
-		log.info("after clean: " + result);		
+		log.info("after clean: " + result);
 
 	}
 

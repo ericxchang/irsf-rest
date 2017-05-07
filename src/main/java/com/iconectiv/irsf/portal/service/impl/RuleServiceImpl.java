@@ -51,6 +51,7 @@ public class RuleServiceImpl implements RuleService {
 			throw new AppException("Missing partition Id");
 		}
 
+		rule.setDetails(cleanRuleDetail(rule.getDetails()));
 		rule.setLastUpdated(new Date());
 		rule.setLastUpdatedBy(loginUser.getUserName());
 		rule = ruleRepo.save(rule);

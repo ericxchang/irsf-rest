@@ -1,13 +1,15 @@
 package com.iconectiv.irsf.portal.model.customer;
 // Generated Mar 6, 2017 5:15:33 PM by Hibernate Tools 3.2.2.GA
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.iconectiv.irsf.json.vaidation.JsonValidationException;
+import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
+import com.iconectiv.irsf.util.JsonHelper;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -22,64 +24,65 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 @Entity
-@Table(name="rule_definition", uniqueConstraints = @UniqueConstraint(columnNames={"partition_id", "name"}) )
+@Table(name = "rule_definition", uniqueConstraints = @UniqueConstraint(columnNames = { "partition_id", "name" }))
 public class RuleDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
-    private Integer partitionId;
-    private String name;
-    private List<PartitionDefinition> partitions;
-    private String dataSource;
-    
-    private String details;
-    
-    private String dialPatternType;
-    private boolean active;
+	private Integer partitionId;
+	private String name;
+	private List<PartitionDefinition> partitions;
+	private String dataSource;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date createTimestamp;
-    private String createdBy;
+	private String details;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date lastUpdated;
-    private String lastUpdatedBy;
+	private String dialPatternType;
+	private boolean active;
 
-    public RuleDefinition() {
-    }
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date createTimestamp;
+	private String createdBy;
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	private Date lastUpdated;
+	private String lastUpdatedBy;
 
-    @Column(name = "id", unique = true, nullable = false)
-    public Integer getId() {
-        return this.id;
-    }
+	private RangeQueryFilter rangeQueryFilter;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public RuleDefinition() {
+	}
 
-    @Column(name = "partition_id", nullable = false)
-    public Integer getPartitionId() {
-        return partitionId;
-    }
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
 
-    public void setPartitionId(Integer partitionId) {
-        this.partitionId = partitionId;
-    }
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
 
-    @Column(name="name", length=25, nullable = false)
-    public String getName() {
-        return this.name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    @Transient
-    public List<PartitionDefinition> getPartitions() {
+	@Column(name = "partition_id", nullable = false)
+	public Integer getPartitionId() {
+		return partitionId;
+	}
+
+	public void setPartitionId(Integer partitionId) {
+		this.partitionId = partitionId;
+	}
+
+	@Column(name = "name", length = 15, nullable = false)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Transient
+	public List<PartitionDefinition> getPartitions() {
 		return partitions;
 	}
 
@@ -87,87 +90,95 @@ public class RuleDefinition implements java.io.Serializable {
 		this.partitions = partitions;
 	}
 
-    @Column(name = "data_source", nullable = false, length = 15)
-    public String getDataSource() {
-        return this.dataSource;
-    }
+	@Column(name = "data_source", nullable = false, length = 15)
+	public String getDataSource() {
+		return this.dataSource;
+	}
 
-    public void setDataSource(String dataSource) {
-        this.dataSource = dataSource;
-    }
+	public void setDataSource(String dataSource) {
+		this.dataSource = dataSource;
+	}
 
-    @Column(name = "details", nullable = false, length = 2000)
-    public String getDetails() {
-        return this.details;
-    }
+	@Column(name = "details", nullable = false, length = 2000)
+	public String getDetails() {
+		return this.details;
+	}
 
-    @JsonSetter("details")
-    public void setDetails(JsonNode details) {
-        this.details = details.toString();
-    }
+	@JsonSetter("details")
+	public void setDetails(JsonNode details) {
+		this.details = details.toString();
+	}
 
+	public void setDetails(String details) {
+		this.details = details;
+	}
 
-    public void setDetails(String details) {
-        this.details = details;
-    }
+	@Transient
+	public RangeQueryFilter getRangeQueryFilter() throws JsonValidationException {
+		if (this.details != null) {
+			this.rangeQueryFilter = JsonHelper.fromJson(this.details, RangeQueryFilter.class);
+		}
+		return rangeQueryFilter;
+	}
 
-    @Column(name = "dial_pattern_type", length = 8)
-    public String getDialPatternType() {
-        return this.dialPatternType;
-    }
+	public void setRangeQueryFilter(RangeQueryFilter rangeQueryFilter) {
+		this.rangeQueryFilter = rangeQueryFilter;
+	}
 
-    public void setDialPatternType(String dialPatternType) {
-        this.dialPatternType = dialPatternType;
-    }
+	@Column(name = "dial_pattern_type", length = 8)
+	public String getDialPatternType() {
+		return this.dialPatternType;
+	}
 
-    @Column(name = "active", nullable = false)
-    public boolean isActive() {
-        return this.active;
-    }
+	public void setDialPatternType(String dialPatternType) {
+		this.dialPatternType = dialPatternType;
+	}
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+	@Column(name = "active", nullable = false)
+	public boolean isActive() {
+		return this.active;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_timestamp", nullable = false, length = 19)
-    public Date getCreateTimestamp() {
-        return this.createTimestamp;
-    }
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
-    public void setCreateTimestamp(Date createTimestamp) {
-        this.createTimestamp = createTimestamp;
-    }
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "create_timestamp", nullable = false, length = 19)
+	public Date getCreateTimestamp() {
+		return this.createTimestamp;
+	}
 
-    @Column(name = "created_by", nullable = false, length = 45)
-    public String getCreatedBy() {
-        return this.createdBy;
-    }
+	public void setCreateTimestamp(Date createTimestamp) {
+		this.createTimestamp = createTimestamp;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	@Column(name = "created_by", nullable = false, length = 45)
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "last_updated", nullable = false, length = 19)
-    public Date getLastUpdated() {
-        return this.lastUpdated;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_updated", nullable = false, length = 19)
+	public Date getLastUpdated() {
+		return this.lastUpdated;
+	}
 
-    @Column(name = "last_updated_by", nullable = false, length = 45)
-    public String getLastUpdatedBy() {
-        return this.lastUpdatedBy;
-    }
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
 
-    public void setLastUpdatedBy(String lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
+	@Column(name = "last_updated_by", nullable = false, length = 45)
+	public String getLastUpdatedBy() {
+		return this.lastUpdatedBy;
+	}
 
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
 
 }
-
-
