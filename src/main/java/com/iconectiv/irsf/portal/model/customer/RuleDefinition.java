@@ -63,7 +63,7 @@ public class RuleDefinition implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "partition_id", nullable = false)
+	@Column(name = "partition_id")
 	public Integer getPartitionId() {
 		return partitionId;
 	}

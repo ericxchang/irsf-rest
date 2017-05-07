@@ -231,6 +231,7 @@ public class PartitionServiceImpl implements PartitionService {
 			RuleDefinition rule = ruleRepo.findOne(ruleId);
 			if (rule != null) {
 				rule.setActive(false);
+				rule.setPartitionId(null);
 				ruleRepo.save(rule);
 				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_Rule, "deactive rule " + ruleId);
 			}
