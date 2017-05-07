@@ -104,7 +104,7 @@ public class RuleServiceImpl implements RuleService {
 			rule.setId(null);
 			rule.setPartitionId(partition.getId());
 			rule = ruleRepo.save(rule);
-			auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
+			auditService.saveAuditTrailLog(loginUser, action, "created rule id: " + rule.getId());
 			addRuleToPartition(loginUser, rule);
 		}
 
