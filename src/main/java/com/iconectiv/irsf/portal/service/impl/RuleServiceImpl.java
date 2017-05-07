@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.exception.AppException;
@@ -58,12 +60,15 @@ public class RuleServiceImpl implements RuleService {
 	}
 
 	// clean up rule detail, remove GUI specific data
-	private String cleanRuleDetail(String ruleDetail) throws AppException {
+	private JsonNode cleanRuleDetail(String ruleDetail) throws AppException {
 		try {
+			if (log.isDebugEnabled()) log.debug("orignal detail: " + ruleDetail);
 			RangeQueryFilter filterObj = JsonHelper.fromJson(ruleDetail, RangeQueryFilter.class);
 			filterObj.setPageNo(null);
 			filterObj.setLimit(null);
-			String result = JsonHelper.toJson(filterObj);
+			 ObjectMapper mapper = new ObjectMapper();
+			 
+			JsonNode result = mapper.readTree(JsonHelper.toJson(filterObj));
 
 			if (log.isDebugEnabled())
 				log.debug("rule detail to save: " + result);

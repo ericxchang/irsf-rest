@@ -5,6 +5,9 @@ package com.iconectiv.irsf.portal.model.customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -27,7 +30,9 @@ public class RuleDefinition implements java.io.Serializable {
     private String name;
     private List<PartitionDefinition> partitions;
     private String dataSource;
+    
     private String details;
+    
     private String dialPatternType;
     private boolean active;
 
@@ -96,8 +101,9 @@ public class RuleDefinition implements java.io.Serializable {
         return this.details;
     }
 
-    public void setDetails(String details) {
-        this.details = details;
+    @JsonSetter("details")
+    public void setDetails(JsonNode details) {
+        this.details = details.toString();
     }
 
     @Column(name = "dial_pattern_type", nullable = false, length = 8)
