@@ -46,7 +46,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	private PartitionDefinition createPartition() {
 		PartitionDefinition partition = new PartitionDefinition();
 		partition.setCustomerName("junitcust01");
-		partition.setName("junit-part-" + DateTimeHelper.formatDate(new Date(), "yyyyMMddSS"));
+		partition.setName("P" + DateTimeHelper.formatDate(new Date(), "yyyyMMddSS"));
 		partition.setDescription("my parittion for junit");
 		partition.setDraftDate(new Date());
 		partition.setLastUpdated(new Date());
@@ -67,7 +67,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 		RuleDefinition rule = new RuleDefinition();
 		rule.setPartitionId(partition.getId());
 		rule.setActive(true);
-		// rule.setDetails("{key:value}");
+		rule.setDetails("{\"key\":\"value\"}");
 		rule.setCreatedBy("junit");
 		rule.setCreateTimestamp(new Date());
 		rule.setDataSource("range");

@@ -24,12 +24,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 @Entity
-@Table(name = "rule_definition", uniqueConstraints = @UniqueConstraint(columnNames = { "partition_id", "name" }))
+@Table(name = "rule_definition")
 public class RuleDefinition implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private Integer partitionId;
-	private String name;
 	private List<PartitionDefinition> partitions;
 	private String dataSource;
 
@@ -70,15 +69,6 @@ public class RuleDefinition implements java.io.Serializable {
 
 	public void setPartitionId(Integer partitionId) {
 		this.partitionId = partitionId;
-	}
-
-	@Column(name = "name", length = 15, nullable = false)
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Transient

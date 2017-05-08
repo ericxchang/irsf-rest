@@ -26,10 +26,11 @@ public class PartitionDataDetails implements java.io.Serializable {
     private Integer partitionId;
     private PartitionDefinition partitionDefinition;
     private String reference;    //save list name instead of id; save rule id
+    private Boolean whiteList;
     private String dialPattern;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
-    private String description;
+    private String reason;
     private String notes;
     private String cc;
     private String ndc;
@@ -37,6 +38,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String tos;
     private String tosdesc;
     private String provider;
+    private String billingId;
 
     public PartitionDataDetails() {
     }
@@ -48,22 +50,7 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.dialPattern = dialPattern;
     }
 
-    public PartitionDataDetails(PartitionDefinition partitionDefinition, String reference, String dialPattern, Date customerDate, String description, String notes, String cc, String ndc, String iso2, String tos, String tosdesc, String provider) {
-        this.partitionDefinition = partitionDefinition;
-        this.reference = reference;
-        this.dialPattern = dialPattern;
-        this.customerDate = customerDate;
-        this.description = description;
-        this.notes = notes;
-        this.cc = cc;
-        this.ndc = ndc;
-        this.iso2 = iso2;
-        this.tos = tos;
-        this.tosdesc = tosdesc;
-        this.provider = provider;
-    }
-
-    @Id
+     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
@@ -120,16 +107,27 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.customerDate = customerDate;
     }
 
-    @Column(name = "description", length = 100)
-    public String getDescription() {
-        return this.description;
+    @Column(name = "reason", length = 100)
+    public String getReason() {
+        return this.reason;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
-    @Column(name = "notes", length = 100)
+    @Column(name = "white_list")
+    public Boolean getWhiteList() {
+		return whiteList;
+	}
+
+
+	public void setWhiteList(Boolean whiteList) {
+		this.whiteList = whiteList;
+	}
+
+
+	@Column(name = "notes", length = 100)
     public String getNotes() {
         return this.notes;
     }
@@ -191,6 +189,17 @@ public class PartitionDataDetails implements java.io.Serializable {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
+
+    @Column(name = "billing_id", length = 10)
+	public String getBillingId() {
+		return billingId;
+	}
+
+
+	public void setBillingId(String billingId) {
+		this.billingId = billingId;
+	}
 
 
 }

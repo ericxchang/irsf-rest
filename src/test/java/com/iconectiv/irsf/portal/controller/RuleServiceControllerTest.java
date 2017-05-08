@@ -92,7 +92,7 @@ public class RuleServiceControllerTest  {
 
     private RuleDefinition createRule() throws Exception {
 		RuleDefinition rule = new RuleDefinition();
-		//rule.setDetails("rule details");
+		rule.setDetails("{rule details}");
 		rule.setDialPatternType(DialPatternType.Prime2.value());
 		rule.setDataSource("datasource");
 		rule.setLastUpdated(new Date());
