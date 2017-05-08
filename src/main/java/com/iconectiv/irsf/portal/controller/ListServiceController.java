@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.ListType;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
@@ -252,6 +253,38 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
+
+    @RequestMapping(value = "/list/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> updateListDefinitionRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        try {
+        	if (log.isDebugEnabled()) log.debug("Receive data: " + value);
+        	ListDefinition listDef = JsonHelper.fromJson(value, ListDefinition.class);
+        	
+        	if (listDef.getId() == null) {
+        		throw new AppException("Invalid list Id");
+        	}
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            
+			listDefRepo.save(listDef);
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "updated list id " + listDef.getId());
+            
+            rv = makeSuccessResult(MessageDefinition.Rename_List_Success, listDef);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
 
 	@RequestMapping(value = "/list", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

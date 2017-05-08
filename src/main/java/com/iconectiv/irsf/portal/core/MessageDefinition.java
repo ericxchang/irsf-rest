@@ -10,6 +10,7 @@ public class MessageDefinition {
 	public static final String Change_Password_Success = "Password is updated successfully";
 	public static final String Process_List_Upload = "System is processing your list file";
 	public static final String Login_Success = "Successful login";
+	public static final String Rename_List_Success = "Successfully rename list";;
     public static final String Delete_List_Success = "Successfully delete list";
     public static final String Save_Partition_Success = "Successfully save partition";
 	public static final String Save_Rule_Success = "Successfully save rule";
