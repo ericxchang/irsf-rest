@@ -10,12 +10,16 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.iconectiv.irsf.json.vaidation.JsonValidationException;
+import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,6 +36,8 @@ public class FilterDefinition implements java.io.Serializable {
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 
+	private RangeQueryFilter rangeQueryFilter;
+	
 	public FilterDefinition() {
 	}
 
@@ -77,6 +83,18 @@ public class FilterDefinition implements java.io.Serializable {
 		this.details = details;
 	}
 	
+	@Transient
+	public RangeQueryFilter getRangeQueryFilter() throws JsonValidationException {
+		if (this.details != null) {
+			this.rangeQueryFilter = JsonHelper.fromJson(this.details, RangeQueryFilter.class);
+		}
+		return rangeQueryFilter;
+	}
+
+	public void setRangeQueryFilter(RangeQueryFilter rangeQueryFilter) {
+		this.rangeQueryFilter = rangeQueryFilter;
+	}
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_updated", nullable = false, length = 19)
 	public Date getLastUpdated() {
