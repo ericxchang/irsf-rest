@@ -26,7 +26,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private Integer partitionId;
     private PartitionDefinition partitionDefinition;
     private String reference;    //save list name instead of id; save rule id
-    private Boolean whiteList;
+    private String dataType;
     private String dialPattern;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
@@ -116,17 +116,15 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.reason = reason;
     }
 
-    @Column(name = "white_list")
-    public Boolean getWhiteList() {
-		return whiteList;
-	}
-
-
-	public void setWhiteList(Boolean whiteList) {
-		this.whiteList = whiteList;
-	}
-
-
+    @Column(name="data_type", length=2)
+    public String getDataType() {
+        return this.dataType;
+    }
+    
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+    
 	@Column(name = "notes", length = 100)
     public String getNotes() {
         return this.notes;
