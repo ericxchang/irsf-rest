@@ -1,6 +1,5 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +58,31 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
+
+	@RequestMapping(value = "/partition/{partitionId}/{ruleId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> removeRuleRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId, @PathVariable Integer ruleId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			
+			PartitionDefinition partition = partitionServ.removeRule(loginUser, partitionId, ruleId);
+            rv = makeSuccessResult(MessageDefinition.Query_Success, partition);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toPrettyJson(rv));
+		}
+		return rv;
+	}
 
 	@RequestMapping(value = "/partitions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

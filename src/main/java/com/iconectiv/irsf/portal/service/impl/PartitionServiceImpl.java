@@ -236,13 +236,26 @@ public class PartitionServiceImpl implements PartitionService {
 				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_Rule, "deactive rule " + ruleId);
 			}
 
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_To_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
-
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
 		} catch (Exception e) {
 			log.error("Fail to remove rule to parition: ", e);
 			throw new AppException(e);
 		}
 
+	}
+
+	@Override
+	public PartitionDefinition removeRule(UserDefinition loginUser, Integer partitionId, Integer ruleId)  throws AppException {
+		try {
+            Assert.notNull(ruleId);
+            
+            PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+            removeRule(loginUser, partition, ruleId);
+			return partition;
+		} catch (Exception e) {
+			log.error("Fail to remove rule to parition: ", e);
+			throw new AppException(e);
+		}
 	}
 
 	@Override

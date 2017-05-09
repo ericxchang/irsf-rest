@@ -12,7 +12,7 @@ public class AuditTrailActionDefinition {
     public static final String Create_Partition = "create partition";
     public static final String Update_Partition = "update partition";
     public static final String Add_Rule_To_Partition = "add rule";
-    public static final String Remove_Rule_To_Partition = "remove rule";
+    public static final String Remove_Rule_From_Partition = "remove rule";
     public static final String Export_Partition_Data = "export partition";
     public static final String Refresh_Partition_Data = "refresh partition";
 
