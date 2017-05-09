@@ -188,7 +188,8 @@ public class PartitionServiceImpl implements PartitionService {
 	 */
 	@Override
     public void exportPartition(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-        String status = validateParitionStatus(partition);
+        String status = validateParitionExportStatus(partition);
+        exportPartitionData(loginUser, partition);
     }
 
     private String validateParitionStatus(PartitionDefinition partition) throws AppException {
@@ -196,7 +197,16 @@ public class PartitionServiceImpl implements PartitionService {
         Assert.notNull(partition);
 
         if (partition.getStatus().equals(PartitionStatus.Processing.value())) {
-            throw new AppException("System is generating parttion data set");
+            throw new AppException("System is generating partition data set");
+        }
+        return partition.getStatus();
+    }
+    private String validateParitionExportStatus(PartitionDefinition partition) throws AppException {
+        partition = partitionDefRepo.findOne(partition.getId());
+        Assert.notNull(partition);
+
+        if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
+            throw new AppException("System has not generated partition data set");
         }
         return partition.getStatus();
     }
@@ -207,7 +217,7 @@ public class PartitionServiceImpl implements PartitionService {
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		try {
 			checkPartitionStale(partition);
-
+            // do something ...
 			partition.setStatus(PartitionStatus.Locked.value());
 			partition.setLastExportDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
