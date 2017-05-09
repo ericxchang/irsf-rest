@@ -19,5 +19,6 @@ public class MessageDefinition {
 	public static final String Delete_ListDetails_Success = "Successfully deleted list records";;
     public static java.lang.String Generating_Partition_Dataset_Success = "System is generating partition data set";
 	public static final String ListSizeOverLimitError = "Failed to add list record since list size will be over the limit of ";
+	public static final String Remove_Rule =  "Successfully removed rule from partition";;
 
 }
