@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by echang on 3/14/2017.
  */
-public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>{
+public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>, PartitionDataDetailRepositoryCustomer{
     @Modifying
     @Transactional
     @Query("update PartitionDataDetails pd set pd.partitionId=?2 where pd.partitionId=?1")

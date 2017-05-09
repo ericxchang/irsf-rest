@@ -1,17 +1,29 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.Premium;
+import com.iconectiv.irsf.portal.model.common.RangeNdc;
+import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
+import com.iconectiv.irsf.util.JsonHelper;
+
 import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +40,13 @@ import java.util.*;
 public class PartitionServiceImpl implements PartitionService {
 	private static Logger log = LoggerFactory.getLogger(PartitionServiceImpl.class);
 
+	final String RANGE_NDC_TYPE = "Range NDC";
+	final String PREMIUM_RANGE_TYPE = "Premium Range";
+	final String PRIME2 = "PRIME-2";
+	final String PRIME3 = "PRIME-3";
+	final String PRIME4 = "PRIME-4";
+
+	
 	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
 	@Autowired
@@ -38,7 +57,15 @@ public class PartitionServiceImpl implements PartitionService {
 	private RuleDefinitionRepository ruleRepo;
 	@Autowired
     private AuditTrailService auditService;
+	@Autowired
+	private MobileIdDataService mobileIdService;
+	@Autowired
+	private ListDetailsRepository listDetailsRepo;
+	@Autowired
+	private ListDefinitionRepository listDefinitionRepo;
 
+
+	
     @Override
     public void refreshPartition(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
         validateParitionStatus(partition);
@@ -52,9 +79,9 @@ public class PartitionServiceImpl implements PartitionService {
     @Transactional
     @Async
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
+    	List<PartitionDataDetails> partitionDataList = null;
         try {
             generateDraftData(partition);
-
             partition.setStatus(PartitionStatus.Draft.value());
             partition.setDraftDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
@@ -65,6 +92,91 @@ public class PartitionServiceImpl implements PartitionService {
             log.error("Error on export partition data", e);
             throw new AppException(e);
         }
+    }
+    private List<PartitionDataDetails> convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<RangeNdc> list) {
+    	List<PartitionDataDetails> pdList  = new ArrayList<PartitionDataDetails>(list.size());
+    	for (RangeNdc obj: list) {
+    		PartitionDataDetails p  = new PartitionDataDetails();
+    		p.setPartitionId(partition.getId());
+    		p.setBillingId(obj.getBillingId());
+    		p.setCc(obj.getCode());
+    		p.setCustomerDate(obj.getEffectiveDate());
+     		p.setDialPattern(obj.getCcNdc());
+     		p.setIso2(obj.getIso2());
+     		p.setNdc(obj.getNdc());
+     		p.setNotes(null);
+     		p.setProvider(obj.getProvider());
+     		p.setReason(null);
+     		p.setReference(rule.getId().toString());
+     		p.setTos(obj.getTos());
+     		p.setTosdesc(obj.getTosdesc());
+     		pdList.add(p);
+    	}
+    	
+    	return pdList;
+    	
+    }
+    private List<PartitionDataDetails> convertIprnToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<Premium> list) {
+    	List<PartitionDataDetails> pdList  = new ArrayList<PartitionDataDetails>(list.size());
+    	for (Premium obj: list) {
+    		PartitionDataDetails p  = new PartitionDataDetails();
+    		p.setPartitionId(partition.getId());
+    		p.setBillingId(obj.getBillingId());
+    		p.setCc(obj.getCode());
+    		p.setCustomerDate(obj.getLastUpdate());
+    		
+    		if (PRIME2.equals(rule.getDialPatternType())) {
+    			p.setDialPattern(obj.getPrimeMinus2());
+    		}
+    		else if (PRIME3.equals(rule.getDialPatternType())) {
+    			p.setDialPattern(obj.getPrimeMinus3());
+    			if (p.getDialPattern() == null)
+    				p.setDialPattern(obj.getPrimeMinus2());
+    		}
+    		else if (PRIME4.equals(rule.getDialPatternType())) {
+    			p.setDialPattern(obj.getPrimeMinus3());
+    			if (p.getDialPattern() == null)
+    				p.setDialPattern(obj.getPrimeMinus3());
+    			if (p.getDialPattern() == null)
+    				p.setDialPattern(obj.getPrimeMinus2());
+    		}
+     		 
+     		p.setIso2(obj.getIso2());
+     		p.setNdc(obj.getNdc());
+     		p.setNotes(null);
+     		p.setProvider(obj.getProvider());
+     		p.setReason(null);
+     		p.setReference(rule.getId().toString());
+     		p.setTos(obj.getTos());
+     		p.setTosdesc(obj.getTosdesc());
+     		pdList.add(p);
+    	}
+    	
+    	return pdList;
+    	
+    }
+    
+    private List<PartitionDataDetails> convertListDetailsToPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, List<ListDetails> list) {
+    	List<PartitionDataDetails> pdList  = new ArrayList<PartitionDataDetails>(list.size());
+    	for (ListDetails obj: list) {
+    		PartitionDataDetails p  = new PartitionDataDetails();
+    		p.setPartitionId(partition.getId());
+    		p.setBillingId(obj.getBillingId());
+    		p.setCc(obj.getCode());
+    		p.setCustomerDate(obj.getCustomerDate());
+    		p.setDialPattern(obj.getDialPattern());
+       		p.setIso2(obj.getIso2());
+     		p.setNdc(obj.getNdc());
+     		p.setNotes(obj.getNotes());
+     		p.setProvider(obj.getProvider());
+     		p.setReason(obj.getReason());
+     		p.setReference(listDef.getListName());
+     		p.setTos(obj.getTos());
+     		p.setTosdesc(obj.getTosdesc());
+     		pdList.add(p);
+    	}
+    	return pdList;
+    	
     }
 
     /*
@@ -130,11 +242,66 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	private void generateDraftData(final PartitionDefinition partition) {
-		// TODO copy data to partition_export_history; create event to send
-		// export data
 		
-		partition.setDraftDate(new Date());
-		partitionDefRepo.save(partition);
+		List<PartitionDataDetails> partitionDataList = null;
+		
+		List<RuleDefinition> rules = partition.getRuleDefinitions();
+		if (rules == null ||rules.isEmpty()) {
+			rules = ruleRepo.findAllByPartitionId(partition.getOrigPartitionId());
+		}
+		log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+		partitionDataRepo.deleteByPartitionId(partition.getId());
+		
+		
+        for (RuleDefinition rule: rules) {
+        	partitionDataList = null;
+        	RangeQueryFilter filter = null;
+        	
+        	try {
+				filter = rule.getRangeQueryFilter();
+			} catch (JsonValidationException e) {
+				 log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.toString(), rule.getId(), rule.getDetails());
+				 continue;
+			}
+        	log.debug("generateDraftData: retrieve all partition data for ruleId: {}", rule.getId());
+        	if (RANGE_NDC_TYPE.equals(rule.getDataSource())){
+        		List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
+        		if (list != null && !list.isEmpty()) {
+        			partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
+        		}
+        	}
+        	else if (PREMIUM_RANGE_TYPE.equals(rule.getDataSource())){
+        		List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
+        		if (list != null && !list.isEmpty()) {
+        			partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
+        		}
+        	}
+        	else {
+        		log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
+         	}
+        	if (partitionDataList != null && !partitionDataList.isEmpty()) {
+        		partitionDataRepo.batchUpdate(partitionDataList);
+        	}
+        }
+        partitionDataList = null;
+        if (partition.getWlId() != null) {
+        	ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
+        	List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
+        	if (wlList != null && !wlList.isEmpty()) {
+        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList);
+        		partitionDataRepo.batchUpdate(partitionDataList);
+        	}
+        }
+        partitionDataList = null;
+        if (partition.getBlId() != null) {
+        	List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
+        	if (blList != null && !blList.isEmpty()) {
+        		ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
+        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList);
+        		partitionDataRepo.batchUpdate(partitionDataList);
+        	}
+        }
+		
 	}
 
 	private void clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
