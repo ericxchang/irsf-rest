@@ -265,6 +265,8 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException("Invalid partition id " + partitionId);
 		}
 		
+		partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(partition.getOrigPartitionId()));
+
 		if (partition.getRuleIds() == null) {
 		    return partition;
         }

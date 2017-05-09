@@ -70,6 +70,7 @@ class PartitionServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			
 			PartitionDefinition partition = partitionServ.removeRule(loginUser, partitionId, ruleId);
+			partition = partitionServ.getPartitionDetails(partitionId);
             rv = makeSuccessResult(MessageDefinition.Remove_Rule, partition);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
