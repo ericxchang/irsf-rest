@@ -4,6 +4,7 @@ import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
@@ -111,24 +112,6 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 	}
 
-	/*
-	 * The following condition can cause staled draft data set:
-	 * 1. BL/WL list change
-	 * 2. Rule(s) change
-	 * 3. New MobileID data set
-	 */
-    private boolean checkPartitionStale(PartitionDefinition partition) {
-		boolean isStale = false;
-		
-		Date draftTime = partition.getDraftDate();
-		if (isStale) {
-			partition.setStatus(PartitionStatus.Stale.value());
-			partitionDefRepo.save(partition);
-		}
-		
-		return isStale;
-	}
-
 	private void generateDraftData(final PartitionDefinition partition) {
 		// TODO copy data to partition_export_history; create event to send
 		// export data
@@ -205,6 +188,8 @@ public class PartitionServiceImpl implements PartitionService {
 
 			updateRuleId(partition, ruleIds, loginUser.getUserName());
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_Rule_To_Partition, "append rule " + rule.getId() + " to partition " + partition.getId());
+			
+			checkStale(partition);
 		} catch (Exception e) {
 			log.error("Fail to add rule to parition: ", e);
 			throw new AppException(e);
@@ -237,6 +222,7 @@ public class PartitionServiceImpl implements PartitionService {
 			}
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
+			checkStale(partition);
 		} catch (Exception e) {
 			log.error("Fail to remove rule to parition: ", e);
 			throw new AppException(e);
@@ -329,6 +315,36 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setLastUpdated(new Date());
 		partition.setLastUpdatedBy(userName);
 		partitionDefRepo.save(partition);
+	}
+
+	@Override
+	public void checkStale(PartitionDefinition partition) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void checkStale(ListDefinition listDefinition) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* TODO:
+	 * The following condition can cause staled draft data set:
+	 * 1. BL/WL list change
+	 * 2. Rule(s) change
+	 * 3. New MobileID data set
+	 */
+    private boolean checkPartitionStale(PartitionDefinition partition) {
+		boolean isStale = false;
+		
+		Date draftTime = partition.getDraftDate();
+		if (isStale) {
+			partition.setStatus(PartitionStatus.Stale.value());
+			partitionDefRepo.save(partition);
+		}
+		
+		return isStale;
 	}
 
 }

@@ -4,16 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
+import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.DialPatternType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
+import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,6 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.IOException;
 import java.util.Date;
@@ -43,6 +49,12 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	@Autowired
 	PartitionDefinitionRepository partitionRepo;
 
+	@Before
+	public void setUp() throws Exception {
+    	CustomerContextHolder.setSchema("cust01");
+    }
+
+	
 	private PartitionDefinition createPartition() {
 		PartitionDefinition partition = new PartitionDefinition();
 		partition.setCustomerName("junitcust01");
@@ -105,6 +117,16 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 
 		JsonNode result = mapper.readTree(JsonHelper.toJson(filterObj));
 		log.info("after clean: " + result);
+
+	}
+
+	@Test
+	public void testRuleDetails() throws JsonValidationException, JsonProcessingException, IOException {
+		RuleDefinition rule = ruleRepo.findOne(7);
+
+		log.info(rule.getDetails());
+		RangeQueryFilter filter = rule.getRangeQueryFilter();
+		log.info("filer obj: " + JsonHelper.toPrettyJson(filter));
 
 	}
 

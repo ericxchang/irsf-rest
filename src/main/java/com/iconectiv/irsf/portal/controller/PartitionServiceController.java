@@ -139,6 +139,40 @@ class PartitionServiceController extends BaseRestController {
         }
         return rv;
     }
+    
+    @RequestMapping(value = "/partition/updateList", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> updatePartitionListRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        try {
+        	PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+            partitionServ.savePartition(loginUser, partition);
+            
+            partitionServ.checkStale(partition);
+            
+            rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
+        } catch (Exception e) {
+        	//TODO throw trap
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
+    
 
     @RequestMapping(value = "/partition/export", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
