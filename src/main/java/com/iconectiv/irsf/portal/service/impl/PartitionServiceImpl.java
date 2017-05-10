@@ -2,6 +2,7 @@ package com.iconectiv.irsf.portal.service.impl;
 
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
+import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.Premium;
@@ -110,6 +111,7 @@ public class PartitionServiceImpl implements PartitionService {
      		p.setReference(rule.getId().toString());
      		p.setTos(obj.getTos());
      		p.setTosdesc(obj.getTosdesc());
+     		p.setDataType("R");
      		pdList.add(p);
     	}
     	
@@ -149,6 +151,7 @@ public class PartitionServiceImpl implements PartitionService {
      		p.setReference(rule.getId().toString());
      		p.setTos(obj.getTos());
      		p.setTosdesc(obj.getTosdesc());
+     		p.setDataType(PartitionDataType.Rule.value());
      		pdList.add(p);
     	}
     	
@@ -156,7 +159,7 @@ public class PartitionServiceImpl implements PartitionService {
     	
     }
     
-    private List<PartitionDataDetails> convertListDetailsToPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, List<ListDetails> list) {
+    private List<PartitionDataDetails> convertListDetailsToPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, List<ListDetails> list, String listType) {
     	List<PartitionDataDetails> pdList  = new ArrayList<PartitionDataDetails>(list.size());
     	for (ListDetails obj: list) {
     		PartitionDataDetails p  = new PartitionDataDetails();
@@ -173,6 +176,7 @@ public class PartitionServiceImpl implements PartitionService {
      		p.setReference(listDef.getListName());
      		p.setTos(obj.getTos());
      		p.setTosdesc(obj.getTosdesc());
+     		p.setDataType(listType);
      		pdList.add(p);
     	}
     	return pdList;
@@ -257,13 +261,17 @@ public class PartitionServiceImpl implements PartitionService {
 		
 		List<RuleDefinition> rules = partition.getRuleDefinitions();
 		if (rules == null ||rules.isEmpty()) {
-			rules = ruleRepo.findAllByPartitionId(partition.getOrigPartitionId());
+			rules = ruleRepo.findAllByPartitionId(partition.getId());
 		}
 		log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
 		partitionDataRepo.deleteByPartitionId(partition.getId());
 		
 		
         for (RuleDefinition rule: rules) {
+        	if (!rule.isActive()) {
+        		log.info("skip inactive rule, rule_id: {}", rule.getId());
+        		continue;
+        	}
         	partitionDataList = null;
         	RangeQueryFilter filter = null;
         	
@@ -298,7 +306,7 @@ public class PartitionServiceImpl implements PartitionService {
         	ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
         	List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
         	if (wlList != null && !wlList.isEmpty()) {
-        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList);
+        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList, PartitionDataType.WhiteList.value());
         		partitionDataRepo.batchUpdate(partitionDataList);
         	}
         }
@@ -307,7 +315,7 @@ public class PartitionServiceImpl implements PartitionService {
         	List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
         	if (blList != null && !blList.isEmpty()) {
         		ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
-        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList);
+        		partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList, PartitionDataType.BlackList.value());
         		partitionDataRepo.batchUpdate(partitionDataList);
         	}
         }
