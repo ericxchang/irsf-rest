@@ -1,5 +1,10 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -223,17 +228,19 @@ public class PartitionServiceImpl implements PartitionService {
     @Transactional
     @Async
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-		try {
+		
+    	try {
 			checkPartitionStale(partition);
-
+			List<PartitionDataDetails> partitionDataList = partitionDataRepo.FindByPartitionId(partition.getId());
+			
+   
 			partition.setStatus(PartitionStatus.Locked.value());
 			partition.setLastExportDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
 			partitionDefRepo.save(partition);
-
-			partitionDataRepo.deleteByPartitionId(partition.getId());
-
-			clonePartition(loginUser, partition);
+			PartitionDefinition newPartition = clonePartition(loginUser, partition);
+			partitionDataRepo.movePartition(partition.getId(), newPartition.getId());
+			
             auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
@@ -308,7 +315,7 @@ public class PartitionServiceImpl implements PartitionService {
 		
 	}
 
-	private void clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
+	private PartitionDefinition clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
 		if (partition.getOrigPartitionId() == null) {
 			partition.setOrigPartitionId(partition.getId());
 		}
@@ -318,7 +325,7 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setLastExportDate(null);
 		partition.setDraftDate(null);
 		partition.setLastUpdatedBy("cloned");
-		partitionDefRepo.save(partition);
+		partition = partitionDefRepo.save(partition);
 
 		List<String> ruleIds = cloneRules(loginUser, partition);
 
@@ -326,7 +333,7 @@ public class PartitionServiceImpl implements PartitionService {
 		partitionDefRepo.save(partition);
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Clone_Partition, "clone new partition " + partition.getId());
 
-		return;
+		return partition;
 	}
 
 	private List<String> cloneRules(UserDefinition loginUser, final PartitionDefinition partition) {
@@ -534,5 +541,37 @@ public class PartitionServiceImpl implements PartitionService {
 		
 		return isStale;
 	}
+    
+	private byte[] readBytesFromFile(String filePath) throws IOException {
+		File inputFile;
+		FileInputStream inputStream = null;
+		BufferedInputStream fstream = null;
+		byte[] fileBytes = null;
+		
+		try {
+			inputFile = new File(filePath);
+			inputStream = new FileInputStream(inputFile);
+			fstream = new BufferedInputStream(inputStream);
+			fileBytes = new byte[(int) inputFile.length()];
+			fstream.read(fileBytes);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		} finally {
+			// releases any system resources associated with the stream
+			if (inputStream != null)
+				inputStream.close();
+			if (fstream != null)
+				fstream.close();
+		}
+
+		return fileBytes;
+	}
+    
+    private static void saveBytesToFile(String filePath, byte[] fileBytes) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream(filePath);
+        outputStream.write(fileBytes);
+        outputStream.close();
+    }
 
 }

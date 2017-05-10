@@ -199,6 +199,75 @@ public class PartitionDataDetails implements java.io.Serializable {
 		this.billingId = billingId;
 	}
 
+	public String toCSVheader(String seperator) {
+		 StringBuffer sb = new StringBuffer();
+		 sb.append("id");
+		 sb.append(seperator);
+		 sb.append("partitionId");
+		 sb.append(seperator);
+		 sb.append("reference");
+		 sb.append(seperator);
+		 sb.append("dataType");
+		 sb.append(seperator);
+		 sb.append("dialPattern");
+		 sb.append(seperator);
+		 sb.append("customerDate");
+		 sb.append(seperator);
+		 sb.append("reason");
+		 sb.append(seperator);
+		 sb.append("notes");
+		 sb.append(seperator);
+		 sb.append("cc");
+		 sb.append(seperator);
+		 sb.append("ndc");
+		 sb.append(seperator);
+		 sb.append("iso2");
+		 sb.append(seperator);
+		 sb.append("tos");
+		 sb.append(seperator);
+		 sb.append("tosdesc");
+		 sb.append(seperator);
+		 sb.append("provider");
+		 sb.append(seperator);
+		 sb.append("billingId");
+		 
+		 return sb.toString();
+	}
+
+	public String toCSVString(String seperator) {
+		 StringBuffer sb = new StringBuffer();
+		 sb.append(id);
+		 sb.append(seperator);
+		 sb.append(partitionId);
+		 sb.append(seperator);
+		 sb.append(reference==null?"":reference);
+		 sb.append(seperator);
+		 sb.append(dataType==null?"":dataType);
+		 sb.append(seperator);
+		 sb.append(dialPattern==null?"":dialPattern);
+		 sb.append(seperator);
+		 sb.append(customerDate==null?"":customerDate);
+		 sb.append(seperator);
+		 sb.append(reason==null?"":reason);
+		 sb.append(seperator);
+		 sb.append(notes==null?"":notes);
+		 sb.append(seperator);
+		 sb.append(cc==null?"":cc);
+		 sb.append(seperator);
+		 sb.append(ndc==null?"":ndc);
+		 sb.append(seperator);
+		 sb.append(iso2==null?"":iso2);
+		 sb.append(seperator);
+		 sb.append(tos==null?"":tos);
+		 sb.append(seperator);
+		 sb.append(tosdesc==null?"":tosdesc);
+		 sb.append(seperator);
+		 sb.append(provider==null?"":provider);
+		 sb.append(seperator);
+		 sb.append(billingId==null?"":billingId);
+		 
+		 return sb.toString();
+	}
 
 }
 

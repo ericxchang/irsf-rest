@@ -25,6 +25,9 @@ public interface ListDetailsRepository extends CrudRepository<ListDetails, Integ
     
     List<ListDetails> findAllByListRefId(int listRefId);
     Page<ListDetails> findAllByListRefId(int listRefId, Pageable pageable);
+    
+    @Query("select distinct dialPattern from ListDetails ld where ld.listRefId = ?1")
+	List<String> findDistinctDialPatternBylistRefId(Integer listRefId);
 
     @Query(value="select ld.id, ld.list_ref_id, ld.upload_req_ref_id, ld.dial_pattern, ld.reason, ld.notes, ld.customer_date, ld.active, ld.match_cc_ndc, ld.last_updated, ld.last_updated_by,"
     		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.locality, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
