@@ -1,12 +1,18 @@
 package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +31,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,6 +54,8 @@ public class PartitionServiceControllerTest  {
 	@Autowired MockHttpSession session;
 	@Autowired MockHttpServletRequest request;
 	
+	@Autowired PartitionDefinitionRepository partitionRepo;
+	
 	private MockMvc mockMvc;
 	private UserDefinition loginUser;
 	private String token;
@@ -57,6 +71,7 @@ public class PartitionServiceControllerTest  {
         loginUser.setCustomerName("Verizon");
 
         token = JWTUtil.createToken(loginUser);
+        CustomerContextHolder.setSchema(loginUser.getSchemaName());
     }
 
 	@After
@@ -64,20 +79,49 @@ public class PartitionServiceControllerTest  {
 
 	}
 
-	@Test
+	//@Test
 	public void testQueryActivePartition() throws Exception {
         ResultActions action = mockMvc.perform(get("/partitions").header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
-
         log.info(result);
+        Map<String, Object>  rv = JsonHelper.fromJson(result, Map.class);
+        if (rv != null) {
+        	log.info("rv: {}", rv.toString());
+        	Set<String> k = rv.keySet();
+        	Iterator it = k.iterator();
+        	while(it.hasNext()) {
+        		String key = (String) it.next();
+        		//log.info(key);
+        		log.info("key: '{}', value: {}", key, rv.get(key).toString());
+        		if (key.equals("data")) {
+          			List<PartitionDefinition> partition =  JsonHelper.fromJson(rv.get(key), List.class);
+          			log.info(JsonHelper.toPrettyJson(partition));
+        		}
+        			
+        	}
+        }
+  
 	}
 
-	@Test
+	//@Test
 	public void testPartitionCRUD() throws Exception {
 		PartitionDefinition partition = createPartition();
 		updatePartition(partition);
         refrehPartition(partition);
         queryPartition(partition);
+	}
+	@Test
+	public void testRefreshPartitionwithRules() throws Exception {
+		PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
+		log.info("testRefreshPartitionwithRules:: partition: {}", JsonHelper.toPrettyJson(partition)); 
+		List<RuleDefinition> rules =  partition.getRuleDefinitions();
+		log.info("testRefreshPartitionwithRules:: number of rules: {}", rules.size());
+		for (RuleDefinition rule: rules) {
+			RangeQueryFilter rf =  (RangeQueryFilter) rule.getRangeQueryFilter();
+			log.info("queryrangefilter: {}", JsonHelper.toPrettyJson(rf)); 
+		}
+        refrehPartition(partition);
+      
 	}
 
     private void queryPartition(PartitionDefinition partition) throws Exception {
@@ -88,6 +132,32 @@ public class PartitionServiceControllerTest  {
 
         assertTrue(result.lastIndexOf("success") > 1);
     }
+    private PartitionDefinition queryPartition(Integer partId) throws Exception {
+    	PartitionDefinition partition = null;
+    	ResultActions action = mockMvc.perform(get("/partition/" + partId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
+
+        log.info(result);
+        Map<String, Object>  rv = JsonHelper.fromJson(result, Map.class);
+        log.info(""+ rv.containsKey("data"));
+        if (rv != null) {
+        	log.info("rv: {}", rv.toString());
+        	Set<String> k = rv.keySet();
+        	Iterator it = k.iterator();
+        	while(it.hasNext()) {
+        		String key = (String) it.next();
+        		//log.info(key);
+        		log.info("key: '{}', value: {}", key, rv.get(key).toString());
+        		if (key.equals("data")) {
+          			partition =  JsonHelper.fromJson(rv.get(key), PartitionDefinition.class);
+          			log.info(JsonHelper.toPrettyJson(partition));
+        		}
+        			
+        	}
+        }
+        return partition;
+    }
+
 
     private void refrehPartition(PartitionDefinition partition) throws Exception {
         ResultActions action = mockMvc.perform(post("/partition/refresh").header("authorization", "Bearer " + token)
