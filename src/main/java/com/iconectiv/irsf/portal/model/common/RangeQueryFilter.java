@@ -22,6 +22,25 @@ public class RangeQueryFilter {
 	private Integer pageNo;
 	private Integer limit;
 	
+	public RangeQueryFilter() {
+		super();
+	}
+	
+	public RangeQueryFilter(List<String> codeList, List<String> iso2List, List<TosTosDesc> tosDescList,
+			List<Provider> providerList, String beforeLastObserved, String afterLastObserved,
+			Integer numOfMonthsSinceLastObserved, Integer pageNo, Integer limit) {
+		super();
+		this.codeList = codeList;
+		this.iso2List = iso2List;
+		this.tosDescList = tosDescList;
+		this.providerList = providerList;
+		this.beforeLastObserved = beforeLastObserved;
+		this.afterLastObserved = afterLastObserved;
+		this.numOfMonthsSinceLastObserved = numOfMonthsSinceLastObserved;
+		this.pageNo = pageNo;
+		this.limit = limit;
+	}
+
 	public List<String> getCodeList() {
 		return codeList;
 	}
