@@ -123,7 +123,15 @@ public class PartitionServiceControllerTest  {
         refrehPartition(partition);
       
 	}
+	@Test
+	public void testExportPartition() throws Exception {
+    	Integer partId = 16;
+    	ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
 
+        log.info(result);
+    }
+  
     private void queryPartition(PartitionDefinition partition) throws Exception {
         ResultActions action = mockMvc.perform(get("/partition/" + partition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
@@ -166,7 +174,7 @@ public class PartitionServiceControllerTest  {
         log.info(result);
         assertTrue(result.lastIndexOf("success") > 1);
     }
-
+    
     private void updatePartition(PartitionDefinition partition) throws Exception {
         partition.setRuleIds("2");
 
