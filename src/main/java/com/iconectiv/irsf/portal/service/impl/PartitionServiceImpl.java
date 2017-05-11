@@ -78,7 +78,12 @@ public class PartitionServiceImpl implements PartitionService {
 	private ListDefinitionRepository listDefinitionRepo;
 
     @Override
-    public void refreshPartition(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+    public void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
+    	PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+    	
+    	if (partition == null) {
+    		throw new AppException("Invalid partition Id");
+    	}
         validateParitionStatus(partition);
 
         partition.setStatus(PartitionStatus.Processing.value());
@@ -92,6 +97,7 @@ public class PartitionServiceImpl implements PartitionService {
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
     	List<PartitionDataDetails> partitionDataList = null;
         try {
+        	
             generateDraftData(partition);
 
             partition.setStatus(PartitionStatus.Draft.value());
@@ -194,7 +200,7 @@ public class PartitionServiceImpl implements PartitionService {
     	
     }
 
-    /*
+	/*
 	 * To export partition: 1. copy data to parition_export_history data and
 	 * move the status of current partition to "Locked" 2. clear data from
 	 * partition_data_details table 3. clone a new partition with status of
@@ -202,10 +208,15 @@ public class PartitionServiceImpl implements PartitionService {
 	 * system
 	 */
 	@Override
-    public void exportPartition(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-        String status = validateParitionExportStatus(partition);
-        exportPartitionData(loginUser, partition);
-    }
+	public void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
+		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+
+		if (partition == null) {
+			throw new AppException("Invalid partition Id");
+		}
+		String status = validateParitionExportStatus(partition);
+		exportPartitionData(loginUser, partition);
+	}
 
     private String validateParitionStatus(PartitionDefinition partition) throws AppException {
         partition = partitionDefRepo.findOne(partition.getId());

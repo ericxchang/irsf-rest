@@ -174,19 +174,16 @@ class PartitionServiceController extends BaseRestController {
     }
     
 
-    @RequestMapping(value = "/partition/export", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/partition/export/{partitionId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> exportPartitionRequest(@RequestHeader Map<String, String> header, @RequestBody PartitionDefinition partition) {
+    public ResponseEntity<String> exportPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
         ResponseEntity<String> rv;
         try {
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            if (partition.getId() == null) {
-                throw new AppException("Missing partition Id");
-            }
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            partitionServ.exportPartition(loginUser, partition);
+            partitionServ.exportPartition(loginUser, partitionId);
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -205,19 +202,17 @@ class PartitionServiceController extends BaseRestController {
         return rv;
     }
 
-    @RequestMapping(value = "/partition/refresh", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header, @RequestBody PartitionDefinition partition) {
+    public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
         ResponseEntity<String> rv;
         try {
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            if (partition.getId() == null) {
-                throw new AppException("Missing partition Id");
-            }
+
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            partitionServ.refreshPartition(loginUser, partition);
+            partitionServ.refreshPartition(loginUser, partitionId);
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
