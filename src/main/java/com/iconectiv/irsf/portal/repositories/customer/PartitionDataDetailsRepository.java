@@ -16,8 +16,8 @@ public interface PartitionDataDetailsRepository extends CrudRepository<Partition
     
 	List<PartitionDataDetails> FindByPartitionId(Integer partitionid);
 	
-	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1")
-	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId);
+	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in (?) ")
+	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId, List<String> dataTypeList);
 	
 	@Modifying
     @Transactional

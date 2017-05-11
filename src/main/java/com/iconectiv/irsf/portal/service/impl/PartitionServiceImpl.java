@@ -33,6 +33,7 @@ import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
@@ -56,6 +57,7 @@ public class PartitionServiceImpl implements PartitionService {
 	final String PRIME2 = "PRIME-2";
 	final String PRIME3 = "PRIME-3";
 	final String PRIME4 = "PRIME-4";
+	final String CSV_COMMON_SEPERATOR = "|";
 
 	
 	@Autowired
@@ -228,12 +230,31 @@ public class PartitionServiceImpl implements PartitionService {
     @Transactional
     @Async
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-		
+		List<String> WL_DataType = new ArrayList<String>();
+		List<String> NON_WL_DataType = new ArrayList<String>();
+		WL_DataType.add(PartitionDataType.WhiteList.value());
+		NON_WL_DataType.add(PartitionDataType.BlackList.value());
+		NON_WL_DataType.add(PartitionDataType.Rule.value());
+		PartitionExportHistory partHist = new PartitionExportHistory();
+		StringBuffer sb = new StringBuffer();
     	try {
 			checkPartitionStale(partition);
-			List<PartitionDataDetails> partitionDataList = partitionDataRepo.FindByPartitionId(partition.getId());
 			
-   
+			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.FindByPartitionId(partition.getId());
+			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
+			List<String> WhiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), WL_DataType);
+			
+			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
+			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
+			partHist.setExportWhitelist(buildByteArrayFromList(WhiteList));
+			
+			partHist.setExportDate(new Date());
+			partHist.setOrigPartitionId(partition.getOrigPartitionId());
+			partHist.setPartitionId(partition.getId());
+			partHist.setStatus(partition.getStatus());
+			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
+			partHist = exportRepo.save(partHist);
+			
 			partition.setStatus(PartitionStatus.Locked.value());
 			partition.setLastExportDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
@@ -248,6 +269,26 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 	}
 
+    private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
+    	
+    	StringBuffer sb = new StringBuffer();
+    	for (PartitionDataDetails p: list) {
+    		sb.append(p.toCSVheader(CSV_COMMON_SEPERATOR));
+    		sb.append("\n");
+     	}
+    	return sb.toString().getBytes();
+    	
+    }
+    private byte[] buildByteArrayFromList(List<String> list) {
+    	
+    	StringBuffer sb = new StringBuffer();
+    	for (String p: list) {
+    		sb.append(p);
+    		sb.append("\n");
+     	}
+    	return sb.toString().getBytes();
+    	
+    }
 	private void generateDraftData(final PartitionDefinition partition) {
 		
 		List<PartitionDataDetails> partitionDataList = null;
