@@ -267,7 +267,7 @@ class PartitionServiceController extends BaseRestController {
 
 
             Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
-            rv = makeSuccessResult(MessageDefinition.Query_Success, result);
+            rv = makeSuccessResult(result);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
