@@ -9,8 +9,8 @@ import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import java.util.List;
 
 public interface PartitionService {
-	void refreshPartition(UserDefinition loginUser, PartitionDefinition partitionId) throws AppException;
-	void exportPartition(UserDefinition loginUser, PartitionDefinition partitionId) throws AppException;
+	void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
+	void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
 	void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule) throws AppException;
 	
 	void removeRule(UserDefinition loginUser, PartitionDefinition partition, Integer ruleId) throws AppException;
