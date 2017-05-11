@@ -1,22 +1,26 @@
 package com.iconectiv.irsf.portal.repositories.customer;
 
-import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
-
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+
 /**
  * Created by echang on 3/14/2017.
  */
-public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>, PartitionDataDetailRepositoryCustomer{
+
+public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>, PartitionDataDetailsRepositoryCustomer{
     
-	List<PartitionDataDetails> FindByPartitionId(Integer partitionid);
+	List<PartitionDataDetails> findAllByPartitionId(Integer partitionid);
+	Page<PartitionDataDetails> findAllByPartitionId(Integer partitionId, Pageable pageable);
 	
-	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in (?) ")
+	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in ?2 ")
 	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId, List<String> dataTypeList);
 	
 	@Modifying
@@ -27,4 +31,5 @@ public interface PartitionDataDetailsRepository extends CrudRepository<Partition
     @Modifying
     @Transactional
     void deleteByPartitionId(Integer partitionid);
+
 }

@@ -4,6 +4,6 @@ import java.util.Collection;
 
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 
-public interface PartitionDataDetailRepositoryCustomer {
+public interface PartitionDataDetailsRepositoryCustomer {
 	 void batchUpdate(Collection<PartitionDataDetails> items);
 }  
