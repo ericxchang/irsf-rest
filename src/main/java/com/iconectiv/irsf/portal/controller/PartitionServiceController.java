@@ -184,15 +184,18 @@ class PartitionServiceController extends BaseRestController {
     }
     
 
-    @RequestMapping(value = "/partition/export/{partitionId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/partition/export/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> exportPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
         ResponseEntity<String> rv;
+        log.info("exportPartitionRequest(): partitionId: {}", partitionId);
         try {
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            log.info("exportPartitionRequest: partitionId:{} ", partitionId);
+               
             partitionServ.exportPartition(loginUser, partitionId);
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
@@ -212,10 +215,11 @@ class PartitionServiceController extends BaseRestController {
         return rv;
     }
 
-    @RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
         ResponseEntity<String> rv;
+        log.info("refreshPartitionRequest(): partitionId: {}", partitionId);
         try {
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
