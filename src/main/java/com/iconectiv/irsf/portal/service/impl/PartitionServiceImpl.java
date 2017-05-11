@@ -251,7 +251,7 @@ public class PartitionServiceImpl implements PartitionService {
     	try {
 			checkPartitionStale(partition);
 			
-			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.FindByPartitionId(partition.getId());
+			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
 			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
 			List<String> WhiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), WL_DataType);
 			

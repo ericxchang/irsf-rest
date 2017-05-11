@@ -12,11 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by echang on 3/14/2017.
  */
-public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>, PartitionDataDetailRepositoryCustomer{
+
+public interface PartitionDataDetailsRepository extends CrudRepository<PartitionDataDetails, Integer>, PartitionDataDetailsRepositoryCustomer{
     
-	List<PartitionDataDetails> FindByPartitionId(Integer partitionid);
+	List<PartitionDataDetails> findAllByPartitionId(Integer partitionid);
 	
-	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in (?) ")
+	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in ?2 ")
 	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId, List<String> dataTypeList);
 	
 	@Modifying

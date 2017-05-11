@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailRepositoryCustomer;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepositoryCustomer;
 
-public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailRepositoryCustomer {
+public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsRepositoryCustomer {
 	private static Logger log = LoggerFactory.getLogger(PartitionDataDetailsRepositoryImpl.class);
 
 	@Autowired
