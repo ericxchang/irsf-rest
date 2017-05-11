@@ -625,5 +625,4 @@ public class PartitionServiceImpl implements PartitionService {
         outputStream.write(fileBytes);
         outputStream.close();
     }
-
 }

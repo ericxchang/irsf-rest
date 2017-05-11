@@ -6,6 +6,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
@@ -22,9 +26,13 @@ import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.JsonHelper;
+import com.iconectiv.irsf.util.ListDetailConvert;
 
 
 @Controller
@@ -33,6 +41,8 @@ class PartitionServiceController extends BaseRestController {
 
 	@Autowired
 	private PartitionService partitionServ;
+	@Autowired
+	private PartitionDataDetailsRepository partitionDataRepo;
 
 	@RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -230,4 +240,45 @@ class PartitionServiceController extends BaseRestController {
         }
         return rv;
     }
+
+	@Value("${jdbc.query_batch_size:10000}")
+	private int batchSize;
+	
+    @RequestMapping(value = "/draftdata", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> getDraftDataRequest(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	        @RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "id", required = true) Integer partitionId) {
+        ResponseEntity<String> rv;
+        try {
+            UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+            
+			if (pageNo == null) {
+				pageNo = 0;
+			}
+
+			if (limit == null) {
+				limit = batchSize;
+			}
+
+			PageRequest page = new PageRequest(pageNo, limit);
+
+
+            Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
+            rv = makeSuccessResult(MessageDefinition.Query_Success, result);
+        } catch (SecurityException e) {
+            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+        	log.error("Error:", e);
+            rv = makeErrorResult(e);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
+
 }
