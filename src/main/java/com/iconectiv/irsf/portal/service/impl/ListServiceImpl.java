@@ -189,6 +189,8 @@ public class ListServiceImpl implements ListService {
 		listDef.getListUploadRequests().forEach(uploadReq -> {
 			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
 		});
+		
+		listDef.setListSize(listDetailRepo.getListSizeByListId(listDef.getId()));
 		return listDef;
 	}
 
@@ -202,7 +204,12 @@ public class ListServiceImpl implements ListService {
 	@Override
 	@Transactional
 	public void deleteListDefinition(int listId) {
-		listDefRepo.delete(listId);
+		ListDefinition listDef = listDefRepo.findOne(listId);
+		
+		if (listDef != null) {
+			listUploadRepo.deleteAllByListRefId(listDef.getId());
+			listDetailRepo.deleteAllByListRefId(listDef.getId());
+		}
 		return;
 	}
 

@@ -25,6 +25,7 @@ public class ListDefinition implements java.io.Serializable {
 	private String customerName;
 	private String listName;
 	private String type;
+	private Integer listIndex;
 	private String description;
 	private String lastUpdatedBy;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -35,6 +36,7 @@ public class ListDefinition implements java.io.Serializable {
 	private List<ListUploadRequest> listUploadRequests = new ArrayList<>();
     private boolean active;
 	private String lastUploadStatus;
+	private int listSize;
     
 	public ListDefinition() {
 	}
@@ -76,6 +78,15 @@ public class ListDefinition implements java.io.Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	@Column(name = "list_index", length = 3)
+	public Integer getListIndex() {
+		return listIndex;
+	}
+
+	public void setListIndex(Integer listIndex) {
+		this.listIndex = listIndex;
 	}
 
 	@Column(name = "description", length = 100)
@@ -154,6 +165,15 @@ public class ListDefinition implements java.io.Serializable {
 		if (!listUploadRequests.isEmpty()) {
 			this.lastUploadStatus = listUploadRequests.get(0).getStatus();
 		}
+	}
+
+	@Transient
+	public int getListSize() {
+		return listSize;
+	}
+
+	public void setListSize(int listSize) {
+		this.listSize = listSize;
 	}
 
 }

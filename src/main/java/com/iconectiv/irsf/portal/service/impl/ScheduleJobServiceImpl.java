@@ -16,8 +16,8 @@ import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.ScheduleJobService;
 
 @Service
-public class ScheduleJpbServiceImpl implements ScheduleJobService {
-	private static Logger log = LoggerFactory.getLogger(ScheduleJpbServiceImpl.class);
+public class ScheduleJobServiceImpl implements ScheduleJobService {
+	private static Logger log = LoggerFactory.getLogger(ScheduleJobServiceImpl.class);
 	
 	private static Date lastUpdatedDate = null;
 	
@@ -45,6 +45,13 @@ public class ScheduleJpbServiceImpl implements ScheduleJobService {
 	private void handleMobileIdDataReloadEvent() {
 		log.info("Clear cached data ....");
 		mobileIdService.cleanCache();
+		
+		/* TODO 
+		 * 1. update active rule, update provider info
+		 * 2. mark current partition stale
+		 * 
+		 */
+		
 	}
 
 }
