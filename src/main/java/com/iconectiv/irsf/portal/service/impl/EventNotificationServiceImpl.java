@@ -62,4 +62,10 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 		return events;
 	}
 
+	@Override
+	public List<EventNotification> getEvents() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
