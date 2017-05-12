@@ -248,7 +248,7 @@ class PartitionServiceController extends BaseRestController {
 	@Value("${jdbc.query_batch_size:10000}")
 	private int batchSize;
 	
-    @RequestMapping(value = "/draftdata", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/draftdata", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> getDraftDataRequest(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
 	        @RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "id", required = true) Integer partitionId) {
