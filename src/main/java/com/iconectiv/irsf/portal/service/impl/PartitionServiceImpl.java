@@ -25,6 +25,7 @@ import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
@@ -35,6 +36,7 @@ import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
@@ -58,6 +60,8 @@ public class PartitionServiceImpl implements PartitionService {
 	final String PRIME3 = "PRIME-3";
 	final String PRIME4 = "PRIME-4";
 	final String CSV_COMMON_SEPERATOR = "|";
+	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
+	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
 
 	
 	@Autowired
@@ -76,6 +80,10 @@ public class PartitionServiceImpl implements PartitionService {
 	private ListDetailsRepository listDetailsRepo;
 	@Autowired
 	private ListDefinitionRepository listDefinitionRepo;
+	
+	@Autowired
+	private EventNotificationRepository eventNotificationRepo;
+	
 
     @Override
     public void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
@@ -100,7 +108,7 @@ public class PartitionServiceImpl implements PartitionService {
         	
             generateDraftData(partition);
 
-            partition.setStatus(PartitionStatus.Draft.value());
+            partition.setStatus(PartitionStatus.Processing.value());
             partition.setDraftDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
             partitionDefRepo.save(partition);
@@ -225,7 +233,7 @@ public class PartitionServiceImpl implements PartitionService {
         partition = partitionDefRepo.findOne(partition.getId());
         Assert.notNull(partition);
 
-        if (partition.getStatus().equals(PartitionStatus.Processing.value())) {
+        if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
             throw new AppException("System is generating partition data set");
         }
         return partition.getStatus();
@@ -234,7 +242,13 @@ public class PartitionServiceImpl implements PartitionService {
         partition = partitionDefRepo.findOne(partition.getId());
         Assert.notNull(partition);
 
-        if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
+        if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
+            throw new AppException("System is exporting partition data set");
+        }
+        if (partition.getStatus().equals(PartitionStatus.Stale.value())) {
+            throw new AppException("partition data status is stale");
+        }
+        if (!partition.getStatus().equals(PartitionStatus.Processing.value())) {
             throw new AppException("System has not generated partition data set");
         }
         return partition.getStatus();
@@ -249,11 +263,16 @@ public class PartitionServiceImpl implements PartitionService {
 		WL_DataType.add(PartitionDataType.WhiteList.value());
 		NON_WL_DataType.add(PartitionDataType.BlackList.value());
 		NON_WL_DataType.add(PartitionDataType.Rule.value());
+		
 		PartitionExportHistory partHist = new PartitionExportHistory();
 		StringBuffer sb = new StringBuffer();
+		
     	try {
     		log.debug("checkPartitionStale(): partitionId: {}; status: {}", partition.getId() , partition.getStatus());
-			checkPartitionStale(partition);
+			
+			partition.setStatus(PartitionStatus.InProgress.value());
+			partitionDefRepo.save(partition);
+			EventNotification event = eventNotificationRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(IRSF_DATA_LOADER_CUSTOMER_NAME, IRSF_DATA_LOADER_EVENT_TYPE);
 			
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
 			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
@@ -262,18 +281,25 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
 			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
 			partHist.setExportWhitelist(buildByteArrayFromList(WhiteList));
+			
+			partHist.setExportFileLongSize(partHist.getExportFileLong().length);
+			partHist.setExportFileShortSize(partHist.getExportFileShort().length);
+			partHist.setExportWhitelistSize(partHist.getExportWhitelist().length);
+			
 			log.info("exportPartitionData(): partitionId: {}, size of exportFileLong: {}, size of exportFileShort: {}, size of exportWhitelist: {}",
-				partition.getId(), partHist.getExportFileLong().length, partHist.getExportFileShort().length, partHist.getExportWhitelist().length);
+					partition.getId(), partHist.getExportFileLongSize(), partHist.getExportFileShortSize(), partHist.getExportWhitelistSize());
 			
 			partHist.setExportDate(new Date());
 			partHist.setOrigPartitionId(partition.getOrigPartitionId());
 			partHist.setPartitionId(partition.getId());
 			partHist.setStatus(partition.getStatus());
 			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
+			partHist.setMidDataLoadTime(event.getCreateTimestamp());
+			
 			log.debug("exportPartitionData(): save PartitionExportHistory");
 			partHist = exportRepo.save(partHist);
 			
-			partition.setStatus(PartitionStatus.Locked.value());
+			partition.setStatus(PartitionStatus.Exported.value());
 			partition.setLastExportDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
 			log.debug("exportPartitionData(): update  PartitionDefinition");
@@ -592,9 +618,10 @@ public class PartitionServiceImpl implements PartitionService {
 	 * 2. Rule(s) change
 	 * 3. New MobileID data set
 	 */
+	// no need
     private boolean checkPartitionStale(PartitionDefinition partition) {
 		boolean isStale = false;
-		
+	
 		Date draftTime = partition.getDraftDate();
 		if (isStale) {
 			partition.setStatus(PartitionStatus.Stale.value());

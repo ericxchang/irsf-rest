@@ -27,8 +27,12 @@ public class PartitionExportHistory implements java.io.Serializable {
     private byte[] exportFileLong;
     private byte[] exportFileShort;
     private byte[] exportWhitelist;
+    private Integer exportFileLongSize;
+    private Integer exportFileShortSize;
+    private Integer exportWhitelistSize;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date exportDate;
+    private Date midDataLoadTime;
     private String status;
     private String reason;
     private PartitionDefinition partitionDefinition;
@@ -113,8 +117,35 @@ public class PartitionExportHistory implements java.io.Serializable {
     public void setExportWhitelist(byte[] exportWhitelist) {
         this.exportWhitelist = exportWhitelist;
     }
+    
+    @Column(name = "export_file_long_size")
+    public Integer getExportFileLongSize() {
+		return exportFileLongSize;
+	}
+    
+	public void setExportFileLongSize(Integer exportFileLongSize) {
+		this.exportFileLongSize = exportFileLongSize;
+	}
+	
+	@Column(name = "export_file_short_size")
+	public Integer getExportFileShortSize() {
+		return exportFileShortSize;
+	}
+	
+	public void setExportFileShortSize(Integer exportFileShortSize) {
+		this.exportFileShortSize = exportFileShortSize;
+	}
+	
+	@Column(name = "export_whitelist_size")
+	public Integer getExportWhitelistSize() {
+		return exportWhitelistSize;
+	}
+	
+	public void setExportWhitelistSize(Integer exportWhitelistSize) {
+		this.exportWhitelistSize = exportWhitelistSize;
+	}
 
-    @Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "export_date", nullable = false, length = 19)
     public Date getExportDate() {
         return this.exportDate;
@@ -123,8 +154,17 @@ public class PartitionExportHistory implements java.io.Serializable {
     public void setExportDate(Date exportDate) {
         this.exportDate = exportDate;
     }
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "mid_data_load_time", length = 19)
+    public Date getMidDataLoadTime() {
+		return midDataLoadTime;
+	}
 
-    @Column(name = "status", nullable = false, length = 45)
+	public void setMidDataLoadTime(Date midDataLoadTime) {
+		this.midDataLoadTime = midDataLoadTime;
+	}
+
+	@Column(name = "status", nullable = false, length = 45)
     public String getStatus() {
         return this.status;
     }
