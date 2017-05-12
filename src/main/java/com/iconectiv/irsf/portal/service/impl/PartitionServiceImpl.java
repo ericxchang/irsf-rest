@@ -214,7 +214,10 @@ public class PartitionServiceImpl implements PartitionService {
 		if (partition == null) {
 			throw new AppException("Invalid partition Id");
 		}
+		log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
+		
 		String status = validateParitionExportStatus(partition);
+		
 		exportPartitionData(loginUser, partition);
 	}
 
@@ -249,6 +252,7 @@ public class PartitionServiceImpl implements PartitionService {
 		PartitionExportHistory partHist = new PartitionExportHistory();
 		StringBuffer sb = new StringBuffer();
     	try {
+    		log.debug("checkPartitionStale(): partitionId: {}; status: {}", partition.getId() , partition.getStatus());
 			checkPartitionStale(partition);
 			
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
@@ -258,19 +262,25 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
 			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
 			partHist.setExportWhitelist(buildByteArrayFromList(WhiteList));
+			log.info("exportPartitionData(): partitionId: {}, size of exportFileLong: {}, size of exportFileShort: {}, size of exportWhitelist: {}",
+				partition.getId(), partHist.getExportFileLong().length, partHist.getExportFileShort().length, partHist.getExportWhitelist().length);
 			
 			partHist.setExportDate(new Date());
 			partHist.setOrigPartitionId(partition.getOrigPartitionId());
 			partHist.setPartitionId(partition.getId());
 			partHist.setStatus(partition.getStatus());
 			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
+			log.debug("exportPartitionData(): save PartitionExportHistory");
 			partHist = exportRepo.save(partHist);
 			
 			partition.setStatus(PartitionStatus.Locked.value());
 			partition.setLastExportDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
+			log.debug("exportPartitionData(): update  PartitionDefinition");
 			partitionDefRepo.save(partition);
+			log.debug("exportPartitionData(): clone partitionDefinition");
 			PartitionDefinition newPartition = clonePartition(loginUser, partition);
+			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", partition.getId(), newPartition.getId());
 			partitionDataRepo.movePartition(partition.getId(), newPartition.getId());
 			
             auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());

@@ -111,7 +111,13 @@ public class PartitionServiceControllerTest  {
         queryPartition(partition);
 	}
 	@Test
+	public void testQueryPartition() throws Exception {
+			PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
+	        queryPartition(partition);
+	}
+	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
+		/* 
 		PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
 		log.info("testRefreshPartitionwithRules:: partition: {}", JsonHelper.toPrettyJson(partition)); 
 		List<RuleDefinition> rules =  partition.getRuleDefinitions();
@@ -119,11 +125,28 @@ public class PartitionServiceControllerTest  {
 		for (RuleDefinition rule: rules) {
 			RangeQueryFilter rf =  (RangeQueryFilter) rule.getRangeQueryFilter();
 			log.info("queryrangefilter: {}", JsonHelper.toPrettyJson(rf)); 
-		}
-        refrehPartition(partition);
+		} 
+		   
+		refrehPartition(partition);
+		*/
+        refrehPartition(new Integer(16));
       
 	}
+	@Test
+	public void testExportPartition() throws Exception {
+    	Integer partId = 16;
+    	 log.info("testExportPartition(): URL:  {}", ("/partition/export/" + partId));
+    	ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token));
+    	
+    	//ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
 
+        log.info("testExportPartition(): {}", result);
+        System.out.println("testExportPartition(): " + result);
+        
+        //assertTrue(result.lastIndexOf("success") > 1);
+    }
+  
     private void queryPartition(PartitionDefinition partition) throws Exception {
         ResultActions action = mockMvc.perform(get("/partition/" + partition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
@@ -166,7 +189,13 @@ public class PartitionServiceControllerTest  {
         log.info(result);
         assertTrue(result.lastIndexOf("success") > 1);
     }
-
+    private void refrehPartition(Integer partitionId) throws Exception {
+        ResultActions action = mockMvc.perform(get("/partition/refresh/" + partitionId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
+        log.info(result);
+        assertTrue(result.lastIndexOf("success") > 1);
+    }
+    
     private void updatePartition(PartitionDefinition partition) throws Exception {
         partition.setRuleIds("2");
 
