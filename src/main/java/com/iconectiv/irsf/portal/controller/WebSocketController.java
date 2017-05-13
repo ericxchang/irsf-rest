@@ -26,9 +26,9 @@ public class WebSocketController {
 	
 	@MessageMapping("/dataSetUpdate")
     @SendTo("/topic/dataSetUpdateEvent")
-    public EventNotification sendDataSetUpdateEvent(SimpMessageHeaderAccessor headerAccessor) throws Exception {
-		Map<String, Object> attrs = headerAccessor.getSessionAttributes();
-		if (log.isDebugEnabled()) log.debug("receving web socket request: " + JsonHelper.toPrettyJson(attrs));
+    public EventNotification sendDataSetUpdateEvent() throws Exception {
+		//Map<String, Object> attrs = headerAccessor.getSessionAttributes();
+		if (log.isDebugEnabled()) log.debug("receving web socket request: ");
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
 
         return event;
