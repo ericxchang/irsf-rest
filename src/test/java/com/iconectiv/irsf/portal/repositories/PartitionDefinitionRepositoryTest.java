@@ -104,7 +104,7 @@ public class PartitionDefinitionRepositoryTest {
 		partition.setBlId(1000);
 		partition.setWlId(1001);
 		partition.setRuleIds("1,2");
-		partition.setStatus(PartitionStatus.Draft.value());
+		partition.setStatus(PartitionStatus.Processing.value());
 		partitionRepo.save(partition);
 		log.info(JsonHelper.toPrettyJson(partition));
 		

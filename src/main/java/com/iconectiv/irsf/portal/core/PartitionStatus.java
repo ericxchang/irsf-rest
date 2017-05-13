@@ -2,10 +2,10 @@ package com.iconectiv.irsf.portal.core;
 
 public enum PartitionStatus {
 	Fresh ("fresh"),
-	Draft ("draft"),
-	Locked ("locked"),
+	Processing ("processing"),
+	Exported ("exported"),
 	Stale ("stale"),
-	Processing("processing"),
+	InProgress("in-progress"),
 	;
 	
 	private String value;

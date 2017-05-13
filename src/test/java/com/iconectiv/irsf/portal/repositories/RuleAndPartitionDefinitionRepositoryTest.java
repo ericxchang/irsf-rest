@@ -64,7 +64,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 		partition.setLastUpdated(new Date());
 		partition.setLastUpdatedBy("junit");
 		partition.setRuleIds("1,2");
-		partition.setStatus(PartitionStatus.Draft.value());
+		partition.setStatus(PartitionStatus.Processing.value());
 		partitionRepo.save(partition);
 		log.info(JsonHelper.toPrettyJson(partition));
 
