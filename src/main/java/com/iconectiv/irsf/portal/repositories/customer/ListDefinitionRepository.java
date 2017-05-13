@@ -16,6 +16,7 @@ public interface ListDefinitionRepository extends CrudRepository<ListDefinition,
     ListDefinition findOneByListName(String listName);
 
     List<ListDefinition> findTop3ByTypeAndActiveOrderByLastUpdatedDesc(String type, boolean active);
+    List<ListDefinition> findTop3ByTypeAndActiveOrderByListIndexAsc(String type, boolean active);
     
     
     @Modifying

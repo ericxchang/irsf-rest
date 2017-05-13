@@ -43,13 +43,13 @@ public class SpringConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
+        config.enableSimpleBroker("/queue/", "/topic/");
         config.setApplicationDestinationPrefixes("/app");
     }
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/irsf-websocket").withSockJS();		
+		registry.addEndpoint("/events").withSockJS();		
 	}
 
 }
