@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +26,18 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 	private EventNotificationRepository eventRepo;
 	@Autowired
 	private MobileIdDataService mobileIdService;
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+	
 	
 	@Override
-	@Scheduled(cron = "0 6 0 ? * *")
+	@Scheduled(cron = "1 * * * * *")
+	//@Scheduled(cron = "0 6 0 ? * *")
 	public void checkNewMobileIdUpdate() {
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
 		
+		if (log.isDebugEnabled()) log.debug("Sending event through web socket....");
+		messagingTemplate.convertAndSend("/topic/dataSetUpdateEvent", event);
 		if (lastUpdatedDate == null || lastUpdatedDate.compareTo(event.getCreateTimestamp()) < 0) {
 			lastUpdatedDate = event.getCreateTimestamp();
 			
