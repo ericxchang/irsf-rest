@@ -24,8 +24,8 @@ public class WebSocketController {
 	@Autowired
 	EventNotificationRepository eventRepo;
 	
-	@MessageMapping("/dataSetUpdate")
-    @SendTo("/topic/dataSetUpdateEvent")
+	@MessageMapping("/dataSetUpdateEvent")
+    //@SendTo("/topic/dataSetUpdateEvent")
     public EventNotification sendDataSetUpdateEvent(SimpMessageHeaderAccessor headerAccessor) throws Exception {
 		Map<String, Object> attrs = headerAccessor.getSessionAttributes();
 		if (log.isDebugEnabled()) log.debug("receving web socket request: " + JsonHelper.toPrettyJson(attrs));

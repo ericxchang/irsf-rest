@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.service.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.ScheduleJobService;
@@ -28,6 +31,8 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 	private MobileIdDataService mobileIdService;
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
+	@Autowired
+	private CustomerDefinitionRepository customerRepo;
 	
 	
 	@Override
@@ -62,4 +67,18 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 		
 	}
 
+	
+	@Override
+	@Scheduled(cron = "1 * * * * *")
+	public void partitionStaleNotify() {
+		Iterable<CustomerDefinition> customers = customerRepo.findAll();
+		
+		for (CustomerDefinition customer: customers) {
+			if (log.isDebugEnabled()) log.debug("sending partition stale event for customer {}", customer.getId());
+			messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), "found stale partition for customer " + customer.getCustomerName());
+		}
+		
+		return;
+
+	}	
 }
