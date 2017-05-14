@@ -15,6 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
@@ -63,7 +65,8 @@ public class PartitionServiceImpl implements PartitionService {
 	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
 	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
 
-	
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;	
 	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
 	@Autowired
@@ -662,4 +665,10 @@ public class PartitionServiceImpl implements PartitionService {
         outputStream.write(fileBytes);
         outputStream.close();
     }
+
+	@Override
+	public void partitionStaleNotify(CustomerDefinition customer, EventNotification event) {
+		//TODO broadcast stale notification to GUI user
+		messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), event);
+	}
 }

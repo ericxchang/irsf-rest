@@ -44,7 +44,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 			lastUpdatedDate = event.getCreateTimestamp();
 
 			if (log.isDebugEnabled()) log.debug("Sending event through web socket....");
-			//messagingTemplate.convertAndSend("/topic/dataSetUpdateEvent", event);
+			messagingTemplate.convertAndSend("/topic/dataSetUpdateEvent", event);
 			
 			handleMobileIdDataReloadEvent();
 		}
@@ -66,22 +66,4 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 		
 	}
 
-	
-	@Override
-	@Scheduled(cron = "1 * * * * *")
-	public void partitionStaleNotify() {
-		Iterable<CustomerDefinition> customers = customerRepo.findAll();
-		
-		for (CustomerDefinition customer: customers) {
-			if (log.isDebugEnabled()) log.debug("sending partition stale event for customer {}", customer.getId());
-			EventNotification event = new EventNotification();
-			event.setCustomerName(customer.getCustomerName());
-			event.setId(1);
-			event.setMessage("found stale partition");
-			messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), event);
-		}
-		
-		return;
-
-	}	
 }

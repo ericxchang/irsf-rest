@@ -1,6 +1,8 @@
 package com.iconectiv.irsf.portal.service;
 
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
@@ -23,4 +25,6 @@ public interface PartitionService {
 	
 	void checkStale(PartitionDefinition partition);
 	void checkStale(ListDefinition listDefinition);
+	
+	void partitionStaleNotify(CustomerDefinition customer, EventNotification event);
 }
