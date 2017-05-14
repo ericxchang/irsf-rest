@@ -36,7 +36,6 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 	
 	
 	@Override
-	//@Scheduled(cron = "1 * * * * *")
 	@Scheduled(cron = "0 6 0 ? * *")
 	public void checkNewMobileIdUpdate() {
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
@@ -45,7 +44,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 			lastUpdatedDate = event.getCreateTimestamp();
 
 			if (log.isDebugEnabled()) log.debug("Sending event through web socket....");
-			messagingTemplate.convertAndSend("/topic/dataSetUpdateEvent", event);
+			//messagingTemplate.convertAndSend("/topic/dataSetUpdateEvent", event);
 			
 			handleMobileIdDataReloadEvent();
 		}
@@ -75,7 +74,11 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 		
 		for (CustomerDefinition customer: customers) {
 			if (log.isDebugEnabled()) log.debug("sending partition stale event for customer {}", customer.getId());
-			messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), "found stale partition for customer " + customer.getCustomerName());
+			EventNotification event = new EventNotification();
+			event.setCustomerName(customer.getCustomerName());
+			event.setId(1);
+			event.setMessage("found stale partition");
+			messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), event);
 		}
 		
 		return;

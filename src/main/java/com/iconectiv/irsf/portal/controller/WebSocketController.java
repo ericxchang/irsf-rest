@@ -5,6 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -26,9 +27,9 @@ public class WebSocketController {
 	
 	@MessageMapping("/dataSetUpdateEvent")
     //@SendTo("/topic/dataSetUpdateEvent")
-    public EventNotification sendDataSetUpdateEvent(SimpMessageHeaderAccessor headerAccessor) throws Exception {
-		Map<String, Object> attrs = headerAccessor.getSessionAttributes();
-		if (log.isDebugEnabled()) log.debug("receving web socket request: " + JsonHelper.toPrettyJson(attrs));
+    public EventNotification sendDataSetUpdateEvent() throws Exception {
+		//Map<String, Object> attrs = headerAccessor.getSessionAttributes();
+		//if (log.isDebugEnabled()) log.debug("receving web socket request: " + JsonHelper.toPrettyJson(attrs));
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
 
         return event;
