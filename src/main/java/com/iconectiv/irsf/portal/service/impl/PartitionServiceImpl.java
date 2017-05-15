@@ -326,6 +326,8 @@ public class PartitionServiceImpl implements PartitionService {
     		sb.append(p.toCSVheader(CSV_COMMON_SEPERATOR));
     		sb.append("\n");
      	}
+    	list.clear();
+    	list = null;
     	return sb.toString().getBytes();
     	
     }
@@ -336,6 +338,8 @@ public class PartitionServiceImpl implements PartitionService {
     		sb.append(p);
     		sb.append("\n");
      	}
+    	list.clear();
+    	list = null;
     	return sb.toString().getBytes();
     	
     }
