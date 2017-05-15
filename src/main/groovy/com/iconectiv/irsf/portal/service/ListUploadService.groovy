@@ -118,6 +118,7 @@ class ListUploadService {
             listDetails.notes = notes.replaceAll('"', '').trim()
         }
 
+		listDetails.matchCCNDC = midDataService.findMatchingCCNDC(listDetails.dialPattern)
         listDetails.listRefId = uploadReq.listRefId
         listDetails.upLoadRefId = uploadReq.id
         listDetails.active = true
