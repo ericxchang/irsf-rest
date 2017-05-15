@@ -55,6 +55,7 @@ public class ListServiceControllerTest {
 
 	@Before
 	public void setUp() throws Exception {
+    	CustomerContextHolder.setSchema("cust01");
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
         loginUser.setUserName("user01");
@@ -102,7 +103,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testQueryListRequest() throws Exception {
-		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActive("BL", true);
 		
 		if (lists == null) {
 			return;
@@ -110,7 +111,7 @@ public class ListServiceControllerTest {
 		
 		ListDefinition listDefinition = lists.get(0);
 
-		ResultActions action = mockMvc.perform(get("/list/" + listDefinition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+		ResultActions action = mockMvc.perform(get("/list?listId=" + listDefinition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
@@ -145,7 +146,7 @@ public class ListServiceControllerTest {
 	@Test
     public void testAddListEntryRequest() throws Exception {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActive("BL", true);
 		
 		if (lists == null) {
 			return;
