@@ -286,7 +286,7 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	public List<ListDefinition> getTop3ListDefinition(String listType) {
-		List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActive(listType, true);
+		List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
 		
 		for (ListDefinition listDefinition : listDefinitionData) {
 			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));

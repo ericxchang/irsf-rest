@@ -103,7 +103,7 @@ public class ListServiceControllerTest {
 
 	@Test
 	public void testQueryListRequest() throws Exception {
-		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActive("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
 		
 		if (lists == null) {
 			return;
@@ -146,7 +146,7 @@ public class ListServiceControllerTest {
 	@Test
     public void testAddListEntryRequest() throws Exception {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActive("BL", true);
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
 		
 		if (lists == null) {
 			return;
