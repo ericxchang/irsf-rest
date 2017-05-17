@@ -28,7 +28,7 @@ public class ListDetails implements java.io.Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date customerDate;
 	private boolean active;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 	private String matchCCNDC;
