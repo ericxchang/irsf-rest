@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -223,7 +224,8 @@ class PartitionServiceController extends BaseRestController {
 
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            partitionServ.refreshPartition(loginUser, partitionId);
+           refreshPartition(loginUser, partitionId);
+
             rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -240,6 +242,11 @@ class PartitionServiceController extends BaseRestController {
             log.debug(JsonHelper.toJson(rv));
         }
         return rv;
+    }
+    
+    @Async
+    private void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException{
+        partitionServ.refreshPartition(loginUser, partitionId);
     }
 
 	@Value("${jdbc.query_batch_size:10000}")

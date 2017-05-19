@@ -116,6 +116,8 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setLastUpdatedBy(loginUser.getUserName());
             partitionDefRepo.save(partition);
 
+            log.info("generating event log for refreshing parttion");
+            
             EventNotification event = new EventNotification();
             event.setCreateTimestamp(new Date());
             event.setEventType(EventTypeDefinition.Partition_Draft.value());
@@ -429,7 +431,9 @@ public class PartitionServiceImpl implements PartitionService {
         		partitionDataRepo.batchUpdate(partitionDataList);
         	}
         }
-		
+        
+        log.info("Completed generating partition data");
+        return;		
 	}
 
 	private PartitionDefinition clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
