@@ -160,6 +160,30 @@ class ListServiceController extends BaseRestController {
 		return rv;
 	}
 
+
+	@RequestMapping(value = "/dialPattern", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getListDetailByDialPattern(@RequestHeader Map<String, String> header, @RequestBody String value) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			ListDetails listDetailData = JsonHelper.fromJson(value, ListDetails.class);
+			
+			listService.getListDetailDataByDialPattern(listDetailData);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, listDetailData);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
+	
 	@RequestMapping(value = "/listDetail/{listId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getListDataByListId(@RequestHeader Map<String, String> header, @PathVariable int listId) {

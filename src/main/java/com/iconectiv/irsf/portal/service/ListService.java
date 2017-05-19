@@ -40,5 +40,7 @@ public interface ListService {
 
 	Iterable<ListDetails> createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 
+	void getListDetailDataByDialPattern(ListDetails listDetail);
+
 
 }

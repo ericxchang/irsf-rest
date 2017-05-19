@@ -7,10 +7,12 @@ import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
+import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
+import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
@@ -53,7 +55,9 @@ public class ListServiceImpl implements ListService {
 	@Autowired
 	private AuditTrailService auditService;
 	@Autowired
-	MobileIdDataService midDataService;
+	private MobileIdDataService midDataService;
+	@Autowired
+	private RangeNdcRepository rangeRepo;
 	
 	@Transactional
 	@Override
@@ -289,6 +293,7 @@ public class ListServiceImpl implements ListService {
 		List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
 		
 		for (ListDefinition listDefinition : listDefinitionData) {
+			listDefinition.setListSize(listDetailRepo.getListSizeByListId(listDefinition.getId()));
 			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
 		}
 		return listDefinitionData;
@@ -344,6 +349,23 @@ public class ListServiceImpl implements ListService {
 		Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
         return result;
+	}
+
+	@Override
+	public void getListDetailDataByDialPattern(ListDetails listDetail) {
+		String ccNdc = midDataService.findMatchingCCNDC(listDetail.getDialPattern());
+		
+		RangeNdc rangeNDC = rangeRepo.findTop1ByCcNdc(ccNdc);
+		
+		if (rangeNDC != null) {
+			listDetail.setCcNdc(ccNdc);
+			listDetail.setIso2(rangeNDC.getIso2());
+			listDetail.setCode(rangeNDC.getCode());
+			listDetail.setTos(rangeNDC.getTos());
+			listDetail.setProvider(rangeNDC.getProvider());
+		}
+		
+		return;
 	}
 
 

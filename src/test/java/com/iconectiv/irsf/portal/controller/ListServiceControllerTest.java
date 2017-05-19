@@ -125,8 +125,22 @@ public class ListServiceControllerTest {
 		String result = action.andReturn().getResponse().getContentAsString();
 		
 		log.info(result);
+	}
+	
+	@Test
+	public void testGetDialPatternDetail() throws Exception {
+		ListDetails listDetail = new ListDetails();
+		listDetail.setDialPattern("17326994567");
+		listDetail.setNotes("something");
+		
+        ResultActions action = mockMvc.perform(post("/dialPattern").header("authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(listDetail)));
+        String result = action.andReturn().getResponse().getContentAsString();
+		
+		log.info(result);
 
 	}
+	
 	
 	@Test
 	public void testInvalidPermission() throws Exception {

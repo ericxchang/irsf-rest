@@ -21,6 +21,8 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, String
 	@Cacheable("tos") 
 	@Query("select r.tos, r.tosdesc from RangeNdc r where r.tos is not null group by r.tos, r.tosdesc order by r.tos")
 	List<Object[]> findAllTOS();
+	
+	RangeNdc findTop1ByCcNdc(String ccNDC);
 
 	@Query("select p from RangeNdc p where (code in ?1 )")
 	List<RangeNdc>  findRangeNdcbyRule1(List<String> codeList);
