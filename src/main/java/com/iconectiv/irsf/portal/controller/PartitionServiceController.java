@@ -114,9 +114,6 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toPrettyJson(rv));
-		}
 		return rv;
 	}
 
