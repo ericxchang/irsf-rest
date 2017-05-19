@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
+import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
@@ -46,6 +47,7 @@ import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionReposi
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 
@@ -65,8 +67,7 @@ public class PartitionServiceImpl implements PartitionService {
 	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
 	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
 
-	@Autowired
-	private SimpMessagingTemplate messagingTemplate;	
+
 	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
 	@Autowired
@@ -83,9 +84,10 @@ public class PartitionServiceImpl implements PartitionService {
 	private ListDetailsRepository listDetailsRepo;
 	@Autowired
 	private ListDefinitionRepository listDefinitionRepo;
-	
 	@Autowired
-	private EventNotificationRepository eventNotificationRepo;
+	private EventNotificationService eventService;
+	@Autowired
+	private EventNotificationRepository eventRepo;
 	
 
     @Override
@@ -97,16 +99,14 @@ public class PartitionServiceImpl implements PartitionService {
     	}
         validateParitionStatus(partition);
 
-        partition.setStatus(PartitionStatus.Processing.value());
+        partition.setStatus(PartitionStatus.InProgress.value());
         partitionDefRepo.save(partition);
         refreshParitionData(loginUser, partition);
-
     }
 
     @Transactional
     @Async
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
-    	List<PartitionDataDetails> partitionDataList = null;
         try {
         	
             generateDraftData(partition);
@@ -116,12 +116,22 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setLastUpdatedBy(loginUser.getUserName());
             partitionDefRepo.save(partition);
 
+            EventNotification event = new EventNotification();
+            event.setCreateTimestamp(new Date());
+            event.setEventType(EventTypeDefinition.Partition_Draft.value());
+            event.setReferenceId(partition.getId());
+            event.setCustomerName(loginUser.getCustomerName());
+            event.setMessage("Genrated draft data for partition " + partition.getName());
+            eventRepo.save(event);
+            eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);
+            
             auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
         } catch (Exception e) {
             log.error("Error on export partition data", e);
             throw new AppException(e);
         }
     }
+    
     private List<PartitionDataDetails> convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<RangeNdc> list) {
     	List<PartitionDataDetails> pdList  = new ArrayList<PartitionDataDetails>(list.size());
     	for (RangeNdc obj: list) {
@@ -227,26 +237,35 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 		log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
 		
-		String status = validateParitionExportStatus(partition);
+		validateParitionExportStatus(partition);
 		
 		exportPartitionData(loginUser, partition);
 	}
 
-    private String validateParitionStatus(PartitionDefinition partition) throws AppException {
+    private void validateParitionStatus(PartitionDefinition partition) throws AppException {
         partition = partitionDefRepo.findOne(partition.getId());
         Assert.notNull(partition);
 
         if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
             throw new AppException("System is generating partition data set");
         }
-        return partition.getStatus();
+
+        if (partition.getStatus().equals(PartitionStatus.Exported.value())) {
+            throw new AppException("Partition has been exported");
+        }
+        
+        return;
     }
-    private String validateParitionExportStatus(PartitionDefinition partition) throws AppException {
+    
+    private void validateParitionExportStatus(PartitionDefinition partition) throws AppException {
         partition = partitionDefRepo.findOne(partition.getId());
         Assert.notNull(partition);
 
         if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
             throw new AppException("System is exporting partition data set");
+        }
+        if (partition.getStatus().equals(PartitionStatus.Exported.value())) {
+            throw new AppException("Partition has been exported");
         }
         if (partition.getStatus().equals(PartitionStatus.Stale.value())) {
             throw new AppException("partition data status is stale");
@@ -254,7 +273,8 @@ public class PartitionServiceImpl implements PartitionService {
         if (!partition.getStatus().equals(PartitionStatus.Processing.value())) {
             throw new AppException("System has not generated partition data set");
         }
-        return partition.getStatus();
+        
+        return;
     }
 
 
@@ -275,15 +295,15 @@ public class PartitionServiceImpl implements PartitionService {
 			
 			partition.setStatus(PartitionStatus.InProgress.value());
 			partitionDefRepo.save(partition);
-			EventNotification event = eventNotificationRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(IRSF_DATA_LOADER_CUSTOMER_NAME, IRSF_DATA_LOADER_EVENT_TYPE);
+			EventNotification event = eventRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(IRSF_DATA_LOADER_CUSTOMER_NAME, IRSF_DATA_LOADER_EVENT_TYPE);
 			
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
 			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
-			List<String> WhiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), WL_DataType);
+			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), WL_DataType);
 			
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
 			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
-			partHist.setExportWhitelist(buildByteArrayFromList(WhiteList));
+			partHist.setExportWhitelist(buildByteArrayFromList(whiteList));
 			
 			partHist.setExportFileLongSize(partHist.getExportFileLong().length);
 			partHist.setExportFileShortSize(partHist.getExportFileShort().length);
@@ -331,6 +351,7 @@ public class PartitionServiceImpl implements PartitionService {
     	return sb.toString().getBytes();
     	
     }
+    
     private byte[] buildByteArrayFromList(List<String> list) {
     	
     	StringBuffer sb = new StringBuffer();
@@ -343,6 +364,7 @@ public class PartitionServiceImpl implements PartitionService {
     	return sb.toString().getBytes();
     	
     }
+    
 	private void generateDraftData(final PartitionDefinition partition) {
 		
 		List<PartitionDataDetails> partitionDataList = null;
@@ -670,9 +692,4 @@ public class PartitionServiceImpl implements PartitionService {
         outputStream.close();
     }
 
-	@Override
-	public void partitionStaleNotify(CustomerDefinition customer, EventNotification event) {
-		//TODO broadcast stale notification to GUI user
-		messagingTemplate.convertAndSend("/topic/partitionStaleEvent." + customer.getId(), event);
-	}
 }

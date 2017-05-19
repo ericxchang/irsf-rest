@@ -7,15 +7,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.AuditTrailRepository;
 import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.service.EventNotificationService;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @Service
 public class EventNotificationServiceImpl implements EventNotificationService {
@@ -25,6 +27,8 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 	private EventNotificationRepository eventRepo;
 	@Autowired
 	private AuditTrailRepository auditRepo;
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;	
 	
 	@Override
 	public void addEventNotification(EventNotification event) {
@@ -32,6 +36,14 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 
 	}
 
+
+	@Override
+	public void broadcastPartitionEvent(Integer customerId, EventNotification event) {
+		log.info(JsonHelper.toPrettyJson(event));
+		messagingTemplate.convertAndSend("/topic/partitionEvent." + customerId, event);
+	}
+	
+	
 	@Override
 	public void ackEventNotification(EventNotification event, UserDefinition user) {
 		// TODO Auto-generated method stub

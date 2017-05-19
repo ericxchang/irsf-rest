@@ -11,4 +11,6 @@ public interface EventNotificationService {
 	void ackEventNotification(EventNotification event, UserDefinition user);
 	List<EventNotification> getEvents(UserDefinition loginUser, Date lastQueryTime);
 	List<EventNotification> getEvents();
+	
+	void broadcastPartitionEvent(Integer customerId, EventNotification event);
 }

@@ -25,6 +25,4 @@ public interface PartitionService {
 	
 	void checkStale(PartitionDefinition partition);
 	void checkStale(ListDefinition listDefinition);
-	
-	void partitionStaleNotify(CustomerDefinition customer, EventNotification event);
 }
