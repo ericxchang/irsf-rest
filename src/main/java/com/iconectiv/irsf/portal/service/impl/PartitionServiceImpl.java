@@ -122,6 +122,7 @@ public class PartitionServiceImpl implements PartitionService {
             event.setEventType(EventTypeDefinition.Partition_Draft.value());
             event.setReferenceId(partition.getId());
             event.setCustomerName(loginUser.getCustomerName());
+            event.setStatus("new");
             event.setMessage("Genrated draft data for partition " + partition.getName());
             eventRepo.save(event);
             eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);

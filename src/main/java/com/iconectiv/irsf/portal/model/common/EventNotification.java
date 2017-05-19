@@ -21,7 +21,7 @@ public class EventNotification implements java.io.Serializable {
 	private String eventType;
 	private Integer referenceId;
 	private String message;
-	private String status;
+	private String status = "new";
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
 	private Date createTimestamp;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
