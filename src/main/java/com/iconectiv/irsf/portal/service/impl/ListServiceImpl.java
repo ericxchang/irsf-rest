@@ -363,6 +363,7 @@ public class ListServiceImpl implements ListService {
 			listDetail.setCode(rangeNDC.getCode());
 			listDetail.setTos(rangeNDC.getTos());
 			listDetail.setProvider(rangeNDC.getProvider());
+			listDetail.setTosdesc(rangeNDC.getTosdesc());
 		}
 		
 		return;
