@@ -35,7 +35,6 @@ import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListDetailConvert;
 
-
 @Controller
 class PartitionServiceController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(PartitionServiceController.class);
@@ -47,7 +46,8 @@ class PartitionServiceController extends BaseRestController {
 
 	@RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> getPartitionDetails(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
+	public ResponseEntity<String> getPartitionDetails(@RequestHeader Map<String, String> header,
+	        @PathVariable Integer partitionId) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
@@ -55,7 +55,7 @@ class PartitionServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			PartitionDefinition partition = partitionServ.getPartitionDetails(partitionId);
-            rv = makeSuccessResult(MessageDefinition.Query_Success, partition);
+			rv = makeSuccessResult(MessageDefinition.Query_Success, partition);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
@@ -69,20 +69,20 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-
 	@RequestMapping(value = "/partition/{partitionId}/{ruleId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> removeRuleRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId, @PathVariable Integer ruleId) {
+	public ResponseEntity<String> removeRuleRequest(@RequestHeader Map<String, String> header,
+	        @PathVariable Integer partitionId, @PathVariable Integer ruleId) {
 		ResponseEntity<String> rv;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			
+
 			PartitionDefinition partition = partitionServ.removeRule(loginUser, partitionId, ruleId);
 			partition = partitionServ.getPartitionDetails(partitionId);
-            rv = makeSuccessResult(MessageDefinition.Remove_Rule, partition);
+			rv = makeSuccessResult(MessageDefinition.Remove_Rule, partition);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
@@ -118,151 +118,155 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-    @RequestMapping(value = "/partition/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> savePartitionRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
-        ResponseEntity<String> rv;
-        try {
-        	PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
-            UserDefinition loginUser = getLoginUser(header);
+	@RequestMapping(value = "/partition/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> savePartitionRequest(@RequestHeader Map<String, String> header,
+	        @RequestBody String value) {
+		ResponseEntity<String> rv;
+		try {
+			PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
+			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-            partitionServ.savePartition(loginUser, partition);
-            rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
-        } catch (SecurityException e) {
-            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-        } catch (AppException e) {
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        } catch (Exception e) {
-        	//TODO throw trap
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        }
+			partitionServ.savePartition(loginUser, partition);
+			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (AppException e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		} catch (Exception e) {
+			// TODO throw trap
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
 
-        if (log.isDebugEnabled()) {
-            log.debug(JsonHelper.toJson(rv));
-        }
-        return rv;
-    }
-    
-    @RequestMapping(value = "/partition/updateList", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> updatePartitionListRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
-        ResponseEntity<String> rv;
-        try {
-        	PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
-            UserDefinition loginUser = getLoginUser(header);
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
+
+	@RequestMapping(value = "/partition/updateList", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> updatePartitionListRequest(@RequestHeader Map<String, String> header,
+	        @RequestBody String value) {
+		ResponseEntity<String> rv;
+		try {
+			PartitionDefinition partition = JsonHelper.fromJson(value, PartitionDefinition.class);
+			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-            partitionServ.savePartition(loginUser, partition);
-            
-            partitionServ.checkStale(partition);
-            
-            rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
-        } catch (SecurityException e) {
-            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-        } catch (AppException e) {
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        } catch (Exception e) {
-        	//TODO throw trap
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        }
+			partitionServ.savePartition(loginUser, partition);
 
-        if (log.isDebugEnabled()) {
-            log.debug(JsonHelper.toJson(rv));
-        }
-        return rv;
-    }
-    
+			partitionServ.checkStale(partition);
 
-    @RequestMapping(value = "/partition/export/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> exportPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
-        ResponseEntity<String> rv;
-        log.info("exportPartitionRequest(): partitionId: {}", partitionId);
-        try {
-            UserDefinition loginUser = getLoginUser(header);
+			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (AppException e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		} catch (Exception e) {
+			// TODO throw trap
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
+
+	@RequestMapping(value = "/partition/export/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> exportPartitionRequest(@RequestHeader Map<String, String> header,
+	        @PathVariable Integer partitionId) {
+		ResponseEntity<String> rv;
+		log.info("exportPartitionRequest(): partitionId: {}", partitionId);
+		try {
+			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            log.info("exportPartitionRequest: partitionId:{} ", partitionId);
-               
-            partitionServ.exportPartition(loginUser, partitionId);
-            rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
-        } catch (SecurityException e) {
-            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-        } catch (AppException e) {
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        } catch (Exception e) {
-        	//TODO throw trap
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        }
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			log.info("exportPartitionRequest: partitionId:{} ", partitionId);
 
-        if (log.isDebugEnabled()) {
-            log.debug(JsonHelper.toJson(rv));
-        }
-        return rv;
-    }
+			partitionServ.exportPartition(loginUser, partitionId);
+			rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (AppException e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		} catch (Exception e) {
+			// TODO throw trap
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
 
-    @RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header, @PathVariable Integer partitionId) {
-        ResponseEntity<String> rv;
-        log.info("refreshPartitionRequest(): partitionId: {}", partitionId);
-        try {
-            UserDefinition loginUser = getLoginUser(header);
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
+
+	@RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header,
+	        @PathVariable Integer partitionId) {
+		ResponseEntity<String> rv;
+		log.info("refreshPartitionRequest(): partitionId: {}", partitionId);
+		try {
+			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			refreshPartition(loginUser, partitionId);
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
-           refreshPartition(loginUser, partitionId);
+			rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (AppException e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		} catch (Exception e) {
+			// TODO throw trap
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
 
-            rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
-        } catch (SecurityException e) {
-            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-        } catch (AppException e) {
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        } catch (Exception e) {
-        	//TODO throw trap
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        }
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
 
-        if (log.isDebugEnabled()) {
-            log.debug(JsonHelper.toJson(rv));
-        }
-        return rv;
-    }
-    
-    @Async
-    private void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException{
-        partitionServ.refreshPartition(loginUser, partitionId);
-    }
+	@Async
+	private void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
+		partitionServ.refreshPartition(loginUser, partitionId);
+	}
 
 	@Value("${jdbc.query_batch_size:10000}")
 	private int batchSize;
-	
-    @RequestMapping(value = "/draftdata", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<String> getDraftDataRequest(@RequestHeader Map<String, String> header, @RequestParam(value = "pageNo", required = false) Integer pageNo,
-	        @RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "id", required = true) Integer partitionId) {
-        ResponseEntity<String> rv;
-        try {
-            UserDefinition loginUser = getLoginUser(header);
+
+	@RequestMapping(value = "/draftdata", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getDraftDataRequest(@RequestHeader Map<String, String> header,
+	        @RequestParam(value = "pageNo", required = false) Integer pageNo,
+	        @RequestParam(value = "limit", required = false) Integer limit,
+	        @RequestParam(value = "id", required = true) Integer partitionId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
 			if (pageNo == null) {
 				pageNo = 0;
 			}
@@ -273,17 +277,16 @@ class PartitionServiceController extends BaseRestController {
 
 			PageRequest page = new PageRequest(pageNo, limit);
 
+			Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
+			rv = makeSuccessResult(result);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
 
-            Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
-            rv = makeSuccessResult(result);
-        } catch (SecurityException e) {
-            rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-        	log.error("Error:", e);
-            rv = makeErrorResult(e);
-        }
-
-        return rv;
-    }
+		return rv;
+	}
 
 }

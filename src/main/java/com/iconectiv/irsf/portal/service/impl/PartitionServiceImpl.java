@@ -105,7 +105,6 @@ public class PartitionServiceImpl implements PartitionService {
     }
 
     @Transactional
-    @Async
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
         try {
         	
@@ -281,7 +280,6 @@ public class PartitionServiceImpl implements PartitionService {
 
 
     @Transactional
-    @Async
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		List<String> WL_DataType = new ArrayList<String>();
 		List<String> NON_WL_DataType = new ArrayList<String>();
