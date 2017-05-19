@@ -108,7 +108,7 @@ public class PartitionServiceImpl implements PartitionService {
     private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException{
         try {
         	
-            generateDraftData(partition);
+            //generateDraftData(partition);
 
             partition.setStatus(PartitionStatus.Processing.value());
             partition.setDraftDate(new Date());
