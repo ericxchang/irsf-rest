@@ -110,7 +110,7 @@ public class PartitionServiceImpl implements PartitionService {
         	
             generateDraftData(partition);
 
-            partition.setStatus(PartitionStatus.Processing.value());
+            partition.setStatus(PartitionStatus.Draft.value());
             partition.setDraftDate(new Date());
 			partition.setLastUpdatedBy(loginUser.getUserName());
             partitionDefRepo.save(partition);
@@ -272,7 +272,7 @@ public class PartitionServiceImpl implements PartitionService {
         if (partition.getStatus().equals(PartitionStatus.Stale.value())) {
             throw new AppException("partition data status is stale");
         }
-        if (!partition.getStatus().equals(PartitionStatus.Processing.value())) {
+        if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
             throw new AppException("System has not generated partition data set");
         }
         

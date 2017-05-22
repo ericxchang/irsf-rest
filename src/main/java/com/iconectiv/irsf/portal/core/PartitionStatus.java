@@ -2,7 +2,7 @@ package com.iconectiv.irsf.portal.core;
 
 public enum PartitionStatus {
 	Fresh ("fresh"),
-	Processing ("processing"),
+	Draft ("draft"),
 	Exported ("exported"),
 	Stale ("stale"),
 	InProgress("in-progress"),
