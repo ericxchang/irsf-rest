@@ -149,6 +149,9 @@ public class ListDetails implements java.io.Serializable {
 	}
 
 	public void setReason(String reason) {
+		if (reason != null) {
+			reason = reason.replaceAll("\n", " ");
+		}
 		this.reason = reason;
 	}
 
@@ -158,6 +161,9 @@ public class ListDetails implements java.io.Serializable {
 	}
 
 	public void setNotes(String notes) {
+		if (notes != null) {
+			notes = notes.replaceAll("\n", " ");
+		}
 		this.notes = notes;
 	}
 
