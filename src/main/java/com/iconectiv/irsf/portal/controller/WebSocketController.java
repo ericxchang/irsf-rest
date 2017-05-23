@@ -1,15 +1,10 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
@@ -29,7 +24,8 @@ public class WebSocketController {
     @SendTo("/topic/dataSetUpdateEvent")
     public EventNotification sendDataSetUpdateEvent() throws Exception {
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
-
+		
+		if (log.isDebugEnabled()) log.debug("return websocket message: " + JsonHelper.toJson(event));
         return event;
     }
 }
