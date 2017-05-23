@@ -13,7 +13,7 @@ import java.util.Date;
 public class DateTimeHelper {
 	static DateTimeZone tz = DateTimeZone.getDefault();
 	public static Date nowInUTC() {
-		return toUTC(new Date());
+		return DateTime.now().withZone(DateTimeZone.UTC).toDate();
 	}
 	
 	public static Date toUTC(Date date) {
