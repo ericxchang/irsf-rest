@@ -36,6 +36,7 @@ import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.ListService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListDetailConvert;
 
@@ -294,6 +295,8 @@ class ListServiceController extends BaseRestController {
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             
+            listDef.setLastUpdated(DateTimeHelper.nowInUTC());
+            listDef.setLastUpdatedBy(loginUser.getUserName());
 			listDefRepo.save(listDef);
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "updated list id " + listDef.getId());
             
@@ -363,7 +366,7 @@ class ListServiceController extends BaseRestController {
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             
 			Iterable<ListDetails> result = listService.createListDetails(loginUser, listDetails);
-            
+
             rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success, result);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

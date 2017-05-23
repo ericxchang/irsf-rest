@@ -21,6 +21,7 @@ import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionReposi
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.RuleService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 
 /**
@@ -52,7 +53,7 @@ public class RuleServiceImpl implements RuleService {
 		}
 
 		rule.setDetails(cleanRuleDetail(rule.getDetails()));
-		rule.setLastUpdated(new Date());
+		rule.setLastUpdated(DateTimeHelper.nowInUTC());
 		rule.setLastUpdatedBy(loginUser.getUserName());
 		rule = ruleRepo.save(rule);
 		auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
@@ -95,10 +96,10 @@ public class RuleServiceImpl implements RuleService {
 		
 		rule.setDetails(cleanRuleDetail(rule.getDetails()));
 
-		rule.setCreateTimestamp(new Date());
+		rule.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		rule.setCreatedBy(loginUser.getUserName());
 
-		rule.setLastUpdated(new Date());
+		rule.setLastUpdated(DateTimeHelper.nowInUTC());
 		rule.setLastUpdatedBy(loginUser.getUserName());
 
 		for (PartitionDefinition partition : rule.getPartitions()) {

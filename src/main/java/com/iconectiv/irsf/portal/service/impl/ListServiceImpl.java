@@ -17,6 +17,7 @@ import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListUploadRequestRepository;
 import com.iconectiv.irsf.portal.service.*;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListHelper;
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public class ListServiceImpl implements ListService {
 			event.setEventType(EventTypeDefinition.List_Update.value());
 			event.setReferenceId(uploadReq.getListRefId());
 			event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
-			event.setCreateTimestamp(new Date());
+			event.setCreateTimestamp(DateTimeHelper.nowInUTC());
 			event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
 			event.setStatus("new");
 			eventService.addEventNotification(event);
@@ -125,8 +126,8 @@ public class ListServiceImpl implements ListService {
 		listDefintion.setCustomerName(user.getCustomerName());
 		listDefintion.setCreateBy(user.getUserName());
 		listDefintion.setLastUpdatedBy(user.getUserName());
-		listDefintion.setCreateTimestamp(new Date());
-		listDefintion.setLastUpdated(new Date());
+		listDefintion.setCreateTimestamp(DateTimeHelper.nowInUTC());
+		listDefintion.setLastUpdated(DateTimeHelper.nowInUTC());
 		listDefintion = listDefRepo.save(listDefintion);
 
 		return listDefintion.getId();
@@ -142,7 +143,7 @@ public class ListServiceImpl implements ListService {
 		uploadReq.setDelimiter(delimiter);
 		uploadReq.setStatus(AppConstants.PROCESS);
 		uploadReq.setListRefId(listDef.getId());
-		uploadReq.setLastUpdated(new Date());
+		uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
 		uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
 
 		uploadReq = listUploadRepo.save(uploadReq);
@@ -155,7 +156,7 @@ public class ListServiceImpl implements ListService {
 		
 		if (listDef != null && !listDef.getListName().equals(listName)) {
 			listDef.setListName(listName);
-			listDef.setLastUpdated(new Date());
+			listDef.setLastUpdated(DateTimeHelper.nowInUTC());
 			listDef.setLastUpdatedBy(loginUser.getUserName());
 			listDefRepo.save(listDef);
 			
@@ -262,7 +263,7 @@ public class ListServiceImpl implements ListService {
 	private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {
 		uploadReq.setErrorData(data);
 		uploadReq.setStatus(AppConstants.FAIL);
-		uploadReq.setLastUpdated(new Date());
+		uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
 		listUploadRepo.save(uploadReq);
 	}
 
@@ -333,15 +334,16 @@ public class ListServiceImpl implements ListService {
 		for (ListDetails listDetail : listDetails) {
 			listDetail.setMatchCCNDC( midDataService.findMatchingCCNDC(listDetail.getDialPattern()) );
 			listDetail.setLastUpdatedBy(loginUser.getUserName());
-			listDetail.setLastUpdated(new Date());
+			listDetail.setLastUpdated(DateTimeHelper.nowInUTC());
 		}
+		
 		
 		EventNotification event = new EventNotification();
 		event.setCustomerName(loginUser.getCustomerName());
 		event.setEventType(EventTypeDefinition.List_Update.value());
 		event.setReferenceId(listDetails[0].getListRefId());
 		event.setMessage("update list entry");
-		event.setCreateTimestamp(new Date());
+		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
 		event.setStatus("new");
 		eventService.addEventNotification(event);

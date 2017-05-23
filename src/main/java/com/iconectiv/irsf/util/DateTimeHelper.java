@@ -4,12 +4,22 @@ import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
-
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateTimeHelper {
+	static DateTimeZone tz = DateTimeZone.getDefault();
+	public static Date nowInUTC() {
+		return toUTC(new Date());
+	}
+	
+	public static Date toUTC(Date date) {
+		return new Date(tz.convertLocalToUTC(date.getTime(), false));
+	}
+	
 	public static DateTime getTodayAtMidnight() {
 		return getDateAtMidnight(1);
 	}

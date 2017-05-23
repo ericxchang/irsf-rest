@@ -5,6 +5,7 @@ import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.repositories.common.AuditTrailRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class AuditTrailServiceImpl implements AuditTrailService{
     @Transactional
 	@Override    
     public void saveAuditTrailLog(AuditTrail audit) {
-        audit.setLastUpdated(new Date());        
+        audit.setLastUpdated(DateTimeHelper.nowInUTC());        
         audit.setLastUpdatedBy(audit.getUserName());        
         auditRepo.save(audit);
         log.info("Save audit trail record: \n" + JsonHelper.toJson(audit));

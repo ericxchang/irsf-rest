@@ -6,6 +6,10 @@ import com.iconectiv.irsf.portal.model.customer.ListDetails
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository
 import com.iconectiv.irsf.util.DateTimeHelper
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -122,7 +126,7 @@ class ListUploadService {
         listDetails.listRefId = uploadReq.listRefId
         listDetails.upLoadRefId = uploadReq.id
         listDetails.active = true
-        listDetails.lastUpdated = new Date()
+        listDetails.lastUpdated = DateTimeHelper.nowInUTC();
         listDetails.lastUpdatedBy = uploadReq.lastUpdatedBy
 		listEntries.add(listDetails)
 	}

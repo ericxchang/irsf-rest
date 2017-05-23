@@ -4,6 +4,7 @@ package com.iconectiv.irsf.portal.model.customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.iconectiv.irsf.util.DateTimeHelper;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -174,6 +175,9 @@ public class ListDetails implements java.io.Serializable {
 	}
 
 	public void setCustomerDate(Date customerDate) {
+		if (customerDate != null) {
+			customerDate = DateTimeHelper.toUTC(customerDate);
+		}
 		this.customerDate = customerDate;
 	}
 

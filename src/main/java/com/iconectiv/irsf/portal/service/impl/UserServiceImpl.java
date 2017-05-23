@@ -8,6 +8,8 @@ import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepositor
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
+import com.iconectiv.irsf.util.DateTimeHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,8 +100,8 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setDisabled(false);
 		user.setLocked(false);
-		user.setLastUpdated(new Date());
-		user.setCreateTimestamp(new Date());
+		user.setLastUpdated(DateTimeHelper.nowInUTC());
+		user.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		
 		userRepo.save(user);
 		
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		user.setPassword(existingUser.getPassword());
-		user.setLastUpdated(new Date());
+		user.setLastUpdated(DateTimeHelper.nowInUTC());
 		user.setCreateTimestamp(existingUser.getCreateTimestamp());
 		userRepo.save(user);
 		

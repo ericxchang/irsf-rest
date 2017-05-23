@@ -50,6 +50,7 @@ import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 
 import io.jsonwebtoken.lang.Assert;
 
@@ -111,14 +112,14 @@ public class PartitionServiceImpl implements PartitionService {
             generateDraftData(partition);
 
             partition.setStatus(PartitionStatus.Draft.value());
-            partition.setDraftDate(new Date());
+            partition.setDraftDate(DateTimeHelper.nowInUTC());
 			partition.setLastUpdatedBy(loginUser.getUserName());
             partitionDefRepo.save(partition);
 
             log.info("generating event log for refreshing parttion");
             
             EventNotification event = new EventNotification();
-            event.setCreateTimestamp(new Date());
+            event.setCreateTimestamp(DateTimeHelper.nowInUTC());
             event.setEventType(EventTypeDefinition.Partition_Draft.value());
             event.setReferenceId(partition.getId());
             event.setCustomerName(loginUser.getCustomerName());
@@ -313,7 +314,7 @@ public class PartitionServiceImpl implements PartitionService {
 			log.info("exportPartitionData(): partitionId: {}, size of exportFileLong: {}, size of exportFileShort: {}, size of exportWhitelist: {}",
 					partition.getId(), partHist.getExportFileLongSize(), partHist.getExportFileShortSize(), partHist.getExportWhitelistSize());
 			
-			partHist.setExportDate(new Date());
+			partHist.setExportDate(DateTimeHelper.nowInUTC());
 			partHist.setOrigPartitionId(partition.getOrigPartitionId());
 			partHist.setPartitionId(partition.getId());
 			partHist.setStatus(partition.getStatus());
@@ -324,7 +325,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist = exportRepo.save(partHist);
 			
 			partition.setStatus(PartitionStatus.Exported.value());
-			partition.setLastExportDate(new Date());
+			partition.setLastExportDate(DateTimeHelper.nowInUTC());
 			partition.setLastUpdatedBy(loginUser.getUserName());
 			log.debug("exportPartitionData(): update  PartitionDefinition");
 			partitionDefRepo.save(partition);
@@ -441,7 +442,7 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 		partition.setId(null);
 		partition.setStatus(PartitionStatus.Fresh.value());
-		partition.setLastUpdated(new Date());
+		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partition.setLastExportDate(null);
 		partition.setDraftDate(null);
 		partition.setLastUpdatedBy("cloned");
@@ -468,7 +469,7 @@ public class PartitionServiceImpl implements PartitionService {
 
             //create a new rule
 			rule.setId(null);
-			rule.setLastUpdated(new Date());
+			rule.setLastUpdated(DateTimeHelper.nowInUTC());
 			rule.setCreatedBy("cloned");
 			rule.setPartitionId(partition.getId());
 			rule.setActive(true);
@@ -612,7 +613,7 @@ public class PartitionServiceImpl implements PartitionService {
         }
         
         partition.setCustomerName(loginUser.getCustomerName());
-        partition.setLastUpdated(new Date());
+        partition.setLastUpdated(DateTimeHelper.nowInUTC());
         partition.setLastUpdatedBy(loginUser.getUserName());
         
         partition = partitionDefRepo.save(partition);
@@ -627,7 +628,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     private void updateRuleId(PartitionDefinition partition, Set<String> ruleIds, String userName) {
 		partition.setRuleIds(StringUtils.collectionToCommaDelimitedString(ruleIds));
-		partition.setLastUpdated(new Date());
+		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partition.setLastUpdatedBy(userName);
 		partitionDefRepo.save(partition);
 	}
