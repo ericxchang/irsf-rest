@@ -18,8 +18,6 @@ public interface UserService {
 
 	void changePassword(Integer userId, String password) throws AuthException;
 	
-	void changePassword(String userName, String password) throws AuthException;
-
 	void changePassword(UserDefinition user) throws AuthException;
 
 }

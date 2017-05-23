@@ -149,9 +149,12 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		existingUser.setPassword(encoder.encode(user.getPassword()));
-
+		existingUser.setLastUpdated(DateTimeHelper.nowInUTC());
 		
 		userRepo.save(existingUser);
+
+		auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "change password", "success change password for user " + user.getUserName(), "system");
+
 		return;		
 	}
 
@@ -172,22 +175,13 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		user.setPassword(encoder.encode(password));
+		user.setLastUpdated(DateTimeHelper.nowInUTC());
+
 		userRepo.save(user);
-        auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "change password", "success");
+
+		auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "change password", "success change password for user " + user.getUserName(), "system");
 		return;				
 	}
 
-    @Transactional
-	@Override
-	public void changePassword(String userName, String password) throws AuthException {
-		UserDefinition user = userRepo.findOneByUserName(userName);
-		
-		if (user == null) {
-			throw new AuthException("Invalid userName");
-		}
-		
-		user.setPassword(encoder.encode(password));
-		userRepo.save(user);
-		return;				
-	}
+
 }
