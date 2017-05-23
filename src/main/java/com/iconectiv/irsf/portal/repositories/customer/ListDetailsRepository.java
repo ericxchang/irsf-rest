@@ -34,24 +34,24 @@ public interface ListDetailsRepository extends CrudRepository<ListDetails, Integ
 	List<String> findDistinctDialPatternBylistRefId(Integer listRefId);
 
     @Query(value="select ld.id, ld.list_ref_id, ld.upload_req_ref_id, ld.dial_pattern, ld.reason, ld.notes, ld.customer_date, ld.active, ld.match_cc_ndc, ld.last_updated, ld.last_updated_by,"
-    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.locality, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
+    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
     		+ " from list_details ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc where ld.upload_req_ref_id=?1", nativeQuery = true)
     List<Object[]> findAllDetailsByUpLoadRefId(int uploadRefId);
 
     @Query(value="select ld.id as id, ld.list_ref_id, ld.upload_req_ref_id, ld.dial_pattern, ld.reason, ld.notes, ld.customer_date, ld.active, ld.match_cc_ndc, ld.last_updated, ld.last_updated_by,"
-    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.locality, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
+    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
     		+ " from list_details ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc where ld.upload_req_ref_id=?1 ORDER BY id \n#pageable\n", 
     		countQuery = "select count(*) from list_details where upload_req_ref_id = ?1",
     		nativeQuery = true)
     Page<Object[]> findAllDetailsByUpLoadRefId(int uploadRefId, Pageable pageable);
 
     @Query(value="select ld.id, ld.list_ref_id, ld.upload_req_ref_id, ld.dial_pattern, ld.reason, ld.notes, ld.customer_date, ld.active, ld.match_cc_ndc, ld.last_updated, ld.last_updated_by,"
-    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.locality, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
+    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
     		+ " from list_details ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc where ld.list_ref_id=?1", nativeQuery = true)
     List<Object[]> findAllDetailsByListRefId(int listRefId);
 
     @Query(value="select ld.id as id, ld.list_ref_id, ld.upload_req_ref_id, ld.dial_pattern, ld.reason, ld.notes, ld.customer_date, ld.active, ld.match_cc_ndc, ld.last_updated, ld.last_updated_by,"
-    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.locality, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
+    		+ " rt.term_country, rt.cc_ndc, rt.iso2, rt.code, rt.tos, rt.tosdesc, rt.ndc, rt.provider, rt.billing_id,rt.supplement, rt.effective_date"
     		+ " from list_details ld LEFT JOIN irsfmast.range_ndc rt on rt.cc_ndc=ld.match_cc_ndc where ld.list_ref_id=?1 ORDER BY id \n#pageable\n",
     		countQuery = "select count(*) from list_details where list_ref_id = ?1",
     		nativeQuery = true)

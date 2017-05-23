@@ -367,7 +367,6 @@ public class ListServiceImpl implements ListService {
 			listDetail.setProvider(rangeNDC.getProvider());
 			listDetail.setTosdesc(rangeNDC.getTosdesc());
 			listDetail.setBillingId(rangeNDC.getBillingId());
-			listDetail.setLocality(rangeNDC.getLocality());
 			listDetail.setNdc(rangeNDC.getNdc());
 			listDetail.setSupplement(rangeNDC.getSupplement());
 			listDetail.setTermCountry(rangeNDC.getTermCountry());

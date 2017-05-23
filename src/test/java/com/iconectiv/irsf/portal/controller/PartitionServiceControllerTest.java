@@ -115,22 +115,19 @@ public class PartitionServiceControllerTest  {
 			PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
 	        queryPartition(partition);
 	}
+
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
-		/* 
-		PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
-		log.info("testRefreshPartitionwithRules:: partition: {}", JsonHelper.toPrettyJson(partition)); 
-		List<RuleDefinition> rules =  partition.getRuleDefinitions();
-		log.info("testRefreshPartitionwithRules:: number of rules: {}", rules.size());
-		for (RuleDefinition rule: rules) {
-			RangeQueryFilter rf =  (RangeQueryFilter) rule.getRangeQueryFilter();
-			log.info("queryrangefilter: {}", JsonHelper.toPrettyJson(rf)); 
-		} 
-		   
-		refrehPartition(partition);
-		*/
-        refrehPartition(new Integer(16));
-      
+		Integer partId = 16;
+		log.info("testExportPartition(): URL:  {}", ("/partition/refresh/" + partId));
+		ResultActions action = mockMvc.perform(get("/partition/refresh/" + partId).header("authorization", "Bearer " + token));
+
+		String result = action.andReturn().getResponse().getContentAsString();
+
+		log.info("test refresh partition(): {}", result);
+
+		Thread.sleep(5 * 1000);
+
 	}
 	@Test
 	public void testExportPartition() throws Exception {
@@ -142,9 +139,8 @@ public class PartitionServiceControllerTest  {
         String result = action.andReturn().getResponse().getContentAsString();
 
         log.info("testExportPartition(): {}", result);
-        System.out.println("testExportPartition(): " + result);
         
-        //assertTrue(result.lastIndexOf("success") > 1);
+		Thread.sleep(2 * 1000);
     }
   
     private void queryPartition(PartitionDefinition partition) throws Exception {

@@ -42,7 +42,6 @@ public class ListDetails implements java.io.Serializable {
 	private String tos;
 	private String tosdesc;
 	private String ndc;
-	private String locality;
 	private String provider;
 	private String billingId;
 	private String supplement;
@@ -53,7 +52,7 @@ public class ListDetails implements java.io.Serializable {
 	
 	public ListDetails(int id, int listRefId, int upLoadRefId, String dialPattern, String reason, String notes, Date customerDate, 
 			boolean active, String matchCCNDC, Date lastUpdated, String lastUpdatedBy, String termCountry, String ccNdc, String iso2, 
-			String code, String tos, String tosdesc, String ndc, String locality, String provider, String billingId, String supplement,  Date effectiveDate) {
+			String code, String tos, String tosdesc, String ndc, String provider, String billingId, String supplement,  Date effectiveDate) {
 		this.id = id;
 		this.listRefId = listRefId;
 		this.upLoadRefId = upLoadRefId;
@@ -72,7 +71,6 @@ public class ListDetails implements java.io.Serializable {
 		this.tos = tos;
 		this.tosdesc = tosdesc;
 		this.ndc = ndc;
-		this.locality = locality;
 		this.provider = provider;
 		this.billingId = billingId;
 		this.supplement = supplement;
@@ -271,15 +269,6 @@ public class ListDetails implements java.io.Serializable {
 
 	public void setNdc(String ndc) {
 		this.ndc = ndc;
-	}
-
-	@Transient
-	public String getLocality() {
-		return locality;
-	}
-
-	public void setLocality(String locality) {
-		this.locality = locality;
 	}
 
 	@Transient

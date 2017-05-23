@@ -19,11 +19,10 @@ public enum ListDetailQueryPosition {
 	tos(15), 
 	tosdesc(16), 
 	ndc(17), 
-	locality(18), 
-	provider(19), 
-	billingId(20),
-	supplement(21), 
-	effectiveDate(22);
+	provider(18), 
+	billingId(19),
+	supplement(20), 
+	effectiveDate(21);
 	
 	private int value;
 	

@@ -32,10 +32,9 @@ class ListHelper {
 		listDetails.tos = row[15]
 		listDetails.tosdesc = row[16]
 		listDetails.ndc = row[17]
-		listDetails.locality = row[18]
-		listDetails.provider = row[19]
-		listDetails.billingId = row[20]
-		listDetails.supplement = row[21]
+		listDetails.provider = row[18]
+		listDetails.billingId = row[19]
+		listDetails.supplement = row[20]
 
 		return listDetails
 	}

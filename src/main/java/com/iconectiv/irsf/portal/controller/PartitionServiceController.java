@@ -197,12 +197,9 @@ class PartitionServiceController extends BaseRestController {
 			log.info("exportPartitionRequest: partitionId:{} ", partitionId);
 
 			partitionServ.exportPartition(loginUser, partitionId);
-			rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
+			rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-		} catch (AppException e) {
-			log.error("Error:", e);
-			rv = makeErrorResult(e);
 		} catch (Exception e) {
 			// TODO throw trap
 			log.error("Error:", e);
@@ -226,31 +223,23 @@ class PartitionServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			refreshPartition(loginUser, partitionId);
+			partitionServ.refreshPartition(loginUser, partitionId);
 
 			rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
-		} catch (AppException e) {
-			log.error("Error:", e);
-			rv = makeErrorResult(e);
 		} catch (Exception e) {
-			// TODO throw trap
 			log.error("Error:", e);
 			rv = makeErrorResult(e);
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toJson(rv));
+			log.debug("return from partition refresh call: " + JsonHelper.toJson(rv));
 		}
 		return rv;
 	}
 
-	@Async
-	private void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
-		partitionServ.refreshPartition(loginUser, partitionId);
-	}
-
+	
 	@Value("${jdbc.query_batch_size:10000}")
 	private int batchSize;
 
