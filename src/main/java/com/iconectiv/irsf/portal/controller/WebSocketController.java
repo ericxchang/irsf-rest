@@ -20,7 +20,7 @@ public class WebSocketController {
 	@Autowired
 	EventNotificationRepository eventRepo;
 	
-	@MessageMapping("/dataSetUpdateEvent")
+	@MessageMapping("/lastDataSetUpdate")
     @SendTo("/topic/dataSetUpdateEvent")
     public EventNotification sendDataSetUpdateEvent() throws Exception {
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
