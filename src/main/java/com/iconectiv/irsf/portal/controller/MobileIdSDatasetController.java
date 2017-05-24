@@ -6,6 +6,7 @@ import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
+import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.util.JsonHelper;
@@ -43,6 +44,8 @@ class MobileIdDatasetController extends BaseRestController {
 	private MobileIdDataService mobileIdDataService;
 	@Autowired
 	private FileHandlerService fileService;
+	@Autowired
+	private AuditTrailService auditService;
 	
 	@Value("${range_data_location:/apps/irsf/data/unload/range_ndc.csv}")
 	private String rangeFileLocation;
@@ -239,29 +242,39 @@ class MobileIdDatasetController extends BaseRestController {
 
 
 	@RequestMapping(value = "/download/{type}", method = RequestMethod.GET)
-	public HttpEntity<byte[]> downloadLicenseFile(@RequestHeader Map<String, String> header, @PathVariable String type) throws Exception{
-		byte[] documentBody;
-		String dataFileName;
-		String outputFileName;
-		
-		UserDefinition loginUser = getLoginUser(header);
-		assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+	public HttpEntity<byte[]> downloadMobileIdDataSet(@RequestHeader Map<String, String> header, @PathVariable String type) throws Exception{
+		if (log.isDebugEnabled()) log.debug("Received download mobileID data set request");
+		try {
+			byte[] documentBody;
+			String dataFileName;
+			String outputFileName;
+			
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-		if (type.equals("premium")) {
-			dataFileName = premiumFileLocation;
-			outputFileName = "IPRN-" + mobileIdDataService.getLastDataSetDate() + ".csv";
-		} else {
-			dataFileName = rangeFileLocation;
-			outputFileName = "RangeNDC-" + mobileIdDataService.getLastDataSetDate() + ".csv";
+			if (type.equalsIgnoreCase("iprn")) {
+				dataFileName = premiumFileLocation;
+				outputFileName = "IPRN-" + mobileIdDataService.getLastDataSetDate() + ".csv";
+			} else {
+				dataFileName = rangeFileLocation;
+				outputFileName = "RangeNDC-" + mobileIdDataService.getLastDataSetDate() + ".csv";
+			}
+			
+			documentBody = fileService.getContent(dataFileName);
+			
+			HttpHeaders respHeader = new HttpHeaders();
+			
+			respHeader.set("Content-Disposition", "attachment; filename=" + outputFileName);
+			respHeader.setContentLength(documentBody.length);
+
+			auditService.saveAuditTrailLog(loginUser, "download dataset", "download mobileId dataset " + type);
+			return new HttpEntity<byte[]>(documentBody, respHeader);
+			
+		} catch(Exception e) {
+			log.error("Error to download mobileId data: ", e);
+			//TODO throw SNMP trap
 		}
 		
-		documentBody = fileService.getContent(dataFileName);
-		
-		HttpHeaders respHeader = new HttpHeaders();
-		
-		respHeader.set("Content-Disposition", "attachment; filename=" + outputFileName);
-		respHeader.setContentLength(documentBody.length);
-
-		return new HttpEntity<byte[]>(documentBody, respHeader);
+		return null;
 	}
 }
