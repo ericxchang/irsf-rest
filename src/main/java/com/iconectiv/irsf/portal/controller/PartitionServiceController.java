@@ -211,6 +211,34 @@ class PartitionServiceController extends BaseRestController {
 		}
 		return rv;
 	}
+	@RequestMapping(value = "/partition/resend/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> resendPartitionRequest(@RequestHeader Map<String, String> header,
+	        @PathVariable Integer partitionId) {
+		ResponseEntity<String> rv;
+		log.info("resendPartitionRequest(): partitionId: {}", partitionId);
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+			log.info("resendPartitionRequest: partitionId:{} ", partitionId);
+
+			partitionServ.exportPartition(loginUser, partitionId);
+			rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			// TODO throw trap
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
 
 	@RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

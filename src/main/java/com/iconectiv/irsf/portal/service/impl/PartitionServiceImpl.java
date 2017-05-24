@@ -5,21 +5,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
@@ -29,6 +49,7 @@ import com.iconectiv.irsf.portal.core.PartitionExportStatus;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
+import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
 import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
@@ -51,6 +72,7 @@ import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.MultipleFileZip;
 
 import io.jsonwebtoken.lang.Assert;
 
@@ -67,6 +89,9 @@ public class PartitionServiceImpl implements PartitionService {
 	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
 	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
 
+	@Value("${export.file.path://apps//irsf//data//export//}")
+	private String exportFilePath;
+	
 	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
 	@Autowired
@@ -91,6 +116,9 @@ public class PartitionServiceImpl implements PartitionService {
 	@Async
 	@Override
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
+		syncRefreshPartition(loginUser, partitionId);
+	}
+	public void syncRefreshPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
 		try {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
@@ -250,9 +278,14 @@ public class PartitionServiceImpl implements PartitionService {
 			}
 			log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
 
-			validateParitionExportStatus(partition);
+			boolean refresh = validateParitionExportStatus(partition);
+			if (refresh) {
+				syncRefreshPartition(loginUser, partitionId); 
+			}
 
 			exportPartitionData(loginUser, partition);
+			 
+			
 		} catch (AppException e) {
 			log.error("Error to export partition:", e);
 		}
@@ -275,7 +308,8 @@ public class PartitionServiceImpl implements PartitionService {
 		return;
 	}
 
-	private void validateParitionExportStatus(PartitionDefinition partition) throws AppException {
+	private boolean validateParitionExportStatus(PartitionDefinition partition) throws AppException {
+		boolean refreshFlag = false;
 		partition = partitionDefRepo.findOne(partition.getId());
 		Assert.notNull(partition);
 
@@ -286,17 +320,24 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException("Partition has been exported");
 		}
 		if (partition.getStatus().equals(PartitionStatus.Stale.value())) {
-			throw new AppException("partition data status is stale");
+			log.info("partition data status is stale, refresh it");
+			refreshFlag = true;
 		}
-		if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
-			throw new AppException("System has not generated partition data set");
+		if (partition.getStatus().equals(PartitionStatus.Fresh.value())) {
+			log.info("partition data status is fresh, refresh it");
+			refreshFlag = true;
 		}
+		
+		//if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
+		//	throw new AppException("System has not generated partition data set");
+		//}
 
-		return;
+		return refreshFlag;
 	}
 
 	@Transactional
 	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+		HttpResponseMessage httpResponseMessage = null;
 		List<String> WL_DataType = new ArrayList<String>();
 		List<String> NON_WL_DataType = new ArrayList<String>();
 		WL_DataType.add(PartitionDataType.WhiteList.value());
@@ -307,9 +348,10 @@ public class PartitionServiceImpl implements PartitionService {
 		StringBuffer sb = new StringBuffer();
 
 		try {
-			log.debug("checkPartitionStale(): partitionId: {}; status: {}", partition.getId(), partition.getStatus());
+			log.debug("exportPartitionData(): partitionId: {}; status: {}", partition.getId(), partition.getStatus());
 
 			partition.setStatus(PartitionStatus.InProgress.value());
+			log.debug("exportPartitionData(): partitionId: {}; set status to:  {}", partition.getId(), partition.getStatus());
 			partitionDefRepo.save(partition);
 			EventNotification event = eventRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(
 			        IRSF_DATA_LOADER_CUSTOMER_NAME, IRSF_DATA_LOADER_EVENT_TYPE);
@@ -324,7 +366,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
 			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
 			partHist.setExportWhitelist(buildByteArrayFromList(whiteList));
-
+			
 			partHist.setExportFileLongSize(partHist.getExportFileLong().length);
 			partHist.setExportFileShortSize(partHist.getExportFileShort().length);
 			partHist.setExportWhitelistSize(partHist.getExportWhitelist().length);
@@ -343,13 +385,14 @@ public class PartitionServiceImpl implements PartitionService {
 
 			log.debug("exportPartitionData(): save PartitionExportHistory");
 			partHist = exportRepo.save(partHist);
-
+			
 			partition.setStatus(PartitionStatus.Exported.value());
 			partition.setLastExportDate(DateTimeHelper.nowInUTC());
 			partition.setLastUpdatedBy(loginUser.getUserName());
 			
 			log.debug("exportPartitionData(): update  PartitionDefinition");
-			partitionDefRepo.save(partition);
+			partition = partitionDefRepo.save(partition);
+			
 			
 			log.debug("exportPartitionData(): clone partitionDefinition");
 			PartitionDefinition newPartition = clonePartition(loginUser, partition);
@@ -357,15 +400,137 @@ public class PartitionServiceImpl implements PartitionService {
 			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", partition.getId(),
 			        newPartition.getId());
 			partitionDataRepo.movePartition(partition.getId(), newPartition.getId());
-
+	
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data,
 			        "export partition data set " + partition.getId());
+			
+			httpResponseMessage = sendExportFile2EI(loginUser, newPartition, partHist, null);
+			if (!"success".equals(httpResponseMessage.getStatus())){
+				log.error("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
+				throw new Exception(httpResponseMessage.getMessage());
+			}
+			
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
 			throw new AppException(e);
 		}
 	}
+	
+	@Transactional
+	private HttpResponseMessage sendExportFile2EI(UserDefinition loginUser, PartitionDefinition partition, PartitionExportHistory partHist, String url) throws AppException {
 
+		HttpResponseMessage httpResponseMessage = null;
+		
+		if (url == null)  
+			  return httpResponseMessage;
+		
+		String fileName = makeFileName();
+		String file1 = exportFilePath + loginUser.getUserName() + "_" + fileName + ".csv";
+		Path path1 = Paths.get(file1);
+        log.info("write path: " + path1.getFileName());
+        try {
+			Files.write(path1, partHist.getExportFileShort());
+		} catch (IOException e) {
+			log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e.getMessage());
+			httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file1, "failed", null);
+			e.printStackTrace();
+			
+			
+		}
+        String file2 = exportFilePath + loginUser.getUserName() + "_WL_" + fileName+ ".csv";
+        Path path2 = Paths.get(file2);
+        if (httpResponseMessage == null) {
+        	log.info("write path: " + path2.getFileName());
+        	try {
+        		Files.write(path2, partHist.getExportWhitelist());
+        	} catch (IOException e) {
+        		log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e.getMessage());
+        		httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file2, "failed", null);
+        		e.printStackTrace();
+
+        	}
+
+        	List<String> files = new ArrayList<String>();
+        	if (httpResponseMessage == null) {
+        		files.add(file1);
+        		files.add(file2);
+        	
+        		String zipFile = exportFilePath + loginUser.getUserName() + fileName + "_export.zip";
+        		makeZipFile(zipFile, files);
+        		httpResponseMessage = uploadFiles(zipFile, url);
+        		
+        		partHist.setStatus(httpResponseMessage.getStatus());
+        		partHist.setReferenceId(httpResponseMessage.getId());
+        		log.debug("sendExportFile2EI(): update PartitionExportHistory with status: {}, partition export history id: {}, EI reference ID: ", httpResponseMessage.getStatus(), partHist.getId(),httpResponseMessage.getId());
+    			partHist = exportRepo.save(partHist);
+
+        	}
+        }
+        log.debug("sendExportFile2EI: message: {}, status: {}, id: {}", httpResponseMessage.getMessage(), httpResponseMessage.getStatus(), httpResponseMessage.getId());
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, httpResponseMessage.getMessage());
+        
+        return httpResponseMessage;
+
+	}
+
+	private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
+        String status = "success";
+        HttpResponseMessage  httpMsg = null;
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		HttpEntity<String> httpEntity;
+		ResponseEntity<String> statusResponse;
+        
+		// set headers here:
+		//headers.set("requester", "test");
+		//headers.set("Authorization", "Token KqY+VEP3A/Cj");
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		httpEntity = new HttpEntity(headers);
+
+		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+		map.add("file", new FileSystemResource(uploadFleName));
+		try {
+			statusResponse = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<MultiValueMap<String, Object>>(map, headers), String.class);
+			HttpStatus httpStatus =  statusResponse.getStatusCode() ;
+            log.info("HttpStatus: " + httpStatus);
+            Type messageType = new TypeToken<Map<String, String>>(){}.getType();
+            if (statusResponse.hasBody()) {
+            	System.out.println(statusResponse.getBody().toString());
+            	String jsonString = statusResponse.getBody();
+            	Map<String, String> messages = new Gson().fromJson(jsonString, messageType);
+            	httpMsg = new HttpResponseMessage(httpStatus, messages.get("message"),messages.get("status"), messages.get("id") ); 
+            	System.out.println("message: " + messages.get("message"));
+            	System.out.println("id: " + messages.get("id"));
+            	System.out.println("status: " + messages.get("status"));
+            	
+            }
+
+		} catch(HttpClientErrorException e) {
+			String msg = "Document not found! Status code " + e.getStatusCode();
+			log.error(msg);
+			httpMsg = new HttpResponseMessage(null, msg,"failed", null ); 
+			
+		}
+		
+		return httpMsg;
+	}
+    private String makeFileName() {
+      	SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		String timeString = DateTimeHelper.formatDate(new Date(), format);
+    	return timeString;
+    }
+    private String makeZipFile(String fileName, List<String> files) {
+    	 MultipleFileZip mfe = new MultipleFileZip();
+    	 String zipfile  = "";
+          try {
+ 			zipfile = mfe.zipFiles(files);
+ 			System.out.println(zipfile);
+ 		} catch (Exception e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
+          return zipfile;
+    }
 	private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
 
 		StringBuffer sb = new StringBuffer();

@@ -20,15 +20,20 @@ public class MultipleFileZip {
 	private static Logger log = LoggerFactory.getLogger(MultipleFileZip.class);
 
     public String zipFiles(List<String> files) throws Exception {
+  
+    	Random rand = new Random(); 
+        String zipFile =  rand.nextInt((int) new Date().getTime()) + ".zip";
+  		return zipFiles(zipFile, files);
+    }
+    
+   public String zipFiles(String zipFileName, List<String> files) throws Exception {
         
         FileOutputStream fos = null;
         ZipOutputStream zipOut = null;
         FileInputStream fis = null;
-        Random rand = new Random(); 
-        String outFile =  rand.nextInt((int) new Date().getTime()) + ".zip";
-   
+ 
         try {
-            fos = new FileOutputStream(outFile);
+            fos = new FileOutputStream(zipFileName);
             zipOut = new ZipOutputStream(new BufferedOutputStream(fos));
             for(String filePath:files){
                 File input = new File(filePath);
@@ -45,7 +50,7 @@ public class MultipleFileZip {
                 fis.close();
             }
             zipOut.close();
-            log.info("Done... Zipped the files... to {}", outFile);
+            log.info("Done... Zipped the files... to {}", zipFileName);
            
         } catch (FileNotFoundException e) {
              e.printStackTrace();
@@ -60,7 +65,7 @@ public class MultipleFileZip {
                  
             }
         }
-		return outFile;
+		return zipFileName;
     }
      
     public static void main(String a[]){
