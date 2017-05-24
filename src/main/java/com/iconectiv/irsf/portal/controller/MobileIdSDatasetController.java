@@ -6,6 +6,7 @@ import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
 import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,6 +41,15 @@ class MobileIdDatasetController extends BaseRestController {
 	private RangeNdcRepository rangeNdcRepo;
 	@Autowired
 	private MobileIdDataService mobileIdDataService;
+	@Autowired
+	private FileHandlerService fileService;
+	
+	@Value("${range_data_location:/apps/irsf/data/unload/range_ndc.csv}")
+	private String rangeFileLocation;
+	
+	@Value("${premium_data_location:/apps/irsf/data/unload/premium.csv}")
+	private String premiumFileLocation;
+	
 
 	@RequestMapping(value = "/premium", method = RequestMethod.GET)
 	public ResponseEntity<String> getIPRN(@RequestHeader Map<String, String> header,
@@ -223,5 +235,33 @@ class MobileIdDatasetController extends BaseRestController {
 			log.debug("Completed query premium range request");
 		}
 		return rv;
+	}
+
+
+	@RequestMapping(value = "/download/{type}", method = RequestMethod.GET)
+	public HttpEntity<byte[]> downloadLicenseFile(@RequestHeader Map<String, String> header, @PathVariable String type) throws Exception{
+		byte[] documentBody;
+		String dataFileName;
+		String outputFileName;
+		
+		UserDefinition loginUser = getLoginUser(header);
+		assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+		if (type.equals("premium")) {
+			dataFileName = premiumFileLocation;
+			outputFileName = "IPRN-" + mobileIdDataService.getLastDataSetDate() + ".csv";
+		} else {
+			dataFileName = rangeFileLocation;
+			outputFileName = "RangeNDC-" + mobileIdDataService.getLastDataSetDate() + ".csv";
+		}
+		
+		documentBody = fileService.getContent(dataFileName);
+		
+		HttpHeaders respHeader = new HttpHeaders();
+		
+		respHeader.set("Content-Disposition", "attachment; filename=" + outputFileName);
+		respHeader.setContentLength(documentBody.length);
+
+		return new HttpEntity<byte[]>(documentBody, respHeader);
 	}
 }

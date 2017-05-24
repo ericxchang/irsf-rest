@@ -53,4 +53,9 @@ public class MobileIdDataServiceTest {
 		assertTrue(midDataService.getTotalTOSCount("F") == 11);
 		assertTrue(midDataService.getTotalTOSCount("U") == 1);
 	}
+	
+	@Test
+	public void testGetLastDateSetUploadTime() throws Exception {
+		log.info(midDataService.getLastDataSetDate());
+	}
 }
