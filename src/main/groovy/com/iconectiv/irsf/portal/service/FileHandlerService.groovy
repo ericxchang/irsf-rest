@@ -64,6 +64,15 @@ class FileHandlerService {
 		return file.getBytes()
 	}
 
+	byte[] getContent(File file) {
+		return file.getBytes()
+	}
+
+	byte[] getContent(String fileName) {
+		def file = new File(fileName)
+		return getContent(file)
+	}
+
 	List<String> getContentAsList(MultipartFile file) {
 		def contents = []
 		new ByteArrayInputStream(file.getBytes()).eachLine('UTF-8') {if (it) contents.add(it)}

@@ -46,7 +46,7 @@ public interface MobileIdDataService {
 		
 	List<Premium> findAllPremiumRangeByFilters(RangeQueryFilter filter);
 
-	
+	String getLastDataSetDate();
 	
 }
 

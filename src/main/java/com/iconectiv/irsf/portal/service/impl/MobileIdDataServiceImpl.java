@@ -21,7 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.model.common.Country;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.Premium;
 import com.iconectiv.irsf.portal.model.common.Provider;
 import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
@@ -31,9 +33,11 @@ import com.iconectiv.irsf.portal.model.common.TosTosDesc;
 import com.iconectiv.irsf.portal.model.common.TosAndTosDescType;
 import com.iconectiv.irsf.portal.repositories.common.CcNdcIndexRepository;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
+import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListHelper;
 
@@ -59,6 +63,9 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 	@Autowired
 	PremiumRepository premiumRepo;
+	
+	@Autowired
+	EventNotificationRepository eventRepo;
 
 	@Override
 	public String findMatchingCCNDC(String dialPattern) {
@@ -1608,6 +1615,18 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		
 		return cal.getTime();
 
+	}
+
+	@Override
+	public String getLastDataSetDate() {
+		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
+		
+		if (event == null) {
+			log.error("Did not find data set updata event");
+			return null;
+		}
+
+		return DateTimeHelper.formatDate(event.getCreateTimestamp(), "yyyyMMdd");
 	}
 
 }
