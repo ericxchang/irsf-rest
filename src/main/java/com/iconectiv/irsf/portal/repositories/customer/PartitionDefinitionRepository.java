@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface PartitionDefinitionRepository extends CrudRepository<PartitionDefinition, Integer>{
 
-    @Query("select pd from PartitionDefinition pd where pd.status <> 'locked'" )
+    @Query("select pd from PartitionDefinition pd where pd.status <> 'exported'" )
     List<PartitionDefinition> findAllActivePartitions();
     
     List<PartitionDefinition> findAllByOrigPartitionIdOrderByIdDesc(Integer origPartitionId);
