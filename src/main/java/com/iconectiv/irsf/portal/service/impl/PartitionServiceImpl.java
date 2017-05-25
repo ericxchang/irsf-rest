@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,7 @@ import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionExportStatus;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
 import com.iconectiv.irsf.portal.model.common.Premium;
@@ -58,6 +60,7 @@ import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
@@ -67,6 +70,7 @@ import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRep
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.EventNotificationService;
+import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.DateTimeHelper;
@@ -111,6 +115,10 @@ public class PartitionServiceImpl implements PartitionService {
 	private EventNotificationService eventService;
 	@Autowired
 	private EventNotificationRepository eventRepo;
+	@Autowired
+	private CustomerDefinitionRepository customerRepo;
+	@Autowired
+	private	ListService listService;
 
 	@Async
 	@Override
@@ -269,6 +277,7 @@ public class PartitionServiceImpl implements PartitionService {
 	@Async
 	public void exportPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
+		HttpResponseMessage httpResponseMessage;
 		try {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
@@ -282,8 +291,17 @@ public class PartitionServiceImpl implements PartitionService {
 				syncRefreshPartition(loginUser, partitionId); 
 			}
 
-			exportPartitionData(loginUser, partition);
+			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
 			 
+			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
+			if (customer.getExportTarget() != null) {
+				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
+				httpResponseMessage = sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
+				if (!"success".equals(httpResponseMessage.getStatus())){
+					log.error("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
+					throw new AppException(httpResponseMessage.getMessage());
+				}
+			}
 			
 		} catch (AppException e) {
 			log.error("Error to export partition:", e);
@@ -335,7 +353,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	@Transactional
-	private void exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+	private PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		HttpResponseMessage httpResponseMessage = null;
 		List<String> WL_DataType = new ArrayList<String>();
 		List<String> NON_WL_DataType = new ArrayList<String>();
@@ -403,20 +421,17 @@ public class PartitionServiceImpl implements PartitionService {
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data,
 			        "export partition data set " + partition.getId());
 			
-			httpResponseMessage = sendExportFile2EI(loginUser, newPartition, partHist, null);
-			if (!"success".equals(httpResponseMessage.getStatus())){
-				log.error("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
-				throw new Exception(httpResponseMessage.getMessage());
-			}
 			
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
 			throw new AppException(e);
 		}
+		
+		return partHist;
 	}
 	
 	@Transactional
-	private HttpResponseMessage sendExportFile2EI(UserDefinition loginUser, PartitionDefinition partition, PartitionExportHistory partHist, String url) throws AppException {
+	private HttpResponseMessage sendExportFile2EI(UserDefinition loginUser, PartitionExportHistory partHist, String url) throws AppException {
 
 		HttpResponseMessage httpResponseMessage = null;
 		
@@ -456,6 +471,7 @@ public class PartitionServiceImpl implements PartitionService {
         	
         		String zipFile = exportFilePath + loginUser.getUserName() + fileName + "_export.zip";
         		makeZipFile(zipFile, files);
+        		url = url + "?customer=" + loginUser.getCustomerName()+ "&partition=" + partHist.getId();
         		httpResponseMessage = uploadFiles(zipFile, url);
         		
         		partHist.setStatus(httpResponseMessage.getStatus());
@@ -494,14 +510,32 @@ public class PartitionServiceImpl implements PartitionService {
             log.info("HttpStatus: " + httpStatus);
 
             if (statusResponse.hasBody()) {
-            	System.out.println(statusResponse.getBody().toString());
+            	log.info(statusResponse.getBody().toString());
             	String jsonString = statusResponse.getBody();
 
             	Map<String, String> messages = JsonHelper.fromJson(jsonString, Map.class);
-            	httpMsg = new HttpResponseMessage(httpStatus, messages.get("message"),messages.get("status"), messages.get("id") ); 
-            	System.out.println("message: " + messages.get("message"));
-            	System.out.println("id: " + messages.get("id"));
-            	System.out.println("status: " + messages.get("status"));
+            	Set<String> keys = messages.keySet();
+            	Iterator<String> it = keys.iterator();
+            	String rtnMessage = null;
+            	String rtnStatus = null;
+            	String rtnId = null;
+            	
+            	while (it.hasNext()) {
+            		String key = it.next();
+            		if ("message".equals(key)) {
+            			rtnMessage = messages.get(key);
+            		}
+            		else if ("status".equals(key)) {
+            			rtnStatus = messages.get(key);
+            		}
+            		else if ("id".equals(key)) {
+            			rtnId = messages.get(key);
+            		}
+            	}
+            	
+               	httpMsg = new HttpResponseMessage(httpStatus, rtnMessage, rtnStatus, rtnId ); 
+            	log.info("message: {}, status: {}, id: {}", rtnMessage, rtnStatus, rtnId);
+            	
             	
             }
 
@@ -591,12 +625,20 @@ public class PartitionServiceImpl implements PartitionService {
 			if (RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 				List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
 				if (list != null && !list.isEmpty()) {
+					log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", list.size(), rule.getId());
 					partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
+				}
+				else {
+					log.info("generateDraftData: no range_ndc data for ruleId: {}", rule.getId());
 				}
 			} else if (PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
 				List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
 				if (list != null && !list.isEmpty()) {
+					log.debug("generateDraftData: found {} rows of premium for ruleId: {}", list.size(), rule.getId());
 					partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
+				}
+				else {
+					log.info("generateDraftData: no premium data for ruleId: {}", rule.getId());
 				}
 			} else {
 				log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
@@ -608,7 +650,8 @@ public class PartitionServiceImpl implements PartitionService {
 		partitionDataList = null;
 		if (partition.getWlId() != null) {
 			ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
-			List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
+			//List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
+			List<ListDetails> wlList = listService.getListDetailDataByListId(partition.getWlId());
 			if (wlList != null && !wlList.isEmpty()) {
 				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList,
 				        PartitionDataType.WhiteList.value());
@@ -617,9 +660,10 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 		partitionDataList = null;
 		if (partition.getBlId() != null) {
-			List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
+			//List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
+			List<ListDetails> blList = listService.getListDetailDataByListId(partition.getBlId());
 			if (blList != null && !blList.isEmpty()) {
-				ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
+				ListDefinition listDef = listDefinitionRepo.findOne(partition.getBlId());
 				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList,
 				        PartitionDataType.BlackList.value());
 				partitionDataRepo.batchUpdate(partitionDataList);

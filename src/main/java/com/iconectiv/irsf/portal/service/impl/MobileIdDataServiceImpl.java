@@ -534,6 +534,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (providerList != null && !providerList.isEmpty())
 			rule += AppConstants.PROVIDER;
 
+		log.debug("findRangeNdcByFilters: query rule: {}", rule);
 		switch (rule) {
 		case 0:
 			results = rangeNdcRepo.findAll(page);
@@ -1078,6 +1079,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (providerList != null && !providerList.isEmpty())
 			rule += AppConstants.PROVIDER;
 
+		log.debug("findAllRangeNdcByFilters: query rule: {}", rule);
 		switch (rule) {
 		case 0:
 			results = rangeNdcRepo.findAll();
@@ -1208,6 +1210,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (afterLastObserved != null)
 			rule += AppConstants.AFTER_LAST_OBSERVED;
 
+		log.debug("findAllPremiumRangeByFilters: query rule: {}", rule);
 		switch (rule) {
 		case 0:
 			results = premiumRepo.findAll();
