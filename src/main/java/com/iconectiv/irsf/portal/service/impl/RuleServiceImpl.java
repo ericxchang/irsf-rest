@@ -71,7 +71,6 @@ public class RuleServiceImpl implements RuleService {
 			 ObjectMapper mapper = new ObjectMapper();
 			 
 			JsonNode result = mapper.readTree(JsonHelper.toJson(filterObj));
-
 			if (log.isDebugEnabled())
 				log.debug("rule detail to save: " + result);
 			return result;

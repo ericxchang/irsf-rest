@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
+import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -31,6 +32,7 @@ import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListDetailConvert;
@@ -41,6 +43,8 @@ class PartitionServiceController extends BaseRestController {
 
 	@Autowired
 	private PartitionService partitionServ;
+	@Autowired
+	private PartitionDefinitionRepository partitionDefRepo;
 	@Autowired
 	private PartitionDataDetailsRepository partitionDataRepo;
 
@@ -211,6 +215,7 @@ class PartitionServiceController extends BaseRestController {
 		}
 		return rv;
 	}
+
 	@RequestMapping(value = "/partition/resend/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> resendPartitionRequest(@RequestHeader Map<String, String> header,
@@ -267,7 +272,6 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	
 	@Value("${jdbc.query_batch_size:10000}")
 	private int batchSize;
 
@@ -284,18 +288,28 @@ class PartitionServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-			if (pageNo == null) {
-				pageNo = 0;
+			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+
+			if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
+				rv = makeSuccessResult("System is generating partition data, please come back later");
+			} else if (partition.getStatus().equals(PartitionStatus.Stale.value())
+			        || partition.getStatus().equals(PartitionStatus.Fresh.value())) {
+				rv = makeSuccessResult("System is generating partition data, please come back later");
+				partitionServ.refreshPartition(loginUser, partitionId);
+			} else {
+				if (pageNo == null) {
+					pageNo = 0;
+				}
+
+				if (limit == null) {
+					limit = batchSize;
+				}
+
+				PageRequest page = new PageRequest(pageNo, limit);
+
+				Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
+				rv = makeSuccessResult(result);
 			}
-
-			if (limit == null) {
-				limit = batchSize;
-			}
-
-			PageRequest page = new PageRequest(pageNo, limit);
-
-			Page<PartitionDataDetails> result = partitionDataRepo.findAllByPartitionId(partitionId, page);
-			rv = makeSuccessResult(result);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {

@@ -38,8 +38,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
@@ -72,6 +70,7 @@ import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.MultipleFileZip;
 
 import io.jsonwebtoken.lang.Assert;
@@ -493,11 +492,12 @@ public class PartitionServiceImpl implements PartitionService {
 			statusResponse = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<MultiValueMap<String, Object>>(map, headers), String.class);
 			HttpStatus httpStatus =  statusResponse.getStatusCode() ;
             log.info("HttpStatus: " + httpStatus);
-            Type messageType = new TypeToken<Map<String, String>>(){}.getType();
+
             if (statusResponse.hasBody()) {
             	System.out.println(statusResponse.getBody().toString());
             	String jsonString = statusResponse.getBody();
-            	Map<String, String> messages = new Gson().fromJson(jsonString, messageType);
+
+            	Map<String, String> messages = JsonHelper.fromJson(jsonString, Map.class);
             	httpMsg = new HttpResponseMessage(httpStatus, messages.get("message"),messages.get("status"), messages.get("id") ); 
             	System.out.println("message: " + messages.get("message"));
             	System.out.println("id: " + messages.get("id"));
@@ -505,6 +505,10 @@ public class PartitionServiceImpl implements PartitionService {
             	
             }
 
+		} catch(JsonValidationException e) {
+			log.error(e.getMessage());
+			httpMsg = new HttpResponseMessage(null, e.getMessage(),"failed", null ); 
+			
 		} catch(HttpClientErrorException e) {
 			String msg = "Document not found! Status code " + e.getStatusCode();
 			log.error(msg);
