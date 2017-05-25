@@ -114,7 +114,7 @@ dependencies {
     compile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.13'
 
 	compile 'com.google.guava:guava'
-	
+	compile 'com.google.code.gson:gson:2.3.1'
 	//support filters in web.xml
 	compile 'com.googlecode.webutilities:webutilities:0.0.8'
 	
