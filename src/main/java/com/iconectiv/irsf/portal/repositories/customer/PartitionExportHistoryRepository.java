@@ -13,4 +13,7 @@ import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 public interface PartitionExportHistoryRepository extends CrudRepository<PartitionExportHistory, Integer>{
 	@Query("select new PartitionExportHistory(pe.id, pe.origPartitionId, pe.exportDate, pe.status, pe.reason) from PartitionExportHistory pe where pe.origPartitionId=?1 order by id desc")
 	List<PartitionExportHistory> findAllByOrigPartitionId(int origPartitionId);
+	
+	@Query("select new PartitionExportHistory(pe.id, pe.origPartitionId, pe.exportDate, pe.status, pe.reason) from PartitionExportHistory pe where pe.partitionId=?1 order by exportDate desc")
+	List<PartitionExportHistory> findAllByPartitionId(int partitionId);
 }

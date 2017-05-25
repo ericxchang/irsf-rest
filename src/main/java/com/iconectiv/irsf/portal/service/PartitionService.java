@@ -11,6 +11,7 @@ import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 public interface PartitionService {
 	void refreshPartition(UserDefinition loginUser, Integer partitionId);
 	void exportPartition(UserDefinition loginUser, Integer partitionId);
+	void resendPartition(UserDefinition loginUser, Integer partitionId);
 	void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule) throws AppException;
 	
 	void removeRule(UserDefinition loginUser, PartitionDefinition partition, Integer ruleId) throws AppException;

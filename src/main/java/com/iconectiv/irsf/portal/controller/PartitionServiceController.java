@@ -227,9 +227,8 @@ class PartitionServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-			log.info("resendPartitionRequest: partitionId:{} ", partitionId);
-
-			partitionServ.exportPartition(loginUser, partitionId);
+	
+			partitionServ.resendPartition(loginUser, partitionId);
 			rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

@@ -91,7 +91,7 @@ public class PartitionServiceImpl implements PartitionService {
 	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
 	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
 
-	@Value("${export.file.path://apps//irsf//data//export//}")
+	@Value("${export.file.path:/apps/irsf/data/export/}")
 	private String exportFilePath;
 	
 	@Autowired
@@ -296,6 +296,44 @@ public class PartitionServiceImpl implements PartitionService {
 			if (customer.getExportTarget() != null) {
 				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
 				httpResponseMessage = sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
+				log.info("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
+				if (!"success".equals(httpResponseMessage.getStatus())){
+					throw new AppException(httpResponseMessage.getMessage());
+				}
+				
+			}
+			
+		} catch (AppException e) {
+			log.error("Error to export partition:", e);
+		}
+
+		return;
+	}
+	@Override
+	@Async
+	public void resendPartition(UserDefinition loginUser, Integer partitionId) {
+		CustomerContextHolder.setSchema(loginUser.getSchemaName());
+		HttpResponseMessage httpResponseMessage;
+		try {
+			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+
+			if (partition == null) {
+				log.error("Invalid partitionId: {}", partitionId);
+				throw new AppException("Invalid partition Id: " + partitionId);
+			}
+			log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
+			List<PartitionExportHistory> partHistList = exportRepo.findAllByPartitionId(partitionId);
+			if (partHistList == null || partHistList.isEmpty()) {
+				log.error("No partition history data found for partition: {}", partitionId);
+				throw new AppException("No partition history data found for partition: " + partitionId);
+			}
+			 
+			PartitionExportHistory partHist = 	partHistList.get(0);
+			 
+			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
+			if (customer.getExportTarget() != null) {
+				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
+				httpResponseMessage = sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 				if (!"success".equals(httpResponseMessage.getStatus())){
 					log.error("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
 					throw new AppException(httpResponseMessage.getMessage());
@@ -308,6 +346,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		return;
 	}
+
 
 	private void validateParitionStatus(PartitionDefinition partition) throws AppException {
 		partition = partitionDefRepo.findOne(partition.getId());
@@ -438,48 +477,73 @@ public class PartitionServiceImpl implements PartitionService {
 			  return httpResponseMessage;
 		
 		String fileName = makeFileName();
-		String file1 = exportFilePath + loginUser.getUserName() + "_" + fileName + ".csv";
-		Path path1 = Paths.get(file1);
-        log.info("write path: " + path1.getFileName());
-        try {
-			Files.write(path1, partHist.getExportFileShort());
-		} catch (IOException e) {
-			log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e.getMessage());
-			httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file1, "failed", null);
-			e.printStackTrace();
-			
-			
+		// create file 1 from ExportFileShort
+		String file1 = null;
+		if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
+			file1 = exportFilePath + loginUser.getUserName() + "_" + fileName + ".csv";
+			Path path1 = Paths.get(file1);
+	        log.info("write path: " + path1.getFileName());
+	        try {
+	        	
+				Files.write(path1, partHist.getExportFileShort());
+			} catch (IOException e) {
+				log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e.getMessage());
+				httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file1, "failed", null);
+				e.printStackTrace();
+				
+				
+			}
 		}
-        String file2 = exportFilePath + loginUser.getUserName() + "_WL_" + fileName+ ".csv";
-        Path path2 = Paths.get(file2);
-        if (httpResponseMessage == null) {
-        	log.info("write path: " + path2.getFileName());
-        	try {
-        		Files.write(path2, partHist.getExportWhitelist());
-        	} catch (IOException e) {
-        		log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e.getMessage());
-        		httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file2, "failed", null);
-        		e.printStackTrace();
+		
+		// create file 2 from ExportWhitelist
+		String file2 = null;
+		List<String> files = new ArrayList<String>();
+		if (partHist.getExportWhitelist() != null && partHist.getExportWhitelist().length > 0) {
+			file2 = exportFilePath + loginUser.getUserName() + "_WL_" + fileName + ".csv";
+			Path path2 = Paths.get(file2);
+			if (httpResponseMessage == null) {
+				log.info("write path: " + path2.getFileName());
+				try {
+					Files.write(path2, partHist.getExportWhitelist());
+				} catch (IOException e) {
+					log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e.getMessage());
+					httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file2, "failed", null);
+					e.printStackTrace();
 
-        	}
+				}
 
-        	List<String> files = new ArrayList<String>();
-        	if (httpResponseMessage == null) {
-        		files.add(file1);
-        		files.add(file2);
-        	
-        		String zipFile = exportFilePath + loginUser.getUserName() + fileName + "_export.zip";
-        		makeZipFile(zipFile, files);
-        		url = url + "?customer=" + loginUser.getCustomerName()+ "&partition=" + partHist.getId();
-        		httpResponseMessage = uploadFiles(zipFile, url);
-        		
-        		partHist.setStatus(httpResponseMessage.getStatus());
-        		partHist.setReferenceId(httpResponseMessage.getId());
-        		log.debug("sendExportFile2EI(): update PartitionExportHistory with status: {}, partition export history id: {}, EI reference ID: ", httpResponseMessage.getStatus(), partHist.getId(),httpResponseMessage.getId());
-    			partHist = exportRepo.save(partHist);
+			}
+		}
+		// if no error, add files to a list
+		if (httpResponseMessage == null) {
+			if (file1 != null)
+				files.add(file1);
 
-        	}
-        }
+			if (file2 != null)
+				files.add(file2);
+		}
+		// if no file was added to the list, return error
+		if (files.isEmpty()) {
+			log.error("sendExportFile2EI: no file is avaiaable to be resent");
+			httpResponseMessage = new HttpResponseMessage(null, "no file is avaiaable to be resent", "failed", null);
+		}
+		
+		// if everything is OK, zip the file and send it to EI server
+		if (httpResponseMessage == null) {
+			String zipFile = exportFilePath + loginUser.getUserName() + fileName + "_export.zip";
+			makeZipFile(zipFile, files);
+			url = url + "?customer=" + loginUser.getCustomerName() + "&partition=" + partHist.getId();
+			httpResponseMessage = uploadFiles(zipFile, url);
+
+			partHist.setStatus(httpResponseMessage.getStatus());
+			partHist.setReferenceId(httpResponseMessage.getId());
+			log.debug(
+					"sendExportFile2EI(): update PartitionExportHistory with status: {}, partition export history id: {}, EI reference ID: ",
+					httpResponseMessage.getStatus(), partHist.getId(), httpResponseMessage.getId());
+			partHist = exportRepo.save(partHist);
+
+		}
+         
         log.debug("sendExportFile2EI: message: {}, status: {}, id: {}", httpResponseMessage.getMessage(), httpResponseMessage.getStatus(), httpResponseMessage.getId());
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, httpResponseMessage.getMessage());
         
@@ -556,20 +620,22 @@ public class PartitionServiceImpl implements PartitionService {
 		String timeString = DateTimeHelper.formatDate(new Date(), format);
     	return timeString;
     }
-    private String makeZipFile(String fileName, List<String> files) {
+    private boolean makeZipFile(String fileName, List<String> files) {
+    	boolean cc = true;
     	 MultipleFileZip mfe = new MultipleFileZip();
     	 String zipfile  = "";
           try {
- 			zipfile = mfe.zipFiles(files);
- 			System.out.println(zipfile);
+ 			zipfile = mfe.zipFiles(fileName, files);
+ 			log.info("makeZipFile(): filename: {}, number of files inside the zip file: ", zipfile, files.size());
  		} catch (Exception e) {
- 			// TODO Auto-generated catch block
+ 			log.error(e.getMessage());
+ 			cc = false;
  			e.printStackTrace();
  		}
-          return zipfile;
+        return cc;
     }
 	private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
-
+		log.info("buildPartitionDataLong(): number of rows: {}", list.size());
 		StringBuffer sb = new StringBuffer();
 		for (PartitionDataDetails p : list) {
 			sb.append(p.toCSVheader(CSV_COMMON_SEPERATOR));
@@ -582,7 +648,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	private byte[] buildByteArrayFromList(List<String> list) {
-
+		log.info("buildByteArrayFromList(): number of rows: {}", list.size());
 		StringBuffer sb = new StringBuffer();
 		for (String p : list) {
 			sb.append(p);

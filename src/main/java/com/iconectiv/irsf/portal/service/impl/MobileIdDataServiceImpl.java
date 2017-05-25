@@ -1001,6 +1001,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+			if (log.isDebugEnabled())
+				log.debug("findAllPremiumRangeByFilters: handle filter for TosTosDesc");
 			for (TosTosDesc s : filter.getTosDescList()) {
 				if (s.getTos() != null && s.getTosdesc() == null) {
 					tosList.add(s.getTos());
@@ -1017,6 +1019,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
+			if (log.isDebugEnabled())
+				log.debug("findAllPremiumRangeByFilters: handle filter for tos, count: {}, tosMap.get(tos).size(): {}", tosCount, tosMap.get(tos).size());
 			if (tosMap.get(tos).size() == tosCount) {
 				tosList.add(tos);
 				tosMap.remove(tos);

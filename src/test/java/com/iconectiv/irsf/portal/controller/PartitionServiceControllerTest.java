@@ -118,7 +118,7 @@ public class PartitionServiceControllerTest  {
 
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
-		Integer partId = 16;
+		Integer partId = 20;
 		log.info("testExportPartition(): URL:  {}", ("/partition/refresh/" + partId));
 		ResultActions action = mockMvc.perform(get("/partition/refresh/" + partId).header("authorization", "Bearer " + token));
 
@@ -131,9 +131,23 @@ public class PartitionServiceControllerTest  {
 	}
 	@Test
 	public void testExportPartition() throws Exception {
-    	Integer partId = 16;
+    	Integer partId = 20;
     	 log.info("testExportPartition(): URL:  {}", ("/partition/export/" + partId));
     	ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token));
+    	
+    	//ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
+
+        log.info("testExportPartition(): {}", result);
+        
+		Thread.sleep(2 * 1000);
+    }
+	
+	@Test
+	public void testResendPartition() throws Exception {
+    	Integer partId = 16;
+    	 log.info("testResendPartition(): URL:  {}", ("/partition/resend/" + partId));
+    	ResultActions action = mockMvc.perform(get("/partition/resend/" + partId).header("authorization", "Bearer " + token));
     	
     	//ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
