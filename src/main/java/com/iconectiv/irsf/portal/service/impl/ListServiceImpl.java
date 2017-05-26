@@ -59,6 +59,8 @@ public class ListServiceImpl implements ListService {
 	private MobileIdDataService midDataService;
 	@Autowired
 	private RangeNdcRepository rangeRepo;
+	@Autowired
+	private PartitionService partitionService;
 	
 	@Transactional
 	@Override
@@ -201,20 +203,25 @@ public class ListServiceImpl implements ListService {
 
 	@Override
 	@Transactional
-	public void deleteListDefinition(String listName) {
+	public void deleteListDefinition(UserDefinition loginUser, String listName) {
 		listDefRepo.deleteByListName(listName);
 		return;
 	}
 
 	@Override
 	@Transactional
-	public void deleteListDefinition(int listId) {
+	public void deleteListDefinition(UserDefinition loginUser, int listId) {
 		ListDefinition listDef = listDefRepo.findOne(listId);
 		
 		if (listDef != null) {
 			listUploadRepo.deleteAllByListRefId(listDef.getId());
 			listDetailRepo.deleteAllByListRefId(listDef.getId());
+
+			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
+			
+			partitionService.checkStale(loginUser, listDef, "list " + listDef.getListName() + " is removed");
 		}
+
 		return;
 	}
 
@@ -312,6 +319,9 @@ public class ListServiceImpl implements ListService {
 	public void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
 		listDetailRepo.delete(Arrays.asList(listDetails));
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+
+		ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+		partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
 	}
 
 	@Value("${max_list_size:100000}")
@@ -350,7 +360,10 @@ public class ListServiceImpl implements ListService {
 		
 		Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
-        return result;
+
+		ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+		partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
+		return result;
 	}
 
 	@Override
