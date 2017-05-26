@@ -921,7 +921,9 @@ public class PartitionServiceImpl implements PartitionService {
 
 			if (ruleIds != null) {
 				for (String ruleId : ruleIds.split(",")) {
+					if (!ruleId.equals("")) {
 					partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+					}
 				}
 			}
 		}
