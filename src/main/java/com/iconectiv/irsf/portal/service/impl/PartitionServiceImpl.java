@@ -670,7 +670,10 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 		log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
 		partitionDataRepo.deleteByPartitionId(partition.getId());
-
+        int rangeNdcCount = 0;
+        int premiumCount = 0;
+        int WLcount = 0;
+        int BLCount = 0;
 		for (RuleDefinition rule : rules) {
 			if (!rule.isActive()) {
 				log.info("skip inactive rule, rule_id: {}", rule.getId());
@@ -690,8 +693,10 @@ public class PartitionServiceImpl implements PartitionService {
 			if (RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 				List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
 				if (list != null && !list.isEmpty()) {
-					log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", list.size(), rule.getId());
+					rangeNdcCount = list.size();
+					log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", rangeNdcCount, rule.getId());
 					partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
+					log.debug("generateDraftData: build {} partition records", partitionDataList.size());
 				}
 				else {
 					log.info("generateDraftData: no range_ndc data for ruleId: {}", rule.getId());
@@ -699,8 +704,10 @@ public class PartitionServiceImpl implements PartitionService {
 			} else if (PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
 				List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
 				if (list != null && !list.isEmpty()) {
-					log.debug("generateDraftData: found {} rows of premium for ruleId: {}", list.size(), rule.getId());
+					premiumCount = list.size();
+					log.debug("generateDraftData: found {} rows of premium for ruleId: {}", premiumCount, rule.getId());
 					partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
+					log.debug("generateDraftData: build {} partition records", partitionDataList.size());
 				}
 				else {
 					log.info("generateDraftData: no premium data for ruleId: {}", rule.getId());
@@ -709,33 +716,43 @@ public class PartitionServiceImpl implements PartitionService {
 				log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 			}
 			if (partitionDataList != null && !partitionDataList.isEmpty()) {
+				log.debug("generateDraftData: save partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
 				partitionDataRepo.batchUpdate(partitionDataList);
+				log.debug("generateDraftData: successfully saved partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
 			}
 		}
+		log.debug("generateDraftData: retrieve white list data for partitionId: {}, WLId: {}", partition.getId(), partition.getWlId());
 		partitionDataList = null;
 		if (partition.getWlId() != null) {
 			ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
 			//List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
 			List<ListDetails> wlList = listService.getListDetailDataByListId(partition.getWlId());
 			if (wlList != null && !wlList.isEmpty()) {
-				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList,
-				        PartitionDataType.WhiteList.value());
+				WLcount = wlList.size();
+				log.debug("generateDraftData: found {} rows in the white list: {}", WLcount, partition.getWlId());
+				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList, PartitionDataType.WhiteList.value());
 				partitionDataRepo.batchUpdate(partitionDataList);
 			}
 		}
+		log.debug("generateDraftData: retrieve black list data for partitionId: {}, WLId: {}", partition.getId(), partition.getBlId());
 		partitionDataList = null;
 		if (partition.getBlId() != null) {
 			//List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
 			List<ListDetails> blList = listService.getListDetailDataByListId(partition.getBlId());
 			if (blList != null && !blList.isEmpty()) {
+				BLCount = blList.size();
+				log.debug("generateDraftData: found {} rows in the black list: {}", BLCount, partition.getBlId());
 				ListDefinition listDef = listDefinitionRepo.findOne(partition.getBlId());
-				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList,
-				        PartitionDataType.BlackList.value());
+				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList, PartitionDataType.BlackList.value());
 				partitionDataRepo.batchUpdate(partitionDataList);
 			}
 		}
-
-		log.info("Completed generating partition data");
+		if (rangeNdcCount + premiumCount + WLcount + BLCount > 0)
+			log.info("Completed generating partition data, NDC_RANGE count: {}, IPRN count: {}, WL count : {}, BL count: {}", rangeNdcCount, premiumCount, WLcount, BLCount);
+		else {
+			log.info("No rows found for partition: {}", partition.getId());
+		}
+		
 		return;
 	}
 

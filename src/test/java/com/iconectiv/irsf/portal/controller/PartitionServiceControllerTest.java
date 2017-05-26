@@ -118,7 +118,7 @@ public class PartitionServiceControllerTest  {
 
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
-		Integer partId = 20;
+		Integer partId = 16;
 		log.info("testExportPartition(): URL:  {}", ("/partition/refresh/" + partId));
 		ResultActions action = mockMvc.perform(get("/partition/refresh/" + partId).header("authorization", "Bearer " + token));
 
@@ -131,7 +131,7 @@ public class PartitionServiceControllerTest  {
 	}
 	@Test
 	public void testExportPartition() throws Exception {
-    	Integer partId = 20;
+    	Integer partId = 16;
     	 log.info("testExportPartition(): URL:  {}", ("/partition/export/" + partId));
     	ResultActions action = mockMvc.perform(get("/partition/export/" + partId).header("authorization", "Bearer " + token));
     	

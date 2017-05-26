@@ -29,6 +29,9 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 	@Override
 	@Transactional
 	public void batchUpdate(Collection<PartitionDataDetails> entities) {
+		log.info("batchUpdate {} rows ", entities.size());
+		if (entities == null || entities.isEmpty())
+			return;
 		final List<PartitionDataDetails> savedEntities = new ArrayList<>(entities.size());
 		EntityManager entityManager = customerEntityManagerFactory.createEntityManager();
 		entityManager.joinTransaction();

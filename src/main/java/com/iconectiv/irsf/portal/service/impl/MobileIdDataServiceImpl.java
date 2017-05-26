@@ -899,19 +899,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	@Override
 	public List<RangeNdc> findAllRangeNdcByFilters(RangeQueryFilter filter) {
 		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
-
-		if (filter.getPageNo() == null) {
-			filter.setPageNo(0);
-		}
-
-		if (filter.getLimit() == null) {
-			filter.setLimit(batchSize);
-		}
-
-		if (log.isDebugEnabled())
-			log.debug("findAllRangeNdcByFilters: receive ndc query rquest pageNo {}", filter.getPageNo());
-
-		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+		
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = new ArrayList<String>();
@@ -919,30 +907,38 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		List<String> providerList = null;
 		List<String> listOfTos = new ArrayList<String>();
 		Map<String, List<String>> tosMap = new HashMap<String, List<String>>();
+	
 		if (filter.getTosDescList() != null && !filter.getTosDescList().isEmpty()) {
+
 			for (TosTosDesc s : filter.getTosDescList()) {
+	
 				if (s.getTos() != null && s.getTosdesc() == null) {
 					tosList.add(s.getTos());
 					continue;
 				}
+
 				List<String> list =  tosMap.get(s.getTos());
+
 				if (list == null) {
+	
 					list = new ArrayList<String>();
 					tosMap.put(s.getTos(), list);
 					listOfTos.add(s.getTos());
 				}
+
 				list.add(s.getTos() + "," + s.getTosdesc());
+				
 			}
 		}
+
 		for (String tos: listOfTos) {
 			int tosCount = getTotalTOSCount(tos);
 			if (tosMap.get(tos).size() == tosCount) {
 				tosList.add(tos);
 				tosMap.remove(tos);
-				
 			}
 		}
-		
+
 		Set<String> tosSet = tosMap.keySet();
 		Iterator it = tosSet.iterator();
 		while (it.hasNext()) {
@@ -951,6 +947,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			
 			tosDescList.addAll(tosMap.get(it.next()));
 		}
+
 		if (tosList != null && !tosList.isEmpty())
 			log.info("findAllRangeNdcByFilters: tos filter: {}", JsonHelper.toPrettyJson(tosList));
 		
@@ -958,7 +955,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.info("findAllRangeNdcByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		
 
-		if (filter.getProviderList() != null) {
+		if (filter.getProviderList() != null && !filter.getProviderList().isEmpty()) {
 			for (Provider p : filter.getProviderList()) {
 
 				if (providerList == null)
@@ -969,30 +966,19 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			}
 			log.info("findAllRangeNdcByFilters: provider filter: {}", JsonHelper.toPrettyJson(providerList));
 		}
-
+		log.debug("findAllRangeNdcByFilters: calling findAllRangeNdcByFilters()");
 		return  findAllRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList);
 
 	}
 
 	@Override
 	public List<Premium> findAllPremiumRangeByFilters(RangeQueryFilter filter) {
-		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
+		log.info("findAllPremiumRangeByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
 
-		if (filter.getPageNo() == null) {
-			filter.setPageNo(0);
-		}
-
-		if (filter.getLimit() == null) {
-			filter.setLimit(batchSize);
-		}
-
-		if (log.isDebugEnabled())
-			log.debug("findAllPremiumRangeByFilters: receive ndc query rquest pageNo {}", filter.getPageNo());
-
+	
 		Date afterLastObserved = null;
 		Date beforeLastObserved = null;
-		
-		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+	
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = new ArrayList<String>();
@@ -1044,7 +1030,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		
 	  
 
-		if (filter.getProviderList() != null) {
+		if (filter.getProviderList() != null && !filter.getProviderList().isEmpty()) {
 			for (Provider p : filter.getProviderList()) {
 
 				if (providerList == null)
