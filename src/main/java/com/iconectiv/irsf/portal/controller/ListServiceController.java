@@ -327,16 +327,15 @@ class ListServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 			
 			if (listName != null) {
-				listService.deleteListDefinition(listName);
+				listService.deleteListDefinition(loginUser, listName);
 			} else if (listId != null) {
-				listService.deleteListDefinition(listId);
+				listService.deleteListDefinition(loginUser, listId);
 			} else {
 				throw new AppException("Either listName or listId should be defined");
 			}
 	
 			
 			rv = makeSuccessResult(MessageDefinition.Delete_List_Success);
-			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {

@@ -20,8 +20,8 @@ public interface ListService {
 
 	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
 
-	void deleteListDefinition(int listId);
-	void deleteListDefinition(String listName);
+	void deleteListDefinition(UserDefinition loginUser, int listId);
+	void deleteListDefinition(UserDefinition loginUser, String listName);
 
 	ListDefinition getListDetails(int listId);
 	ListDefinition getListDetails(String listName);
