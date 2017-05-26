@@ -684,7 +684,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 			try {
 				filter = rule.getRangeQueryFilter();
-			} catch (JsonValidationException e) {
+			} catch (AppException e) {
 				log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.toString(), rule.getId(),
 				        rule.getDetails());
 				continue;

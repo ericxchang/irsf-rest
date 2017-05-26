@@ -9,6 +9,7 @@ import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.DialPatternType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
@@ -97,7 +98,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	}
 
 	@Test
-	public void testJsonConvertion() throws JsonValidationException, JsonProcessingException, IOException {
+	public void testJsonConvertion() throws JsonValidationException, JsonProcessingException, IOException, AppException {
 		String ruleData = "{\"partitions\":[{\"partitionExportHistories\":[],\"ruleDefinitions\":[],\"id\":16,\"origPartitionId\":16,\"customerName\":\"customer-01\",\"name\":\"afdafa\",\"status\":\"fresh\",\"lastUpdated\":\"2017-05-06 21:22\",\"lastUpdatedBy\":\"user01\",\"partitionDataDetailses\":[]}],"
 		        + "\"dataSource\":\"Range NDC\",\"name\":\"rule-abc\""
 		        + ",\"details\":{\"codeList\":[],\"iso2List\":[\"AF\",\"AD\"],"
@@ -121,7 +122,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 	}
 
 	@Test
-	public void testRuleDetails() throws JsonValidationException, JsonProcessingException, IOException {
+	public void testRuleDetails() throws JsonValidationException, JsonProcessingException, IOException, AppException {
 		RuleDefinition rule = ruleRepo.findOne(7);
 
 		log.info(rule.getDetails());

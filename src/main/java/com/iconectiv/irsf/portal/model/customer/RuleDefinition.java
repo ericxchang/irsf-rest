@@ -6,12 +6,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.util.JsonHelper;
 
 import javax.persistence.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +35,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "rule_definition")
 public class RuleDefinition implements java.io.Serializable {
+	private static Logger log = LoggerFactory.getLogger(RuleDefinition.class);
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private Integer partitionId;
@@ -104,9 +114,14 @@ public class RuleDefinition implements java.io.Serializable {
 	}
 
 	@Transient
-	public RangeQueryFilter getRangeQueryFilter() throws JsonValidationException {
-		if (this.details != null) {
-			this.rangeQueryFilter = JsonHelper.fromJson(this.details, RangeQueryFilter.class);
+	public RangeQueryFilter getRangeQueryFilter() throws AppException {
+		if (this.details != null) {			
+			try {
+				this.rangeQueryFilter = new ObjectMapper().readValue(this.details, RangeQueryFilter.class);
+			} catch (Exception e) {
+				log.error("Error to parse Json string: ", e.getMessage());
+				throw new AppException(e);
+			}
 		}
 		return rangeQueryFilter;
 	}
