@@ -422,10 +422,10 @@ public class PartitionServiceImpl implements PartitionService {
 
 		PartitionExportHistory partHist = new PartitionExportHistory();
 		StringBuffer sb = new StringBuffer();
-
+        String prevStatus = null;
 		try {
 			log.debug("exportPartitionData(): partitionId: {}; status: {}", partition.getId(), partition.getStatus());
-
+			prevStatus = partition.getStatus();
 			partition.setStatus(PartitionStatus.InProgress.value());
 			log.debug("exportPartitionData(): partitionId: {}; set status to:  {}", partition.getId(), partition.getStatus());
 			partitionDefRepo.save(partition);
@@ -483,6 +483,15 @@ public class PartitionServiceImpl implements PartitionService {
 			
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
+			if (partition != null) {
+				partition.setStatus(prevStatus);
+				log.debug("exportPartitionData(): partitionId: {}; reset status back to:  {}", partition.getId(), prevStatus);
+				try {
+					partitionDefRepo.save(partition);
+				} catch (Exception e1) {
+					throw new AppException(e1);
+				}
+			}
 			throw new AppException(e);
 		}
 		
