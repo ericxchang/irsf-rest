@@ -97,7 +97,7 @@ public class RuleServiceImpl implements RuleService {
 
 		rule.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		rule.setCreatedBy(loginUser.getUserName());
-
+		rule.setActive(true);
 		rule.setLastUpdated(DateTimeHelper.nowInUTC());
 		rule.setLastUpdatedBy(loginUser.getUserName());
 
