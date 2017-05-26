@@ -124,23 +124,30 @@ public class PartitionServiceImpl implements PartitionService {
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
 		syncRefreshPartition(loginUser, partitionId);
 	}
-	public void syncRefreshPartition(UserDefinition loginUser, Integer partitionId) {
+	public PartitionDefinition syncRefreshPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
+		String prevStatus = null;
+		PartitionDefinition partition = null;
 		try {
-			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+			partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition == null) {
 				throw new AppException("Invalid partition Id");
 			}
 			validateParitionStatus(partition);
 
+			prevStatus = partition.getStatus();
 			partition.setStatus(PartitionStatus.InProgress.value());
 			partitionDefRepo.save(partition);
 			refreshParitionData(loginUser, partition);
 		} catch (AppException e) {
 			log.error("Error to refresh partition:", e);
+			if (partition != null) {
+				partition.setStatus(prevStatus);
+				partitionDefRepo.save(partition);
+			}
 		}
-		return;
+		return partition;
 	}
 
 	@Transactional
@@ -277,8 +284,10 @@ public class PartitionServiceImpl implements PartitionService {
 	public void exportPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
 		HttpResponseMessage httpResponseMessage;
+		PartitionDefinition partition = null;
+		String prevStatus = null;
 		try {
-			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+			partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition == null) {
 				throw new AppException("Invalid partition Id");
@@ -287,9 +296,9 @@ public class PartitionServiceImpl implements PartitionService {
 
 			boolean refresh = validateParitionExportStatus(partition);
 			if (refresh) {
-				syncRefreshPartition(loginUser, partitionId); 
+				partition = syncRefreshPartition(loginUser, partitionId); 
 			}
-
+			prevStatus = partition.getStatus();
 			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
 			 
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
@@ -305,6 +314,10 @@ public class PartitionServiceImpl implements PartitionService {
 			
 		} catch (AppException e) {
 			log.error("Error to export partition:", e);
+			if (partition != null) {
+				partition.setStatus(prevStatus);
+				partitionDefRepo.save(partition);
+			}
 		}
 
 		return;
@@ -314,8 +327,10 @@ public class PartitionServiceImpl implements PartitionService {
 	public void resendPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
 		HttpResponseMessage httpResponseMessage;
+		String prevStatus = null;
+		PartitionDefinition partition = null;
 		try {
-			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+			partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition == null) {
 				log.error("Invalid partitionId: {}", partitionId);
@@ -327,7 +342,7 @@ public class PartitionServiceImpl implements PartitionService {
 				log.error("No partition history data found for partition: {}", partitionId);
 				throw new AppException("No partition history data found for partition: " + partitionId);
 			}
-			 
+			prevStatus = partition.getStatus();
 			PartitionExportHistory partHist = 	partHistList.get(0);
 			 
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
@@ -342,6 +357,10 @@ public class PartitionServiceImpl implements PartitionService {
 			
 		} catch (AppException e) {
 			log.error("Error to export partition:", e);
+			if (partition != null) {
+				partition.setStatus(prevStatus);
+				partitionDefRepo.save(partition);
+			}
 		}
 
 		return;
