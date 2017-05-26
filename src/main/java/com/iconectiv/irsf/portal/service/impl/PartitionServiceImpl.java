@@ -703,7 +703,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 			try {
 				filter = rule.getRangeQueryFilter();
-			} catch (JsonValidationException e) {
+			} catch (AppException e) {
 				log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.toString(), rule.getId(),
 				        rule.getDetails());
 				continue;
@@ -848,7 +848,7 @@ public class PartitionServiceImpl implements PartitionService {
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_Rule_To_Partition,
 			        "append rule " + rule.getId() + " to partition " + partition.getId());
 
-			checkStale(partition);
+			checkStale(loginUser, partition, "new rule is added");
 		} catch (Exception e) {
 			log.error("Fail to add rule to parition: ", e);
 			throw new AppException(e);
@@ -884,7 +884,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition,
 			        "remove rule " + ruleId + " from partition " + partition.getId());
-			checkStale(partition);
+			checkStale(loginUser, partition, "rule is removed");
 		} catch (Exception e) {
 			log.error("Fail to remove rule to parition: ", e);
 			throw new AppException(e);
@@ -940,7 +940,9 @@ public class PartitionServiceImpl implements PartitionService {
 
 			if (ruleIds != null) {
 				for (String ruleId : ruleIds.split(",")) {
+					if (!ruleId.equals("")) {
 					partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+					}
 				}
 			}
 		}
@@ -980,17 +982,54 @@ public class PartitionServiceImpl implements PartitionService {
 		partitionDefRepo.save(partition);
 	}
 
+	
 	@Override
-	public void checkStale(PartitionDefinition partition) {
-		// TODO Auto-generated method stub
-
+	public void checkStale(UserDefinition loginUser, PartitionDefinition partition, String reason) {
+		if (partition.getStatus().equals(PartitionStatus.Draft.value())) {
+			log.info("Change partition {} to stale", partition.getId());
+			setPartitionToStale(loginUser, partition, reason);
+		}
+		
+		return;
 	}
 
+	
+	
 	@Override
-	public void checkStale(ListDefinition listDefinition) {
-		// TODO Auto-generated method stub
+	public void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason) {
+		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
+		
+		for(PartitionDefinition partition: partitions) {
+			if (partition.getStatus().equals(PartitionStatus.Draft.value())) {
+				Integer blId = partition.getBlId();
+				Integer wlId = partition.getWlId();
+				
+				if ( blId != null && blId == listDefinition.getId()) {
+					setPartitionToStale(loginUser, partition, "attached black list " + listDefinition.getListName() + " has been updated");
+				}
+				else if ( wlId != null && wlId == listDefinition.getId()) {
+					setPartitionToStale(loginUser, partition, "attached white list " + listDefinition.getListName() + " has been updated");
+				}
+			}
+		}
 
 	}
+	
+	private void setPartitionToStale(final UserDefinition loginUser, PartitionDefinition partition, final String reason) {
+		partition.setStatus(PartitionStatus.Stale.value());
+		partitionDefRepo.save(partition);
+		
+		EventNotification event = new EventNotification();
+		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+		event.setEventType(EventTypeDefinition.Partition_Draft.value());
+		event.setReferenceId(partition.getId());
+		event.setCustomerName(loginUser.getCustomerName());
+		event.setStatus("new");
+		event.setMessage("Partition " + partition.getName() + " is staled due to " + reason);
+		eventRepo.save(event);
+		eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);	
+	}
+
 
 	/*
 	 * TODO: The following condition can cause staled draft data set: 1. BL/WL

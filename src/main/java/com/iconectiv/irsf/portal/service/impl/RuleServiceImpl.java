@@ -20,6 +20,7 @@ import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.portal.service.RuleService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
@@ -38,6 +39,8 @@ public class RuleServiceImpl implements RuleService {
 	private PartitionDefinitionRepository partitionRepo;
 	@Autowired
 	private AuditTrailService auditService;
+	@Autowired
+	private PartitionService partitionService;
 
 	@Transactional
 	@Override
@@ -97,7 +100,7 @@ public class RuleServiceImpl implements RuleService {
 
 		rule.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		rule.setCreatedBy(loginUser.getUserName());
-
+		rule.setActive(true);
 		rule.setLastUpdated(DateTimeHelper.nowInUTC());
 		rule.setLastUpdatedBy(loginUser.getUserName());
 
@@ -133,6 +136,9 @@ public class RuleServiceImpl implements RuleService {
 		partitionRepo.save(partition);
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_Rule_To_Partition,
 		        "append rule " + rule.getId() + " to partition " + partition.getId());
+		
+		//check partition stale
+		partitionService.checkStale(loginUser, partition, "new rule is added");
 		return;
 	}
 }

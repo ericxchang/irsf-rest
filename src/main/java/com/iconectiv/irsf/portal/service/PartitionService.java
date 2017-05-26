@@ -21,6 +21,6 @@ public interface PartitionService {
 	PartitionDefinition getPartitionDetails(Integer partitionId) throws AppException;
 	List<PartitionDefinition> getAllActivePartitions();
 	
-	void checkStale(PartitionDefinition partition);
-	void checkStale(ListDefinition listDefinition);
+	void checkStale(UserDefinition loginUser, PartitionDefinition partition, String reason);
+	void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason);
 }
