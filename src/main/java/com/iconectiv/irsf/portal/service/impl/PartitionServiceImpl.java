@@ -251,22 +251,24 @@ public class PartitionServiceImpl implements PartitionService {
 	        ListDefinition listDef, List<ListDetails> list, String listType) {
 		List<PartitionDataDetails> pdList = new ArrayList<PartitionDataDetails>(list.size());
 		for (ListDetails obj : list) {
-			PartitionDataDetails p = new PartitionDataDetails();
-			p.setPartitionId(partition.getId());
-			p.setBillingId(obj.getBillingId());
-			p.setCc(obj.getCode());
-			p.setCustomerDate(obj.getCustomerDate());
-			p.setDialPattern(obj.getDialPattern());
-			p.setIso2(obj.getIso2());
-			p.setNdc(obj.getNdc());
-			p.setNotes(obj.getNotes());
-			p.setProvider(obj.getProvider());
-			p.setReason(obj.getReason());
-			p.setReference(listDef.getListName());
-			p.setTos(obj.getTos());
-			p.setTosdesc(obj.getTosdesc());
-			p.setDataType(listType);
-			pdList.add(p);
+			if(obj.isActive()) {
+				PartitionDataDetails p = new PartitionDataDetails();
+				p.setPartitionId(partition.getId());
+				p.setBillingId(obj.getBillingId());
+				p.setCc(obj.getCode());
+				p.setCustomerDate(obj.getCustomerDate());
+				p.setDialPattern(obj.getDialPattern());
+				p.setIso2(obj.getIso2());
+				p.setNdc(obj.getNdc());
+				p.setNotes(obj.getNotes());
+				p.setProvider(obj.getProvider());
+				p.setReason(obj.getReason());
+				p.setReference(listDef.getListName());
+				p.setTos(obj.getTos());
+				p.setTosdesc(obj.getTosdesc());
+				p.setDataType(listType);
+				pdList.add(p);
+			}
 		}
 		return pdList;
 
