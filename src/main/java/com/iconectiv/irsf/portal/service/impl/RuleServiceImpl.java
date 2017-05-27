@@ -61,7 +61,9 @@ public class RuleServiceImpl implements RuleService {
 		rule = ruleRepo.save(rule);
 		auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
 
-		// TODO raise rule update event to check partition status
+		if (rule.getPartitionId() != null) {
+			partitionService.checkStale(loginUser, rule.getPartitionId(), "rule is changed");
+		}
 	}
 
 	// clean up rule detail, remove GUI specific data

@@ -23,4 +23,5 @@ public interface PartitionService {
 	
 	void checkStale(UserDefinition loginUser, PartitionDefinition partition, String reason);
 	void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason);
+	void checkStale(UserDefinition loginUser, Integer partitionId, String reason);
 }

@@ -1004,8 +1004,13 @@ public class PartitionServiceImpl implements PartitionService {
 		return;
 	}
 
-	
-	
+	@Override
+	public void checkStale(UserDefinition loginUser, Integer partitionId, String reason) {
+		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+		checkStale(loginUser, partition, reason);
+		return;
+	}
+
 	@Override
 	public void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason) {
 		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
