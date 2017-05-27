@@ -6,5 +6,5 @@ import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 
 public interface RuleService {
 	void createRule(UserDefinition loginUser, RuleDefinition rule) throws AppException;
-	void updateRule(UserDefinition loginUser, RuleDefinition rule) throws AppException;
+	RuleDefinition updateRule(UserDefinition loginUser, RuleDefinition rule) throws AppException;
 }

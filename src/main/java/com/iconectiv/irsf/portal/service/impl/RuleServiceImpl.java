@@ -44,7 +44,7 @@ public class RuleServiceImpl implements RuleService {
 
 	@Transactional
 	@Override
-	public void updateRule(UserDefinition loginUser, RuleDefinition rule) throws AppException {
+	public RuleDefinition updateRule(UserDefinition loginUser, RuleDefinition rule) throws AppException {
 		String action = AuditTrailActionDefinition.Update_Rule;
 
 		if (rule.getId() == null) {
@@ -64,6 +64,8 @@ public class RuleServiceImpl implements RuleService {
 		if (rule.getPartitionId() != null) {
 			partitionService.checkStale(loginUser, rule.getPartitionId(), "rule is changed");
 		}
+		
+		return rule;
 	}
 
 	// clean up rule detail, remove GUI specific data

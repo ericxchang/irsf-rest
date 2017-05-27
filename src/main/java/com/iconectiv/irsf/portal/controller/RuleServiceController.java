@@ -124,7 +124,7 @@ class RuleServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            ruleService.updateRule(loginUser, rule);
+            rule = ruleService.updateRule(loginUser, rule);
             rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, rule);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
