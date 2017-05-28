@@ -40,6 +40,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.core.PartitionDataType;
@@ -546,6 +547,10 @@ public class PartitionServiceImpl implements PartitionService {
 
 			sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), httpResponseMessage.getMessage());
 		} catch (Exception e) {
+			log.error("Error to send to EI", e);
+			partHist.setStatus(AppConstants.FAIL);
+			partHist = exportRepo.save(partHist);
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage());
 			sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), e.getMessage());
 		}
 		return;
