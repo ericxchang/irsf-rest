@@ -104,6 +104,7 @@ class PartitionServiceController extends BaseRestController {
 	@ResponseBody
 	public ResponseEntity<String> getPartitionList(@RequestHeader Map<String, String> header) {
 		ResponseEntity<String> rv;
+		if (log.isDebugEnabled()) log.debug("Receive get partition list request ...");
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());

@@ -915,6 +915,8 @@ public class PartitionServiceImpl implements PartitionService {
 	@Override
 	public List<PartitionDefinition> getAllActivePartitions() {
 		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
+		
+		if (log.isDebugEnabled()) log.debug("active partition size: {}", partitions.size());
 		for (PartitionDefinition partition : partitions) {
 			Integer origId = partition.getOrigPartitionId();
 			if (origId == null) {
