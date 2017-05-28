@@ -250,19 +250,19 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/partition/resend/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/partition/resend/{exportPartitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> resendPartitionRequest(@RequestHeader Map<String, String> header,
-	        @PathVariable Integer partitionId) {
+	        @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
-		log.info("resendPartitionRequest(): partitionId: {}", partitionId);
+		log.info("resendPartitionRequest(): exportPartitionId: {}", exportPartitionId);
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 	
-			partitionServ.resendPartition(loginUser, partitionId);
+			partitionServ.resendPartition(loginUser, exportPartitionId);
 			rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

@@ -151,7 +151,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	@Transactional
-	private void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+	public void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		try {
 
 			generateDraftData(partition);
@@ -161,17 +161,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setLastUpdatedBy(loginUser.getUserName());
 			partitionDefRepo.save(partition);
 
-			log.info("generating event log for refreshing parttion");
-
-			EventNotification event = new EventNotification();
-			event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-			event.setEventType(EventTypeDefinition.Partition_Draft.value());
-			event.setReferenceId(partition.getId());
-			event.setCustomerName(loginUser.getCustomerName());
-			event.setStatus("new");
-			event.setMessage("Genrated draft data for partition " + partition.getName());
-			eventRepo.save(event);
-			eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);
+			sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data,
 			        "generated partition draft data set:" + partition.getId());
@@ -285,7 +275,6 @@ public class PartitionServiceImpl implements PartitionService {
 	@Async
 	public void exportPartition(UserDefinition loginUser, Integer partitionId) {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		HttpResponseMessage httpResponseMessage;
 		PartitionDefinition partition = null;
 		String prevStatus = null;
 		try {
@@ -300,18 +289,16 @@ public class PartitionServiceImpl implements PartitionService {
 			if (refresh) {
 				partition = syncRefreshPartition(loginUser, partitionId); 
 			}
+			
 			prevStatus = partition.getStatus();
 			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
-			 
+			
+			sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Export.value(), "export data are ready for partition " + partition.getName());
+
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
 			if (customer.getExportTarget() != null) {
 				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
-				httpResponseMessage = sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
-				log.info("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
-				if (!"success".equals(httpResponseMessage.getStatus())){
-					throw new AppException(httpResponseMessage.getMessage());
-				}
-				
+				sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 			}
 			
 		} catch (AppException e) {
@@ -324,45 +311,35 @@ public class PartitionServiceImpl implements PartitionService {
 
 		return;
 	}
+	
+	private void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
+		EventNotification event = new EventNotification();
+		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+		event.setEventType(type);
+		event.setReferenceId(partitionId);
+		event.setCustomerName(loginUser.getCustomerName());
+		event.setStatus("new");
+		event.setMessage(message);
+		eventRepo.save(event);
+		eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);	
+	}
+	
+	
 	@Override
 	@Async
-	public void resendPartition(UserDefinition loginUser, Integer partitionId) {
-		CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		HttpResponseMessage httpResponseMessage;
-		String prevStatus = null;
-		PartitionDefinition partition = null;
+	public void resendPartition(UserDefinition loginUser, Integer exportPartitionId) {
 		try {
-			partition = partitionDefRepo.findOne(partitionId);
-
-			if (partition == null) {
-				log.error("Invalid partitionId: {}", partitionId);
-				throw new AppException("Invalid partition Id: " + partitionId);
-			}
-			log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
-			List<PartitionExportHistory> partHistList = exportRepo.findAllByPartitionId(partitionId);
-			if (partHistList == null || partHistList.isEmpty()) {
-				log.error("No partition history data found for partition: {}", partitionId);
-				throw new AppException("No partition history data found for partition: " + partitionId);
-			}
-			prevStatus = partition.getStatus();
-			PartitionExportHistory partHist = 	partHistList.get(0);
-			 
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
+			log.info("exportPartition: exportPartitionId: {}", exportPartitionId);
+			PartitionExportHistory partHist = exportRepo.findOne(exportPartitionId);
+			 
 			if (customer.getExportTarget() != null) {
-				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
-				httpResponseMessage = sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
-				if (!"success".equals(httpResponseMessage.getStatus())){
-					log.error("Http response: status: {}, message: {}, httpStatus: {}", httpResponseMessage.getStatus(), httpResponseMessage.getMessage(), httpResponseMessage.getHttpStatus());
-					throw new AppException(httpResponseMessage.getMessage());
-				}
+				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}", partHist.getPartitionId());
+				sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 			}
 			
 		} catch (AppException e) {
-			log.error("Error to export partition:", e);
-			if (partition != null) {
-				partition.setStatus(prevStatus);
-				partitionDefRepo.save(partition);
-			}
+			log.error("Error to resend partition:", e);
 		}
 
 		return;
@@ -413,7 +390,6 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Transactional
 	private PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-		HttpResponseMessage httpResponseMessage = null;
 		List<String> WL_DataType = new ArrayList<String>();
 		List<String> NON_WL_DataType = new ArrayList<String>();
 		WL_DataType.add(PartitionDataType.WhiteList.value());
@@ -475,6 +451,7 @@ public class PartitionServiceImpl implements PartitionService {
 			
 			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", partition.getId(),
 			        newPartition.getId());
+			
 			partitionDataRepo.movePartition(partition.getId(), newPartition.getId());
 	
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data,
@@ -499,12 +476,12 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 	
 	@Transactional
-	private HttpResponseMessage sendExportFile2EI(UserDefinition loginUser, PartitionExportHistory partHist, String url) throws AppException {
+	private void sendExportFile2EI(UserDefinition loginUser, PartitionExportHistory partHist, String url) throws AppException {
 
 		HttpResponseMessage httpResponseMessage = null;
 		
 		if (url == null)  
-			  return httpResponseMessage;
+			  return;
 		
 		String fileName = makeFileName();
 		// create file 1 from ExportFileShort
@@ -517,11 +494,8 @@ public class PartitionServiceImpl implements PartitionService {
 	        	
 				Files.write(path1, partHist.getExportFileShort());
 			} catch (IOException e) {
-				log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e.getMessage());
+				log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e);
 				httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file1, "failed", null);
-				e.printStackTrace();
-				
-				
 			}
 		}
 		
@@ -536,10 +510,8 @@ public class PartitionServiceImpl implements PartitionService {
 				try {
 					Files.write(path2, partHist.getExportWhitelist());
 				} catch (IOException e) {
-					log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e.getMessage());
+					log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e);
 					httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file2, "failed", null);
-					e.printStackTrace();
-
 				}
 
 			}
@@ -577,7 +549,9 @@ public class PartitionServiceImpl implements PartitionService {
         log.debug("sendExportFile2EI: message: {}, status: {}, id: {}", httpResponseMessage.getMessage(), httpResponseMessage.getStatus(), httpResponseMessage.getId());
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, httpResponseMessage.getMessage());
         
-        return httpResponseMessage;
+		sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), "Successfully sent partition data to EI");
+
+        return;
 
 	}
 

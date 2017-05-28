@@ -33,6 +33,7 @@ public class PartitionExportHistory implements java.io.Serializable {
     private String referenceId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date exportDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date midDataLoadTime;
     private String status;
     private String reason;
@@ -42,10 +43,15 @@ public class PartitionExportHistory implements java.io.Serializable {
     }
 
 
-    public PartitionExportHistory(int id, int origPartitionId, Date exportDate, String status, String reason) {
+    public PartitionExportHistory(int id, int partitionId, int origPartitionId, Date exportDate, Date midDataLoadTime, Integer exportFileLongSize, Integer exportFileShortSize, Integer exportWhitelistSize, String status, String reason) {
         this.id = id;
+        this.partitionId = partitionId;
         this.origPartitionId = origPartitionId;
         this.exportDate = exportDate;
+        this.midDataLoadTime = midDataLoadTime;
+        this.exportFileLongSize = exportFileLongSize;
+        this.exportFileShortSize = exportFileShortSize;
+        this.exportWhitelistSize = exportWhitelistSize;
         this.status = status;
         this.reason = reason;
     }
