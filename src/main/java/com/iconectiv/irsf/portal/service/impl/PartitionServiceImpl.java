@@ -95,82 +95,6 @@ public class PartitionServiceImpl implements PartitionService {
         persistDraftData(loginUser, partition, partitionDataList);
 	}
 
-	//convert Range NDC to partition data
-	private PartitionDataDetails convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, RangeNdc obj) {
-        PartitionDataDetails p = new PartitionDataDetails();
-        p.setPartitionId(partition.getId());
-        p.setBillingId(obj.getBillingId());
-        p.setCc(obj.getCode());
-        p.setCustomerDate(obj.getEffectiveDate());
-        p.setDialPattern(obj.getCcNdc());
-        p.setIso2(obj.getIso2());
-        p.setNdc(obj.getNdc());
-        p.setNotes(null);
-        p.setProvider(obj.getProvider());
-        p.setReason(null);
-        p.setReference(rule.getId().toString());
-        p.setTos(obj.getTos());
-        p.setTosdesc(obj.getTosdesc());
-        p.setDataType("R");
-        return p;
-	}
-
-	private PartitionDataDetails convertIprnToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, Premium obj) {
-        PartitionDataDetails p = new PartitionDataDetails();
-        p.setPartitionId(partition.getId());
-        p.setBillingId(obj.getBillingId());
-        p.setCc(obj.getCode());
-        p.setCustomerDate(obj.getLastUpdate());
-
-        if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
-            p.setDialPattern(obj.getPrimeMinus2());
-        } else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
-            p.setDialPattern(obj.getPrimeMinus3());
-            if (p.getDialPattern() == null)
-                p.setDialPattern(obj.getPrimeMinus2());
-        } else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
-            p.setDialPattern(obj.getPrimeMinus3());
-            if (p.getDialPattern() == null)
-                p.setDialPattern(obj.getPrimeMinus3());
-            if (p.getDialPattern() == null)
-                p.setDialPattern(obj.getPrimeMinus2());
-        }
-
-        p.setIso2(obj.getIso2());
-        p.setNdc(obj.getNdc());
-        p.setNotes(null);
-        p.setProvider(obj.getProvider());
-        p.setReason(null);
-        p.setReference(rule.getId().toString());
-        p.setTos(obj.getTos());
-        p.setTosdesc(obj.getTosdesc());
-        p.setDataType(PartitionDataType.Rule.value());
-
-        return p;
-
-	}
-
-	private PartitionDataDetails convertListDetailsToPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, ListDetails obj) {
-        PartitionDataDetails p = new PartitionDataDetails();
-        p.setPartitionId(partition.getId());
-        p.setBillingId(obj.getBillingId());
-        p.setCc(obj.getCode());
-        p.setCustomerDate(obj.getCustomerDate());
-        p.setDialPattern(obj.getDialPattern());
-        p.setIso2(obj.getIso2());
-        p.setNdc(obj.getNdc());
-        p.setNotes(obj.getNotes());
-        p.setProvider(obj.getProvider());
-        p.setReason(obj.getReason());
-        p.setReference(listDef.getListName());
-        p.setTos(obj.getTos());
-        p.setTosdesc(obj.getTosdesc());
-        p.setDataType(listDef.getType());
-
-        return p;
-
-	}
-
 	/*
 	 * To export partition: 1. copy data to parition_export_history data and
 	 * move the status of current partition to "Locked" 2. clear data from
@@ -425,7 +349,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		listData.stream().forEach(listDetail -> {
 		    if (listDetail.isActive()) {
-                partitionDataList.add(convertListDetailsToPartitionDataDetails(partition, listDef, listDetail));
+                partitionDataList.add(listDetail.toPartitionDataDetails(partition, listDef));
             }
         });
 
@@ -453,12 +377,12 @@ public class PartitionServiceImpl implements PartitionService {
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
 			dataList.stream().forEach(entry -> {
-                partitionDataList.add(convertNdcToPartitionDataDetails(partition, rule, entry));
+                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
             });
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
 			List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
             dataList.stream().forEach(entry -> {
-                partitionDataList.add(convertIprnToPartitionDataDetails(partition, rule, entry));
+                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
             });
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());

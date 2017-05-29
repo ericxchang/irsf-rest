@@ -1,11 +1,15 @@
 package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.core.PartitionDataType;
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 
+import javax.persistence.*;
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -201,4 +205,42 @@ public class Premium implements java.io.Serializable {
     public void setBillingId(String billingId) {
         this.billingId = billingId;
     }
+
+	@Transient
+	public PartitionDataDetails toPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule) {
+		PartitionDataDetails p = new PartitionDataDetails();
+		p.setPartitionId(partition.getId());
+		p.setBillingId(this.getBillingId());
+		p.setCc(this.getCode());
+		p.setCustomerDate(this.getLastUpdate());
+
+		if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
+			p.setDialPattern(this.getPrimeMinus2());
+		} else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
+			p.setDialPattern(this.getPrimeMinus3());
+			if (p.getDialPattern() == null)
+				p.setDialPattern(this.getPrimeMinus2());
+		} else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
+			p.setDialPattern(this.getPrimeMinus3());
+			if (p.getDialPattern() == null)
+				p.setDialPattern(this.getPrimeMinus3());
+			if (p.getDialPattern() == null)
+				p.setDialPattern(this.getPrimeMinus2());
+		}
+
+		p.setIso2(this.getIso2());
+		p.setNdc(this.getNdc());
+		p.setNotes(null);
+		p.setProvider(this.getProvider());
+		p.setReason(null);
+		p.setReference(rule.getId().toString());
+		p.setTos(this.getTos());
+		p.setTosdesc(this.getTosdesc());
+		p.setDataType(PartitionDataType.Rule.value());
+
+		return p;
+
+	}
+
+
 }

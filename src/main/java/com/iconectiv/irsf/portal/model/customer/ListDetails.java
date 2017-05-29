@@ -132,7 +132,7 @@ public class ListDetails implements java.io.Serializable {
 		this.dialPattern = dialPattern;
 	}
 
-		
+
 	@Column(name = "match_cc_ndc", length = 15)
 	public String getMatchCCNDC() {
 		return matchCCNDC;
@@ -306,5 +306,27 @@ public class ListDetails implements java.io.Serializable {
 	public void setEffectiveDate(Date effectiveDate) {
 		this.effectiveDate = effectiveDate;
 	}
+
+    @Transient
+	public PartitionDataDetails toPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef) {
+        PartitionDataDetails p = new PartitionDataDetails();
+        p.setPartitionId(partition.getId());
+        p.setBillingId(this.getBillingId());
+        p.setCc(this.getCode());
+        p.setCustomerDate(this.getCustomerDate());
+        p.setDialPattern(this.getDialPattern());
+        p.setIso2(this.getIso2());
+        p.setNdc(this.getNdc());
+        p.setNotes(this.getNotes());
+        p.setProvider(this.getProvider());
+        p.setReason(this.getReason());
+        p.setReference(listDef.getListName());
+        p.setTos(this.getTos());
+        p.setTosdesc(this.getTosdesc());
+        p.setDataType(listDef.getType());
+
+        return p;
+    }
+
 
 }
