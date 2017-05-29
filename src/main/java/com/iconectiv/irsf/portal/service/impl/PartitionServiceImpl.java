@@ -54,13 +54,14 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Async
 	@Override
-	public void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
+	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
         PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
 		if (partition == null) {
-			throw new AppException("Invalid partition Id");
+			log.error("Invalid partition Id {}", partitionId);
+			return;
 		}
 		
 		syncRefreshPartition(loginUser, partition);
