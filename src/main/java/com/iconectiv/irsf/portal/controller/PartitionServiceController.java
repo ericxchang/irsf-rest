@@ -94,7 +94,7 @@ class PartitionServiceController extends BaseRestController {
 	@ResponseBody
 	public ResponseEntity<String> getPartitionList(@RequestHeader Map<String, String> header) {
 		ResponseEntity<String> rv;
-		if (log.isDebugEnabled()) log.debug("Receive get partition list request ...");
+
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -251,7 +251,6 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> resendPartitionRequest(@RequestHeader Map<String, String> header,
 	        @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
-		log.info("resendPartitionRequest(): exportPartitionId: {}", exportPartitionId);
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -278,7 +277,6 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header,
 	        @PathVariable Integer partitionId) {
 		ResponseEntity<String> rv;
-		log.info("refreshPartitionRequest(): partitionId: {}", partitionId);
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -327,7 +325,8 @@ class PartitionServiceController extends BaseRestController {
 
 			if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
 				rv = makeSuccessResult("System is generating partition data, please come back later");
-			} else if (partition.getStatus().equals(PartitionStatus.Stale.value())
+			}
+			else if (partition.getStatus().equals(PartitionStatus.Stale.value())
 			        || partition.getStatus().equals(PartitionStatus.Fresh.value())) {
 				rv = makeSuccessResult("System is generating partition data, please come back later");
 				partitionServ.refreshPartition(loginUser, partitionId);
