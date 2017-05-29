@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PartitionService {
-	void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
+	void refreshPartition(UserDefinition loginUser, Integer partitionId);
 
     @Transactional
     void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException;

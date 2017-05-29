@@ -67,7 +67,7 @@ public class PartitionServiceImpl implements PartitionService {
 		syncRefreshPartition(loginUser, partition);
 	}
 
-	public PartitionDefinition syncRefreshPartition(UserDefinition loginUser, PartitionDefinition partition) {
+	private PartitionDefinition syncRefreshPartition(UserDefinition loginUser, PartitionDefinition partition) {
 		Assert.notNull(partition);
 		
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
@@ -213,7 +213,6 @@ public class PartitionServiceImpl implements PartitionService {
 			partitionDefRepo.save(partition);
 		}
 
-		return;
 	}
 
 	@Override
@@ -242,7 +241,6 @@ public class PartitionServiceImpl implements PartitionService {
 			exportService.sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 		}
 
-		return;
 	}
 
 
@@ -257,12 +255,10 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException("Partition has been exported");
 		}
 
-		return;
 	}
 
 	private boolean validateParitionExportStatus(PartitionDefinition partition) throws AppException {
 		boolean refreshFlag = false;
-		partition = partitionDefRepo.findOne(partition.getId());
 		Assert.notNull(partition);
 
 		if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
@@ -280,22 +276,18 @@ public class PartitionServiceImpl implements PartitionService {
 			refreshFlag = true;
 		}
 
-		//if (!partition.getStatus().equals(PartitionStatus.Draft.value())) {
-		//	throw new AppException("System has not generated partition data set");
-		//}
-
 		return refreshFlag;
 	}
 
 	@Transactional
-	public PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+	private PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
 
-		List<String> WL_DataType = new ArrayList<>();
-		List<String> NON_WL_DataType = new ArrayList<>();
-		WL_DataType.add(PartitionDataType.WhiteList.value());
-		NON_WL_DataType.add(PartitionDataType.BlackList.value());
-		NON_WL_DataType.add(PartitionDataType.Rule.value());
+		List<String> wlDataType = new ArrayList<>();
+		List<String> nonWLDataType = new ArrayList<>();
+		wlDataType.add(PartitionDataType.WhiteList.value());
+		nonWLDataType.add(PartitionDataType.BlackList.value());
+		nonWLDataType.add(PartitionDataType.Rule.value());
 
 		PartitionExportHistory partHist = new PartitionExportHistory();
 
@@ -311,8 +303,8 @@ public class PartitionServiceImpl implements PartitionService {
 					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
 
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
-			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
-			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),WL_DataType);
+			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), nonWLDataType);
+			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),wlDataType);
 
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
 			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
@@ -442,7 +434,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     //TODO use pageination
 	private void generatePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
-		RangeQueryFilter filter = null;
+		RangeQueryFilter filter;
 
         if (!rule.isActive()) {
             log.info("skip inactive rule, rule_id: {}", rule.getId());
@@ -681,15 +673,12 @@ public class PartitionServiceImpl implements PartitionService {
 			log.info("Change partition {} to stale", partition.getId());
 			setPartitionToStale(loginUser, partition, reason);
 		}
-
-		return;
 	}
 
 	@Override
 	public void checkStale(UserDefinition loginUser, Integer partitionId, String reason) {
 		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 		checkStale(loginUser, partition, reason);
-		return;
 	}
 
 	@Override
