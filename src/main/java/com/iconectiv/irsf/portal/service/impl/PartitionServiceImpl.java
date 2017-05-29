@@ -317,9 +317,9 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
 			partHist.setExportWhitelist(StringUtils.collectionToDelimitedString(whiteList, "\n").getBytes());
 
-			partHist.setExportFileLongSize(partHist.getExportFileLong().length);
-			partHist.setExportFileShortSize(partHist.getExportFileShort().length);
-			partHist.setExportWhitelistSize(partHist.getExportWhitelist().length);
+			partHist.setExportFileLongSize(partitionDataListLong.size());
+			partHist.setExportFileShortSize(partitionDataListShort.size());
+			partHist.setExportWhitelistSize(whiteList.size());
 
 			log.info(
 					"exportPartitionData(): partitionId: {}, size of exportFileLong: {}, size of exportFileShort: {}, size of exportWhitelist: {}",

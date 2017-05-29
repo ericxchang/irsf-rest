@@ -70,7 +70,7 @@ public class ListDefinition implements java.io.Serializable {
 		this.listName = listName;
 	}
 
-	@Column(name = "type", nullable = false, length = 3)
+	@Column(name = "type", nullable = false, length = 2)
 	public String getType() {
 		return this.type;
 	}
