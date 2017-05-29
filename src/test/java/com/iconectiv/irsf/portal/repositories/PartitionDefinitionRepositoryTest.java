@@ -1,10 +1,14 @@
 package com.iconectiv.irsf.portal.repositories;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.PartitionStatus;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,14 +22,10 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.core.PartitionStatus;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
-import com.iconectiv.irsf.util.DateTimeHelper;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -39,10 +39,17 @@ public class PartitionDefinitionRepositoryTest {
 	PartitionDefinitionRepository partitionRepo;
 	@Autowired
 	PartitionExportHistoryRepository exportRepo;
+	@Autowired
+	FileHandlerService fileService;
 	
 	@Before
 	public void setUp() throws Exception {
     	CustomerContextHolder.setSchema("cust01");
+	}
+	
+	@Test
+	public void testSavePartitionFile() {
+		
 	}
 	
 	@Test
@@ -110,4 +117,5 @@ public class PartitionDefinitionRepositoryTest {
 		
 		return partition;
 	}
+	
 }

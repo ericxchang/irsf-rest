@@ -77,9 +77,11 @@ public class AuthServiceController extends BaseRestController {
 				if (!customer.isActive()) {
 					throw new AuthException("Customer " + customer.getCustomerName() + " is NOT active");
 				}
+				loginUser.setCustomerName(customer.getCustomerName());
+				loginUser.setSchemaName(customer.getSchemaName());
 			}
 			
-            auditService.saveAuditTrailLog(user.getUserName(), user.getCustomerName(), "login", request.getRemoteAddr());
+            auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "login", request.getRemoteAddr());
 			
 			String token = JWTUtil.createToken(loginUser);
 			rv = makeSuccessResult("successful login", token);

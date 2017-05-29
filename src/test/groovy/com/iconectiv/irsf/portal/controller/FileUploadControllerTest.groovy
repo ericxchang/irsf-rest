@@ -4,6 +4,7 @@ import com.iconectiv.irsf.jwt.JWTUtil
 import com.iconectiv.irsf.portal.core.PermissionRole
 import com.iconectiv.irsf.portal.model.common.UserDefinition
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository
+import com.iconectiv.irsf.portal.service.FileHandlerService
 import com.iconectiv.irsf.util.DateTimeHelper
 import org.junit.Before
 import org.junit.Test
@@ -23,9 +24,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
 import static groovyx.gpars.GParsPool.withPool
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = ["classpath:spring-cfg.xml", "classpath:spring-jpa.xml"])
@@ -41,14 +41,17 @@ class FileUploadControllerTest extends GroovyTestCase {
     MockHttpServletRequest request
     @Autowired
     ListDefinitionRepository listDefRepo
+	@Autowired
+	FileHandlerService fileService
 
+	
     private MockMvc mockMvc
 
     @Before
     void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
     }
-	
+
 	@Test
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')

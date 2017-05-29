@@ -1,99 +1,30 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.*;
+import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.*;
+import com.iconectiv.irsf.portal.model.customer.*;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
+import com.iconectiv.irsf.portal.repositories.customer.*;
+import com.iconectiv.irsf.portal.service.*;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import com.iconectiv.irsf.json.vaidation.JsonValidationException;
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.core.AppConstants;
-import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
-import com.iconectiv.irsf.portal.core.EventTypeDefinition;
-import com.iconectiv.irsf.portal.core.PartitionDataType;
-import com.iconectiv.irsf.portal.core.PartitionExportStatus;
-import com.iconectiv.irsf.portal.core.PartitionStatus;
-import com.iconectiv.irsf.portal.exception.AppException;
-import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
-import com.iconectiv.irsf.portal.model.common.EventNotification;
-import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
-import com.iconectiv.irsf.portal.model.common.Premium;
-import com.iconectiv.irsf.portal.model.common.RangeNdc;
-import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDetails;
-import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
-import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
-import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
-import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
-import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
-import com.iconectiv.irsf.portal.service.AuditTrailService;
-import com.iconectiv.irsf.portal.service.EventNotificationService;
-import com.iconectiv.irsf.portal.service.ListService;
-import com.iconectiv.irsf.portal.service.MobileIdDataService;
-import com.iconectiv.irsf.portal.service.PartitionService;
-import com.iconectiv.irsf.util.DateTimeHelper;
-import com.iconectiv.irsf.util.JsonHelper;
-import com.iconectiv.irsf.util.MultipleFileZip;
-
-import io.jsonwebtoken.lang.Assert;
+import java.util.*;
 
 @Service
 public class PartitionServiceImpl implements PartitionService {
 	private static Logger log = LoggerFactory.getLogger(PartitionServiceImpl.class);
-
-	final String RANGE_NDC_TYPE = "Range NDC";
-	final String PREMIUM_RANGE_TYPE = "IPRN";
-	final String PRIME2 = "PRIME-2";
-	final String PRIME3 = "PRIME-3";
-	final String PRIME4 = "PRIME-4";
-	final String CSV_COMMON_SEPERATOR = "|";
-	final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
-	final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
-
-	@Value("${export.file.path:/apps/irsf/data/export/}")
-	private String exportFilePath;
 
 	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
@@ -108,8 +39,6 @@ public class PartitionServiceImpl implements PartitionService {
 	@Autowired
 	private MobileIdDataService mobileIdService;
 	@Autowired
-	private ListDetailsRepository listDetailsRepo;
-	@Autowired
 	private ListDefinitionRepository listDefinitionRepo;
 	@Autowired
 	private EventNotificationService eventService;
@@ -119,62 +48,60 @@ public class PartitionServiceImpl implements PartitionService {
 	private CustomerDefinitionRepository customerRepo;
 	@Autowired
 	private	ListService listService;
+	@Autowired
+	@Lazy
+	private PartitionExportService exportService;
 
 	@Async
 	@Override
-	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
-		syncRefreshPartition(loginUser, partitionId);
-	}
-	public PartitionDefinition syncRefreshPartition(UserDefinition loginUser, Integer partitionId) {
-		CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		String prevStatus = null;
-		PartitionDefinition partition = null;
-		try {
-			partition = partitionDefRepo.findOne(partitionId);
+	public void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
+		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
-			if (partition == null) {
-				throw new AppException("Invalid partition Id");
-			}
+		if (partition == null) {
+			throw new AppException("Invalid partition Id");
+		}
+		
+		syncRefreshPartition(loginUser, partition);
+	}
+
+	public PartitionDefinition syncRefreshPartition(UserDefinition loginUser, PartitionDefinition partition) {
+		Assert.notNull(partition);
+		
+		CustomerContextHolder.setSchema(loginUser.getSchemaName());
+		String prevStatus = partition.getStatus();
+        try {
 			validateParitionStatus(partition);
 
-			prevStatus = partition.getStatus();
 			partition.setStatus(PartitionStatus.InProgress.value());
 			partitionDefRepo.save(partition);
+
 			refreshParitionData(loginUser, partition);
 		} catch (AppException e) {
 			log.error("Error to refresh partition:", e);
-			if (partition != null) {
-				partition.setStatus(prevStatus);
-				partitionDefRepo.save(partition);
-			}
+			partition.setStatus(prevStatus);
+			partitionDefRepo.save(partition);
 		}
 		return partition;
 	}
 
 	@Transactional
 	public void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-		try {
+		Assert.notNull(partition);
 
-			generateDraftData(partition);
+		generateDraftData(partition);
 
-			partition.setStatus(PartitionStatus.Draft.value());
-			partition.setDraftDate(DateTimeHelper.nowInUTC());
-			partition.setLastUpdatedBy(loginUser.getUserName());
-			partitionDefRepo.save(partition);
+		partition.setStatus(PartitionStatus.Draft.value());
+		partition.setDraftDate(DateTimeHelper.nowInUTC());
+		partition.setLastUpdatedBy(loginUser.getUserName());
+		partitionDefRepo.save(partition);
 
-			sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
+		sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
 
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data,
-					"generated partition draft data set:" + partition.getId());
-		} catch (Exception e) {
-			log.error("Error on export partition data", e);
-			throw new AppException(e);
-		}
+		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
 	}
 
-	private List<PartitionDataDetails> convertNdcToPartitionDataDetails(PartitionDefinition partition,
-			RuleDefinition rule, List<RangeNdc> list) {
-		List<PartitionDataDetails> pdList = new ArrayList<PartitionDataDetails>(list.size());
+	private List<PartitionDataDetails> convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<RangeNdc> list) {
+		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
 		for (RangeNdc obj : list) {
 			PartitionDataDetails p = new PartitionDataDetails();
 			p.setPartitionId(partition.getId());
@@ -198,9 +125,8 @@ public class PartitionServiceImpl implements PartitionService {
 
 	}
 
-	private List<PartitionDataDetails> convertIprnToPartitionDataDetails(PartitionDefinition partition,
-			RuleDefinition rule, List<Premium> list) {
-		List<PartitionDataDetails> pdList = new ArrayList<PartitionDataDetails>(list.size());
+	private List<PartitionDataDetails> convertIprnToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<Premium> list) {
+		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
 		for (Premium obj : list) {
 			PartitionDataDetails p = new PartitionDataDetails();
 			p.setPartitionId(partition.getId());
@@ -208,13 +134,13 @@ public class PartitionServiceImpl implements PartitionService {
 			p.setCc(obj.getCode());
 			p.setCustomerDate(obj.getLastUpdate());
 
-			if (PRIME2.equals(rule.getDialPatternType())) {
+			if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
 				p.setDialPattern(obj.getPrimeMinus2());
-			} else if (PRIME3.equals(rule.getDialPatternType())) {
+			} else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
 				p.setDialPattern(obj.getPrimeMinus3());
 				if (p.getDialPattern() == null)
 					p.setDialPattern(obj.getPrimeMinus2());
-			} else if (PRIME4.equals(rule.getDialPatternType())) {
+			} else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
 				p.setDialPattern(obj.getPrimeMinus3());
 				if (p.getDialPattern() == null)
 					p.setDialPattern(obj.getPrimeMinus3());
@@ -240,7 +166,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 	private List<PartitionDataDetails> convertListDetailsToPartitionDataDetails(PartitionDefinition partition,
 			ListDefinition listDef, List<ListDetails> list, String listType) {
-		List<PartitionDataDetails> pdList = new ArrayList<PartitionDataDetails>(list.size());
+		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
 		for (ListDetails obj : list) {
 			if(obj.isActive()) {
 				PartitionDataDetails p = new PartitionDataDetails();
@@ -274,24 +200,23 @@ public class PartitionServiceImpl implements PartitionService {
 	 */
 	@Override
 	@Async
-	public void exportPartition(UserDefinition loginUser, Integer partitionId) {
+	public void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
 		CustomerContextHolder.setSchema(loginUser.getSchemaName());
-		PartitionDefinition partition = null;
-		String prevStatus = null;
-		try {
-			partition = partitionDefRepo.findOne(partitionId);
+		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
-			if (partition == null) {
-				throw new AppException("Invalid partition Id");
-			}
+		if (partition == null) {
+			throw new AppException("Invalid partition Id");
+		}
+		String prevStatus = partition.getStatus();
+		
+		try {
 			log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
 
 			boolean refresh = validateParitionExportStatus(partition);
 			if (refresh) {
-				partition = syncRefreshPartition(loginUser, partitionId); 
+				partition = syncRefreshPartition(loginUser, partition); 
 			}
 
-			prevStatus = partition.getStatus();
 			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
 
 			sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Export.value(), "export data are ready for partition " + partition.getName());
@@ -299,21 +224,20 @@ public class PartitionServiceImpl implements PartitionService {
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
 			if (customer.getExportTarget() != null) {
 				log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}, status: {}", partitionId, partition.getStatus());
-				sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
+				exportService.sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 			}
 
 		} catch (AppException e) {
 			log.error("Error to export partition:", e);
-			if (partition != null) {
-				partition.setStatus(prevStatus);
-				partitionDefRepo.save(partition);
-			}
+			partition.setStatus(prevStatus);
+			partitionDefRepo.save(partition);
 		}
 
 		return;
 	}
 
-	private void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
+	@Override
+	public void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
 		EventNotification event = new EventNotification();
 		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		event.setEventType(type);
@@ -335,7 +259,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		if (customer.getExportTarget() != null) {
 			log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}", partHist.getPartitionId());
-			sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
+			exportService.sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
 		}
 
 		return;
@@ -343,7 +267,6 @@ public class PartitionServiceImpl implements PartitionService {
 
 
 	private void validateParitionStatus(PartitionDefinition partition) throws AppException {
-		partition = partitionDefRepo.findOne(partition.getId());
 		Assert.notNull(partition);
 
 		if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
@@ -385,35 +308,35 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	@Transactional
-	private PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
-		List<String> WL_DataType = new ArrayList<String>();
-		List<String> NON_WL_DataType = new ArrayList<String>();
+	public PartitionExportHistory exportPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+		Assert.notNull(partition);
+
+		List<String> WL_DataType = new ArrayList<>();
+		List<String> NON_WL_DataType = new ArrayList<>();
 		WL_DataType.add(PartitionDataType.WhiteList.value());
 		NON_WL_DataType.add(PartitionDataType.BlackList.value());
 		NON_WL_DataType.add(PartitionDataType.Rule.value());
 
 		PartitionExportHistory partHist = new PartitionExportHistory();
-		StringBuffer sb = new StringBuffer();
-		String prevStatus = null;
+
+		String prevStatus = partition.getStatus();
 		try {
 			log.debug("exportPartitionData(): partitionId: {}; status: {}", partition.getId(), partition.getStatus());
-			prevStatus = partition.getStatus();
 			partition.setStatus(PartitionStatus.InProgress.value());
+
 			log.debug("exportPartitionData(): partitionId: {}; set status to:  {}", partition.getId(), partition.getStatus());
 			partitionDefRepo.save(partition);
-			EventNotification event = eventRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(
-					IRSF_DATA_LOADER_CUSTOMER_NAME, IRSF_DATA_LOADER_EVENT_TYPE);
 
-			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo
-					.findAllByPartitionId(partition.getId());
-			List<String> partitionDataListShort = partitionDataRepo
-					.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
-			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),
-					WL_DataType);
+			EventNotification event = eventRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(
+					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
+
+			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
+			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), NON_WL_DataType);
+			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),WL_DataType);
 
 			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
-			partHist.setExportFileShort(buildByteArrayFromList(partitionDataListShort));
-			partHist.setExportWhitelist(buildByteArrayFromList(whiteList));
+			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
+			partHist.setExportWhitelist(StringUtils.collectionToDelimitedString(whiteList, "\n").getBytes());
 
 			partHist.setExportFileLongSize(partHist.getExportFileLong().length);
 			partHist.setExportFileShortSize(partHist.getExportFileShort().length);
@@ -439,326 +362,138 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setLastUpdatedBy(loginUser.getUserName());
 
 			log.debug("exportPartitionData(): update  PartitionDefinition");
-			partition = partitionDefRepo.save(partition);
+			partitionDefRepo.save(partition);
 
 
 			log.debug("exportPartitionData(): clone partitionDefinition");
 			PartitionDefinition newPartition = clonePartition(loginUser, partition);
 
-			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", partition.getId(),
-					newPartition.getId());
+			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", partition.getId(), newPartition.getId());
 
 			partitionDataRepo.movePartition(partition.getId(), newPartition.getId());
 
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data,
-					"export partition data set " + partition.getId());
-
-
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
-			if (partition != null) {
-				partition.setStatus(prevStatus);
-				log.debug("exportPartitionData(): partitionId: {}; reset status back to:  {}", partition.getId(), prevStatus);
-				try {
-					partitionDefRepo.save(partition);
-				} catch (Exception e1) {
-					throw new AppException(e1);
-				}
-			}
+
+			partition.setStatus(prevStatus);
+			log.debug("exportPartitionData(): partitionId: {}; reset status back to:  {}", partition.getId(), prevStatus);
+			partitionDefRepo.save(partition);
 			throw new AppException(e);
 		}
 
 		return partHist;
 	}
 
-	@Transactional
-	private void sendExportFile2EI(UserDefinition loginUser, PartitionExportHistory partHist, String url) {
-		try {
-			HttpResponseMessage httpResponseMessage = null;
-
-			if (url == null)  
-				return;
-
-			String fileName = makeFileName();
-			// create file 1 from ExportFileShort
-			String file1 = null;
-			if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
-				file1 = exportFilePath + loginUser.getUserName() + "_" + fileName + ".csv";
-				Path path1 = Paths.get(file1);
-				log.info("write path: " + path1.getFileName());
-				try {
-
-					Files.write(path1, partHist.getExportFileShort());
-				} catch (IOException e) {
-					log.error("sendExportFile2EI: write file: {}, Exception: {} ", file1, e);
-					httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file1, "failed", null);
-				}
-			}
-
-			// create file 2 from ExportWhitelist
-			String file2 = null;
-			List<String> files = new ArrayList<String>();
-			if (partHist.getExportWhitelist() != null && partHist.getExportWhitelist().length > 0) {
-				file2 = exportFilePath + loginUser.getUserName() + "_WL_" + fileName + ".csv";
-				Path path2 = Paths.get(file2);
-				if (httpResponseMessage == null) {
-					log.info("write path: " + path2.getFileName());
-					try {
-						Files.write(path2, partHist.getExportWhitelist());
-					} catch (IOException e) {
-						log.error("sendExportFile2EI: write file: {}, Exception: {} ", file2, e);
-						httpResponseMessage = new HttpResponseMessage(null, "Failed to write " + file2, "failed", null);
-					}
-
-				}
-			}
-			// if no error, add files to a list
-			if (httpResponseMessage == null) {
-				if (file1 != null)
-					files.add(file1);
-
-				if (file2 != null)
-					files.add(file2);
-			}
-			// if no file was added to the list, return error
-			if (files.isEmpty()) {
-				log.error("sendExportFile2EI: no file is avaiaable to be resent");
-				httpResponseMessage = new HttpResponseMessage(null, "no file is avaiaable to be resent", "failed", null);
-			}
-
-			// if everything is OK, zip the file and send it to EI server
-			if (httpResponseMessage == null) {
-				String zipFile = exportFilePath + loginUser.getUserName() + fileName + "_export.zip";
-				makeZipFile(zipFile, files);
-				url = url + "?customer=" + loginUser.getCustomerName() + "&partition=" + partHist.getId();
-				httpResponseMessage = uploadFiles(zipFile, url);
-
-				partHist.setStatus(httpResponseMessage.getStatus());
-				partHist.setReferenceId(httpResponseMessage.getId());
-				log.debug(
-						"sendExportFile2EI(): update PartitionExportHistory with status: {}, partition export history id: {}, EI reference ID: ",
-						httpResponseMessage.getStatus(), partHist.getId(), httpResponseMessage.getId());
-				partHist = exportRepo.save(partHist);
-
-			}
-
-			log.debug("sendExportFile2EI: message: {}, status: {}, id: {}", httpResponseMessage.getMessage(), httpResponseMessage.getStatus(), httpResponseMessage.getId());
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, httpResponseMessage.getMessage());
-
-			sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), httpResponseMessage.getMessage());
-		} catch (Exception e) {
-			log.error("Error to send to EI", e);
-			partHist.setStatus(AppConstants.FAIL);
-			partHist = exportRepo.save(partHist);
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage());
-			sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), e.getMessage());
-		}
-		return;
-	}
-
-	private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
-		String status = "success";
-		HttpResponseMessage  httpMsg = null;
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		HttpEntity<String> httpEntity;
-		ResponseEntity<String> statusResponse;
-
-		// set headers here:
-		//headers.set("requester", "test");
-		//headers.set("Authorization", "Token KqY+VEP3A/Cj");
-		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		httpEntity = new HttpEntity(headers);
-
-		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		map.add("file", new FileSystemResource(uploadFleName));
-		try {
-			statusResponse = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<MultiValueMap<String, Object>>(map, headers), String.class);
-			HttpStatus httpStatus =  statusResponse.getStatusCode() ;
-			log.info("HttpStatus: " + httpStatus);
-
-			if (statusResponse.hasBody()) {
-				log.info(statusResponse.getBody().toString());
-				String jsonString = statusResponse.getBody();
-
-				Map<String, String> messages = JsonHelper.fromJson(jsonString, Map.class);
-				Set<String> keys = messages.keySet();
-				Iterator<String> it = keys.iterator();
-				String rtnMessage = null;
-				String rtnStatus = null;
-				String rtnId = null;
-
-				while (it.hasNext()) {
-					String key = it.next();
-					if ("message".equals(key)) {
-						rtnMessage = messages.get(key);
-					}
-					else if ("status".equals(key)) {
-						rtnStatus = messages.get(key);
-					}
-					else if ("id".equals(key)) {
-						rtnId = messages.get(key);
-					}
-				}
-
-				httpMsg = new HttpResponseMessage(httpStatus, rtnMessage, rtnStatus, rtnId ); 
-				log.info("message: {}, status: {}, id: {}", rtnMessage, rtnStatus, rtnId);
-
-
-			}
-
-		} catch(JsonValidationException e) {
-			log.error(e.getMessage());
-			httpMsg = new HttpResponseMessage(null, e.getMessage(),"failed", null ); 
-
-		} catch(HttpClientErrorException e) {
-			String msg = "Document not found! Status code " + e.getStatusCode();
-			log.error(msg);
-			httpMsg = new HttpResponseMessage(null, msg,"failed", null ); 
-
-		}
-
-		return httpMsg;
-	}
-	private String makeFileName() {
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		String timeString = DateTimeHelper.formatDate(new Date(), format);
-		return timeString;
-	}
-	private boolean makeZipFile(String fileName, List<String> files) {
-		boolean cc = true;
-		MultipleFileZip mfe = new MultipleFileZip();
-		String zipfile  = "";
-		try {
-			zipfile = mfe.zipFiles(fileName, files);
-			log.info("makeZipFile(): filename: {}, number of files inside the zip file: ", zipfile, files.size());
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			cc = false;
-			e.printStackTrace();
-		}
-		return cc;
-	}
 	private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
 		log.info("buildPartitionDataLong(): number of rows: {}", list.size());
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (PartitionDataDetails p : list) {
-			sb.append(p.toCSVheader(CSV_COMMON_SEPERATOR));
+			sb.append(p.toCSVheader(AppConstants.CSV_COMMON_SEPERATOR));
 			sb.append("\n");
 		}
 		list.clear();
-		list = null;
-		return sb.toString().getBytes();
-
-	}
-
-	private byte[] buildByteArrayFromList(List<String> list) {
-		log.info("buildByteArrayFromList(): number of rows: {}", list.size());
-		StringBuffer sb = new StringBuffer();
-		for (String p : list) {
-			sb.append(p);
-			sb.append("\n");
-		}
-		list.clear();
-		list = null;
 		return sb.toString().getBytes();
 
 	}
 
 	private void generateDraftData(final PartitionDefinition partition) {
-
-		List<PartitionDataDetails> partitionDataList = null;
-
 		List<RuleDefinition> rules = partition.getRuleDefinitions();
 		if (rules == null || rules.isEmpty()) {
 			rules = ruleRepo.findAllByPartitionId(partition.getId());
 		}
+
 		log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
 		partitionDataRepo.deleteByPartitionId(partition.getId());
-		int rangeNdcCount = 0;
-		int premiumCount = 0;
-		int WLcount = 0;
-		int BLCount = 0;
+		int ndcCount = 0;
+		int wlCount = 0;
+		int blCount = 0;
+
 		for (RuleDefinition rule : rules) {
 			if (!rule.isActive()) {
 				log.info("skip inactive rule, rule_id: {}", rule.getId());
 				continue;
 			}
-			partitionDataList = null;
-			RangeQueryFilter filter = null;
 
-			try {
-				filter = rule.getRangeQueryFilter();
-			} catch (AppException e) {
-				log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.toString(), rule.getId(),
-						rule.getDetails());
-				continue;
-			}
-			log.debug("generateDraftData: retrieve all partition data for ruleId: {}", rule.getId());
-			if (RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-				List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
-				if (list != null && !list.isEmpty()) {
-					rangeNdcCount = list.size();
-					log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", rangeNdcCount, rule.getId());
-					partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
-					log.debug("generateDraftData: build {} partition records", partitionDataList.size());
-				}
-				else {
-					log.info("generateDraftData: no range_ndc data for ruleId: {}", rule.getId());
-				}
-			} else if (PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-				List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
-				if (list != null && !list.isEmpty()) {
-					premiumCount = list.size();
-					log.debug("generateDraftData: found {} rows of premium for ruleId: {}", premiumCount, rule.getId());
-					partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
-					log.debug("generateDraftData: build {} partition records", partitionDataList.size());
-				}
-				else {
-					log.info("generateDraftData: no premium data for ruleId: {}", rule.getId());
-				}
-			} else {
-				log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
-			}
-			if (partitionDataList != null && !partitionDataList.isEmpty()) {
-				log.debug("generateDraftData: save partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
-				partitionDataRepo.batchUpdate(partitionDataList);
-				log.debug("generateDraftData: successfully saved partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
-			}
+			ndcCount += persistePartitionDataFromRule(partition, rule);
 		}
+
 		log.debug("generateDraftData: retrieve white list data for partitionId: {}, WLId: {}", partition.getId(), partition.getWlId());
-		partitionDataList = null;
 		if (partition.getWlId() != null) {
-			ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
-			//List<ListDetails> wlList = listDetailsRepo.findAllByListRefId(partition.getWlId());
-			List<ListDetails> wlList = listService.getListDetailDataByListId(partition.getWlId());
-			if (wlList != null && !wlList.isEmpty()) {
-				WLcount = wlList.size();
-				log.debug("generateDraftData: found {} rows in the white list: {}", WLcount, partition.getWlId());
-				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList, PartitionDataType.WhiteList.value());
-				partitionDataRepo.batchUpdate(partitionDataList);
-			}
+			wlCount = persistListData(partition, partition.getWlId(), PartitionDataType.WhiteList.value());
 		}
+
 		log.debug("generateDraftData: retrieve black list data for partitionId: {}, WLId: {}", partition.getId(), partition.getBlId());
-		partitionDataList = null;
 		if (partition.getBlId() != null) {
-			//List<ListDetails> blList = listDetailsRepo.findAllByListRefId(partition.getBlId());
-			List<ListDetails> blList = listService.getListDetailDataByListId(partition.getBlId());
-			if (blList != null && !blList.isEmpty()) {
-				BLCount = blList.size();
-				log.debug("generateDraftData: found {} rows in the black list: {}", BLCount, partition.getBlId());
-				ListDefinition listDef = listDefinitionRepo.findOne(partition.getBlId());
-				partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, blList, PartitionDataType.BlackList.value());
-				partitionDataRepo.batchUpdate(partitionDataList);
-			}
+			blCount = persistListData(partition, partition.getBlId(), PartitionDataType.BlackList.value());
 		}
-		if (rangeNdcCount + premiumCount + WLcount + BLCount > 0)
-			log.info("Completed generating partition data, NDC_RANGE count: {}, IPRN count: {}, WL count : {}, BL count: {}", rangeNdcCount, premiumCount, WLcount, BLCount);
-		else {
-			log.info("No rows found for partition: {}", partition.getId());
-		}
+
+
+		log.info("Total size of ndc data: {}, bl data: {}, wl data {}", ndcCount, blCount, wlCount);
 
 		return;
+	}
+
+	private int persistListData(PartitionDefinition partition, Integer wlId, String type) {
+		List<PartitionDataDetails> partitionDataList = new ArrayList<>();
+		ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
+
+		List<ListDetails> wlList = listService.getListDetailDataByListId(partition.getWlId());
+
+		if (wlList != null && !wlList.isEmpty()) {
+			partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList, type);
+			log.debug("generateDraftData: found {} rows in the white list: {}", partitionDataList.size(), partition.getWlId());
+			partitionDataRepo.batchUpdate(partitionDataList);
+		}
+		return 0;
+	}
+
+	private int persistePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule) {
+		List<PartitionDataDetails> partitionDataList = new ArrayList<>();
+		RangeQueryFilter filter = null;
+
+		try {
+			filter = rule.getRangeQueryFilter();
+		} catch (AppException e) {
+			log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.getMessage(), rule.getId(), rule.getDetails());
+			return 0;
+		}
+
+		log.debug("generateDraftData: retrieve all partition data for ruleId: {}", rule.getId());
+
+		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
+			List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
+			if (list != null && !list.isEmpty()) {
+				log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", list.size(), rule.getId());
+				partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
+				log.debug("generateDraftData: build {} partition records", partitionDataList.size());
+			}
+			else {
+				log.info("generateDraftData: no range_ndc data for ruleId: {}", rule.getId());
+			}			
+		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
+			List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
+			if (list != null && !list.isEmpty()) {
+				log.debug("generateDraftData: found {} rows of premium for ruleId: {}", list.size(), rule.getId());
+				partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
+				log.debug("generateDraftData: build {} partition records", partitionDataList.size());
+			}
+			else {
+				log.info("generateDraftData: no premium data for ruleId: {}", rule.getId());
+			}
+		} else {
+			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
+		}
+
+		if (!partitionDataList.isEmpty()) {
+			log.debug("generateDraftData: save partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
+			partitionDataRepo.batchUpdate(partitionDataList);
+			log.debug("generateDraftData: successfully saved partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
+
+			return partitionDataList.size();
+		}
+
+		return 0; 
 	}
 
 	private PartitionDefinition clonePartition(UserDefinition loginUser, PartitionDefinition partition) {
@@ -771,14 +506,13 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setLastExportDate(null);
 		partition.setDraftDate(null);
 		partition.setLastUpdatedBy("cloned");
-		partition = partitionDefRepo.save(partition);
+		partitionDefRepo.save(partition);
 
 		List<String> ruleIds = cloneRules(loginUser, partition);
 
 		partition.setRuleIds(String.join(",", ruleIds));
 		partitionDefRepo.save(partition);
-		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Clone_Partition,
-				"clone new partition " + partition.getId());
+		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Clone_Partition, "clone new partition " + partition.getId());
 
 		return partition;
 	}
@@ -802,8 +536,7 @@ public class PartitionServiceImpl implements PartitionService {
 			ruleRepo.save(rule);
 
 			ruleIds.add(rule.getId().toString());
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Clone_Rule,
-					"clone new rule " + rule.getId());
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Clone_Rule,"clone new rule " + rule.getId());
 
 			if (log.isDebugEnabled())
 				log.debug("Clone new rule {}", rule.getId());
@@ -813,8 +546,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Transactional
 	@Override
-	public void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule)
-			throws AppException {
+	public void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule) throws AppException {
 		try {
 			Assert.notNull(partition);
 			Assert.notNull(rule);
@@ -864,12 +596,10 @@ public class PartitionServiceImpl implements PartitionService {
 				rule.setActive(false);
 				rule.setPartitionId(null);
 				ruleRepo.save(rule);
-				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_Rule,
-						"deactive rule " + ruleId);
+				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_Rule, "deactive rule " + ruleId);
 			}
 
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition,
-					"remove rule " + ruleId + " from partition " + partition.getId());
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
 			checkStale(loginUser, partition, "rule is removed");
 		} catch (Exception e) {
 			log.error("Fail to remove rule to parition: ", e);
@@ -879,11 +609,8 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	@Override
-	public PartitionDefinition removeRule(UserDefinition loginUser, Integer partitionId, Integer ruleId)
-			throws AppException {
+	public PartitionDefinition removeRule(UserDefinition loginUser, Integer partitionId, Integer ruleId) throws AppException {
 		try {
-			Assert.notNull(ruleId);
-
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 			removeRule(loginUser, partition, ruleId);
 			return partition;
@@ -915,7 +642,7 @@ public class PartitionServiceImpl implements PartitionService {
 	@Override
 	public List<PartitionDefinition> getAllActivePartitions() {
 		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
-		
+
 		if (log.isDebugEnabled()) log.debug("active partition size: {}", partitions.size());
 		for (PartitionDefinition partition : partitions) {
 			Integer origId = partition.getOrigPartitionId();
@@ -927,10 +654,8 @@ public class PartitionServiceImpl implements PartitionService {
 			String ruleIds = partition.getRuleIds();
 
 			if (ruleIds != null) {
-				for (String ruleId : ruleIds.split(",")) {
-					if (!ruleId.equals("")) {
-						partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
-					}
+				for (String ruleId : ruleIds.trim().split(",")) {
+					partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
 				}
 			}
 		}
@@ -953,7 +678,7 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partition.setLastUpdatedBy(loginUser.getUserName());
 
-		partition = partitionDefRepo.save(partition);
+		partitionDefRepo.save(partition);
 
 		if (partition.getOrigPartitionId() == null) {
 			partition.setOrigPartitionId(partition.getId());
@@ -1014,63 +739,17 @@ public class PartitionServiceImpl implements PartitionService {
 
 		EventNotification event = new EventNotification();
 		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-		event.setEventType(EventTypeDefinition.Partition_Draft.value());
+		event.setEventType(EventTypeDefinition.Partition_Stale.value());
 		event.setReferenceId(partition.getId());
 		event.setCustomerName(loginUser.getCustomerName());
 		event.setStatus("new");
 		event.setMessage("Partition " + partition.getName() + " is staled due to " + reason);
+		event.setLastUpdatedBy("system");
 		eventRepo.save(event);
+		
+		//broadcast to web client
 		eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);	
 	}
 
-
-	/*
-	 * TODO: The following condition can cause staled draft data set: 1. BL/WL
-	 * list change 2. Rule(s) change 3. New MobileID data set
-	 */
-	// no need
-	private boolean checkPartitionStale(PartitionDefinition partition) {
-		boolean isStale = false;
-
-		Date draftTime = partition.getDraftDate();
-		if (isStale) {
-			partition.setStatus(PartitionStatus.Stale.value());
-			partitionDefRepo.save(partition);
-		}
-
-		return isStale;
-	}
-
-	private byte[] readBytesFromFile(String filePath) throws IOException {
-		File inputFile;
-		FileInputStream inputStream = null;
-		BufferedInputStream fstream = null;
-		byte[] fileBytes = null;
-
-		try {
-			inputFile = new File(filePath);
-			inputStream = new FileInputStream(inputFile);
-			fstream = new BufferedInputStream(inputStream);
-			fileBytes = new byte[(int) inputFile.length()];
-			fstream.read(fileBytes);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// releases any system resources associated with the stream
-			if (inputStream != null)
-				inputStream.close();
-			if (fstream != null)
-				fstream.close();
-		}
-
-		return fileBytes;
-	}
-
-	private static void saveBytesToFile(String filePath, byte[] fileBytes) throws IOException {
-		FileOutputStream outputStream = new FileOutputStream(filePath);
-		outputStream.write(fileBytes);
-		outputStream.close();
-	}
 
 }

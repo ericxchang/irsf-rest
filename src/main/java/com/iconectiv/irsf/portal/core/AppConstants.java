@@ -30,7 +30,16 @@ public class AppConstants {
 	public static int PROVIDER=16;
 	public static int AFTER_LAST_OBSERVED = 32;
 	public static int BEFORE_LAST_OBSERVED = 64;
-	
-	
+
+	public static final String RANGE_NDC_TYPE = "Range NDC";
+	public static final String PREMIUM_RANGE_TYPE = "IPRN";
+	public static final String PRIME2 = "PRIME-2";
+	public static final String PRIME3 = "PRIME-3";
+	public static final String PRIME4 = "PRIME-4";
+	public static final String CSV_COMMON_SEPERATOR = "|";
+	public static final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
+	public static final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";
+
+
 
 }

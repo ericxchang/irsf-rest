@@ -8,6 +8,7 @@ public enum EventTypeDefinition {
 	MobileIdUpdate ("Refresh Data"), 
 	Partition_Draft ("Partition Draft"), 
 	Partition_Export ("Partition Export"), 
+	Partition_Stale("Partition Stale"),
 	Partition_PushToEI("Push to EI"),
 	;
 	

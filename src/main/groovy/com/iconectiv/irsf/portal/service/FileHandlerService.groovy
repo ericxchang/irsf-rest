@@ -1,9 +1,13 @@
 package com.iconectiv.irsf.portal.service
 
+import com.iconectiv.irsf.core.ByteFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 /**
  * Created by echang on 1/13/2017.
  */
@@ -27,6 +31,46 @@ class FileHandlerService {
         log.info("Successfully save file {}", targetFile.getAbsolutePath())
         return true
     }
+	
+	Boolean saveFile(String fileName, byte[] data) {
+		def targetFile = new File(fileName)
+
+		if (targetFile.exists()) {
+			log.info("Delete existing file {}", targetFile.getAbsolutePath())
+			targetFile.delete()
+		}
+		targetFile.setBytes(data)
+		log.info("Successfully save file {}", targetFile.getAbsolutePath())
+		return true
+	}
+	
+	
+	void saveZipFile(String zipFileName, List<ByteFile> files) {
+		ZipOutputStream zipFile = new ZipOutputStream(new FileOutputStream(zipFileName))
+		files.each {
+			zipFile.putNextEntry(new ZipEntry(it.fileName))
+			zipFile.write(it.data, 0, it.data.size())
+			zipFile.closeEntry()  
+		}
+		zipFile.close()
+	}
+
+	byte[] zipFile(List<ByteFile> files) {
+		if (files.isEmpty()) {
+			return
+		}
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream()
+		ZipOutputStream zipFile = new ZipOutputStream(bos)
+		files.each {
+			zipFile.putNextEntry(new ZipEntry(it.fileName))
+			zipFile.write(it.data, 0, it.data.size())
+			zipFile.closeEntry()
+		}
+		zipFile.close()
+
+		return bos.toByteArray()
+	}
 
     List<String> saveTextFile(String dirName, MultipartFile fileStream) {
         def contents = []
