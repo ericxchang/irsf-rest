@@ -55,7 +55,9 @@ public class PartitionServiceImpl implements PartitionService {
 	@Async
 	@Override
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException {
-		PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+        CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+        PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
 		if (partition == null) {
 			throw new AppException("Invalid partition Id");
