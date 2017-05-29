@@ -54,7 +54,13 @@ public class PartitionDefinitionRepositoryTest {
 	
 	@Test
 	public void testFindByOrigPartitionId() {
-		List<PartitionDefinition> partitions = partitionRepo.findAllByOrigPartitionIdOrderByIdDesc(1);
+		List<PartitionDefinition> partitions = partitionRepo.findAllByOrigPartitionIdOrderByOrigPartitionIdDesc(1);
+		log.info(JsonHelper.toPrettyJson(partitions));
+	}
+
+	@Test
+	public void testFindActivePartition() {
+		List<PartitionDefinition> partitions = partitionRepo.findAllActivePartitions();
 		log.info(JsonHelper.toPrettyJson(partitions));
 	}
 

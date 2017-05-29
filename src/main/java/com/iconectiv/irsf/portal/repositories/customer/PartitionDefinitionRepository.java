@@ -1,7 +1,6 @@
 package com.iconectiv.irsf.portal.repositories.customer;
 
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -14,10 +13,10 @@ import java.util.List;
  */
 public interface PartitionDefinitionRepository extends CrudRepository<PartitionDefinition, Integer>{
 
-    @Query("select pd from PartitionDefinition pd where pd.status <> 'exported'" )
+    @Query("select pd from PartitionDefinition pd where pd.status <> 'exported' order by pd.origPartitionId desc" )
     List<PartitionDefinition> findAllActivePartitions();
     
-    List<PartitionDefinition> findAllByOrigPartitionIdOrderByIdDesc(Integer origPartitionId);
+    List<PartitionDefinition> findAllByOrigPartitionIdOrderByOrigPartitionIdDesc(Integer origPartitionId);
     
     @Modifying
     @Transactional
