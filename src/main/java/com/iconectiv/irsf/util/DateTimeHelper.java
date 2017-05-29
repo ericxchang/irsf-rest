@@ -2,10 +2,10 @@ package com.iconectiv.irsf.util;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.Months;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +22,12 @@ public class DateTimeHelper {
 	
 	public static DateTime getTodayAtMidnight() {
 		return getDateAtMidnight(1);
+	}
+
+	public static Date getDateTimeInHours(int hours) {
+		DateTime myDay = new DateTime().withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
+		myDay = myDay.plusHours(hours);
+		return myDay.toDate();
 	}
 
 	public static DateTime getDateBefore(int days) {
