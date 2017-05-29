@@ -5,12 +5,17 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface PartitionService {
 	void refreshPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
-	void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
+
+    @Transactional
+    void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException;
+
+    void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
 	void resendPartition(UserDefinition loginUser, Integer partitionId);
 	void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule) throws AppException;
 	

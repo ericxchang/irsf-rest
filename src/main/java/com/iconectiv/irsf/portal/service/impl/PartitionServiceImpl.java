@@ -86,110 +86,87 @@ public class PartitionServiceImpl implements PartitionService {
 		return partition;
 	}
 
-	@Transactional
+    @Override
 	public void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
 
-		generateDraftData(partition);
-
-		partition.setStatus(PartitionStatus.Draft.value());
-		partition.setDraftDate(DateTimeHelper.nowInUTC());
-		partition.setLastUpdatedBy(loginUser.getUserName());
-		partitionDefRepo.save(partition);
-
-		sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
-
-		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
+		List<PartitionDataDetails> partitionDataList = generateDraftData(partition);
+        persistDraftData(loginUser, partition, partitionDataList);
 	}
 
-	private List<PartitionDataDetails> convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<RangeNdc> list) {
-		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
-		for (RangeNdc obj : list) {
-			PartitionDataDetails p = new PartitionDataDetails();
-			p.setPartitionId(partition.getId());
-			p.setBillingId(obj.getBillingId());
-			p.setCc(obj.getCode());
-			p.setCustomerDate(obj.getEffectiveDate());
-			p.setDialPattern(obj.getCcNdc());
-			p.setIso2(obj.getIso2());
-			p.setNdc(obj.getNdc());
-			p.setNotes(null);
-			p.setProvider(obj.getProvider());
-			p.setReason(null);
-			p.setReference(rule.getId().toString());
-			p.setTos(obj.getTos());
-			p.setTosdesc(obj.getTosdesc());
-			p.setDataType("R");
-			pdList.add(p);
-		}
-
-		return pdList;
-
+	//convert Range NDC to partition data
+	private PartitionDataDetails convertNdcToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, RangeNdc obj) {
+        PartitionDataDetails p = new PartitionDataDetails();
+        p.setPartitionId(partition.getId());
+        p.setBillingId(obj.getBillingId());
+        p.setCc(obj.getCode());
+        p.setCustomerDate(obj.getEffectiveDate());
+        p.setDialPattern(obj.getCcNdc());
+        p.setIso2(obj.getIso2());
+        p.setNdc(obj.getNdc());
+        p.setNotes(null);
+        p.setProvider(obj.getProvider());
+        p.setReason(null);
+        p.setReference(rule.getId().toString());
+        p.setTos(obj.getTos());
+        p.setTosdesc(obj.getTosdesc());
+        p.setDataType("R");
+        return p;
 	}
 
-	private List<PartitionDataDetails> convertIprnToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, List<Premium> list) {
-		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
-		for (Premium obj : list) {
-			PartitionDataDetails p = new PartitionDataDetails();
-			p.setPartitionId(partition.getId());
-			p.setBillingId(obj.getBillingId());
-			p.setCc(obj.getCode());
-			p.setCustomerDate(obj.getLastUpdate());
+	private PartitionDataDetails convertIprnToPartitionDataDetails(PartitionDefinition partition, RuleDefinition rule, Premium obj) {
+        PartitionDataDetails p = new PartitionDataDetails();
+        p.setPartitionId(partition.getId());
+        p.setBillingId(obj.getBillingId());
+        p.setCc(obj.getCode());
+        p.setCustomerDate(obj.getLastUpdate());
 
-			if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
-				p.setDialPattern(obj.getPrimeMinus2());
-			} else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
-				p.setDialPattern(obj.getPrimeMinus3());
-				if (p.getDialPattern() == null)
-					p.setDialPattern(obj.getPrimeMinus2());
-			} else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
-				p.setDialPattern(obj.getPrimeMinus3());
-				if (p.getDialPattern() == null)
-					p.setDialPattern(obj.getPrimeMinus3());
-				if (p.getDialPattern() == null)
-					p.setDialPattern(obj.getPrimeMinus2());
-			}
+        if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
+            p.setDialPattern(obj.getPrimeMinus2());
+        } else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
+            p.setDialPattern(obj.getPrimeMinus3());
+            if (p.getDialPattern() == null)
+                p.setDialPattern(obj.getPrimeMinus2());
+        } else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
+            p.setDialPattern(obj.getPrimeMinus3());
+            if (p.getDialPattern() == null)
+                p.setDialPattern(obj.getPrimeMinus3());
+            if (p.getDialPattern() == null)
+                p.setDialPattern(obj.getPrimeMinus2());
+        }
 
-			p.setIso2(obj.getIso2());
-			p.setNdc(obj.getNdc());
-			p.setNotes(null);
-			p.setProvider(obj.getProvider());
-			p.setReason(null);
-			p.setReference(rule.getId().toString());
-			p.setTos(obj.getTos());
-			p.setTosdesc(obj.getTosdesc());
-			p.setDataType(PartitionDataType.Rule.value());
-			pdList.add(p);
-		}
+        p.setIso2(obj.getIso2());
+        p.setNdc(obj.getNdc());
+        p.setNotes(null);
+        p.setProvider(obj.getProvider());
+        p.setReason(null);
+        p.setReference(rule.getId().toString());
+        p.setTos(obj.getTos());
+        p.setTosdesc(obj.getTosdesc());
+        p.setDataType(PartitionDataType.Rule.value());
 
-		return pdList;
+        return p;
 
 	}
 
-	private List<PartitionDataDetails> convertListDetailsToPartitionDataDetails(PartitionDefinition partition,
-			ListDefinition listDef, List<ListDetails> list, String listType) {
-		List<PartitionDataDetails> pdList = new ArrayList<>(list.size());
-		for (ListDetails obj : list) {
-			if(obj.isActive()) {
-				PartitionDataDetails p = new PartitionDataDetails();
-				p.setPartitionId(partition.getId());
-				p.setBillingId(obj.getBillingId());
-				p.setCc(obj.getCode());
-				p.setCustomerDate(obj.getCustomerDate());
-				p.setDialPattern(obj.getDialPattern());
-				p.setIso2(obj.getIso2());
-				p.setNdc(obj.getNdc());
-				p.setNotes(obj.getNotes());
-				p.setProvider(obj.getProvider());
-				p.setReason(obj.getReason());
-				p.setReference(listDef.getListName());
-				p.setTos(obj.getTos());
-				p.setTosdesc(obj.getTosdesc());
-				p.setDataType(listType);
-				pdList.add(p);
-			}
-		}
-		return pdList;
+	private PartitionDataDetails convertListDetailsToPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, ListDetails obj) {
+        PartitionDataDetails p = new PartitionDataDetails();
+        p.setPartitionId(partition.getId());
+        p.setBillingId(obj.getBillingId());
+        p.setCc(obj.getCode());
+        p.setCustomerDate(obj.getCustomerDate());
+        p.setDialPattern(obj.getDialPattern());
+        p.setIso2(obj.getIso2());
+        p.setNdc(obj.getNdc());
+        p.setNotes(obj.getNotes());
+        p.setProvider(obj.getProvider());
+        p.setReason(obj.getReason());
+        p.setReference(listDef.getListName());
+        p.setTos(obj.getTos());
+        p.setTosdesc(obj.getTosdesc());
+        p.setDataType(listDef.getType());
+
+        return p;
 
 	}
 
@@ -399,103 +376,102 @@ public class PartitionServiceImpl implements PartitionService {
 
 	}
 
-	private void generateDraftData(final PartitionDefinition partition) {
+	/*
+	    1. delete existing data;
+	    2. persist partition data to data table;
+	    3. update partition status to draft
+	 */
+    @Transactional
+	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) {
+        log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+        partitionDataRepo.deleteByPartitionId(partition.getId());
+        partitionDataRepo.batchUpdate(partitionDataList);
+        partition.setStatus(PartitionStatus.Draft.value());
+        partition.setDraftDate(DateTimeHelper.nowInUTC());
+        partition.setLastUpdated(DateTimeHelper.nowInUTC());
+        partition.setLastUpdatedBy(loginUser.getUserName());
+        partitionDefRepo.save(partition);
+
+        sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
+
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
+    }
+
+
+	private List<PartitionDataDetails> generateDraftData(final PartitionDefinition partition) {
+        List<PartitionDataDetails> partitionDataList = new ArrayList<>();
+
 		List<RuleDefinition> rules = partition.getRuleDefinitions();
 		if (rules == null || rules.isEmpty()) {
 			rules = ruleRepo.findAllByPartitionId(partition.getId());
 		}
 
-		log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
-		partitionDataRepo.deleteByPartitionId(partition.getId());
-		int ndcCount = 0;
-		int wlCount = 0;
-		int blCount = 0;
+		rules.parallelStream().forEach(rule -> {
+            generatePartitionDataFromRule(partition, rule, partitionDataList);
+        });
 
-		for (RuleDefinition rule : rules) {
-			if (!rule.isActive()) {
-				log.info("skip inactive rule, rule_id: {}", rule.getId());
-				continue;
-			}
+        log.info("Generating {} partition data from rule", partitionDataList.size());
 
-			ndcCount += persistePartitionDataFromRule(partition, rule);
-		}
-
-		log.debug("generateDraftData: retrieve white list data for partitionId: {}, WLId: {}", partition.getId(), partition.getWlId());
 		if (partition.getWlId() != null) {
-			wlCount = persistListData(partition, partition.getWlId(), PartitionDataType.WhiteList.value());
+			generateListData(partition, partition.getWlId(), partitionDataList);
 		}
 
-		log.debug("generateDraftData: retrieve black list data for partitionId: {}, WLId: {}", partition.getId(), partition.getBlId());
 		if (partition.getBlId() != null) {
-			blCount = persistListData(partition, partition.getBlId(), PartitionDataType.BlackList.value());
+            generateListData(partition, partition.getBlId(), partitionDataList);
 		}
 
+        log.info("Completed generating partition data {}", partitionDataList.size());
+		return partitionDataList;
+	}
 
-		log.info("Total size of ndc data: {}, bl data: {}, wl data {}", ndcCount, blCount, wlCount);
+	//TODO use pageination
+	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
+		ListDefinition listDef = listDefinitionRepo.findOne(listId);
+
+		List<ListDetails> listData = listService.getListDetailDataByListId(listId);
+
+		listData.stream().forEach(listDetail -> {
+		    if (listDetail.isActive()) {
+                partitionDataList.add(convertListDetailsToPartitionDataDetails(partition, listDef, listDetail));
+            }
+        });
 
 		return;
 	}
 
-	private int persistListData(PartitionDefinition partition, Integer wlId, String type) {
-		List<PartitionDataDetails> partitionDataList = new ArrayList<>();
-		ListDefinition listDef = listDefinitionRepo.findOne(partition.getWlId());
-
-		List<ListDetails> wlList = listService.getListDetailDataByListId(partition.getWlId());
-
-		if (wlList != null && !wlList.isEmpty()) {
-			partitionDataList = convertListDetailsToPartitionDataDetails(partition, listDef, wlList, type);
-			log.debug("generateDraftData: found {} rows in the white list: {}", partitionDataList.size(), partition.getWlId());
-			partitionDataRepo.batchUpdate(partitionDataList);
-		}
-		return 0;
-	}
-
-	private int persistePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule) {
-		List<PartitionDataDetails> partitionDataList = new ArrayList<>();
+    //TODO use pageination
+	private void generatePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
 		RangeQueryFilter filter = null;
 
-		try {
+        if (!rule.isActive()) {
+            log.info("skip inactive rule, rule_id: {}", rule.getId());
+            return;
+        }
+
+        try {
 			filter = rule.getRangeQueryFilter();
 		} catch (AppException e) {
 			log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.getMessage(), rule.getId(), rule.getDetails());
-			return 0;
+			return;
 		}
 
-		log.debug("generateDraftData: retrieve all partition data for ruleId: {}", rule.getId());
+		log.debug("retrieve all partition data for ruleId: {}", rule.getId());
 
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-			List<RangeNdc> list = mobileIdService.findAllRangeNdcByFilters(filter);
-			if (list != null && !list.isEmpty()) {
-				log.debug("generateDraftData: found {} rows of ndc_range for ruleId: {}", list.size(), rule.getId());
-				partitionDataList = convertNdcToPartitionDataDetails(partition, rule, list);
-				log.debug("generateDraftData: build {} partition records", partitionDataList.size());
-			}
-			else {
-				log.info("generateDraftData: no range_ndc data for ruleId: {}", rule.getId());
-			}			
+			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
+			dataList.stream().forEach(entry -> {
+                partitionDataList.add(convertNdcToPartitionDataDetails(partition, rule, entry));
+            });
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-			List<Premium> list = mobileIdService.findAllPremiumRangeByFilters(filter);
-			if (list != null && !list.isEmpty()) {
-				log.debug("generateDraftData: found {} rows of premium for ruleId: {}", list.size(), rule.getId());
-				partitionDataList = convertIprnToPartitionDataDetails(partition, rule, list);
-				log.debug("generateDraftData: build {} partition records", partitionDataList.size());
-			}
-			else {
-				log.info("generateDraftData: no premium data for ruleId: {}", rule.getId());
-			}
+			List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
+            dataList.stream().forEach(entry -> {
+                partitionDataList.add(convertIprnToPartitionDataDetails(partition, rule, entry));
+            });
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 		}
 
-		if (!partitionDataList.isEmpty()) {
-			log.debug("generateDraftData: save partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
-			partitionDataRepo.batchUpdate(partitionDataList);
-			log.debug("generateDraftData: successfully saved partition data for ruleId: {}, rowCount: {}", rule.getId(), partitionDataList.size());
-
-			return partitionDataList.size();
-		}
-
-		return 0; 
+		return;
 	}
 
 	private PartitionDefinition clonePartition(UserDefinition loginUser, PartitionDefinition partition) {

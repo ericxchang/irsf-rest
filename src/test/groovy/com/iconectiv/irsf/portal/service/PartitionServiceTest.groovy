@@ -4,15 +4,16 @@ import com.iconectiv.irsf.portal.config.CustomerContextHolder
 import com.iconectiv.irsf.portal.core.DialPatternType
 import com.iconectiv.irsf.portal.core.PartitionStatus
 import com.iconectiv.irsf.portal.exception.AppException
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition
+import com.iconectiv.irsf.portal.model.common.UserDefinition
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository
+import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository
 import com.iconectiv.irsf.util.DateTimeHelper
 import com.iconectiv.irsf.util.JsonHelper
-
-import java.util.List;
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +35,10 @@ import org.springframework.test.context.web.WebAppConfiguration
 	RuleDefinitionRepository ruleRepo
 	@Autowired
 	PartitionDefinitionRepository partitionRepo
-	
+    @Autowired
+    UserDefinitionRepository userRepo
+    @Autowired
+    CustomerDefinitionRepository customerRepo
 	def schema = "cust01"
 	def customer = "junitCust"
 	def user = "junit"
@@ -46,10 +50,10 @@ import org.springframework.test.context.web.WebAppConfiguration
 
 	@Test
 	void testQueryAllActivePartition() throws Exception {
-		CustomerContextHolder.setSchema("cust01");
+		CustomerContextHolder.setSchema("cust01")
 		def results = service.getAllActivePartitions()
-		log.info(JsonHelper.toPrettyJson(results));
-		log.info("Total return: " + results.size());
+		log.info(JsonHelper.toPrettyJson(results))
+		log.info("Total return: " + results.size())
 	}
 	
 	@Test
@@ -93,6 +97,15 @@ import org.springframework.test.context.web.WebAppConfiguration
 		ruleRepo.save(rule)
 		log.info("create new rule: " + JsonHelper.toJson(rule))
 		service.addRule(partition, rule, user)
+	}
+
+	@Test
+	void testRefreshPartition() {
+        PartitionDefinition partition = partitionRepo.findOne(26)
+        UserDefinition loginUser = userRepo.findOneByUserName("user01")
+        CustomerDefinition customer = customerRepo.findOne(loginUser.getCustomerId())
+        loginUser.setCustomerName(customer.getCustomerName())
+        service.refreshParitionData(loginUser, partition)
 	}
 
 }

@@ -1,21 +1,18 @@
 package com.iconectiv.irsf.portal.repositories.customer.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepositoryCustomer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iconectiv.irsf.portal.model.customer.ListDetails;
-import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepositoryCustomer;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsRepositoryCustomer {
 	private static Logger log = LoggerFactory.getLogger(PartitionDataDetailsRepositoryImpl.class);
@@ -29,7 +26,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 	@Override
 	@Transactional
 	public void batchUpdate(Collection<PartitionDataDetails> entities) {
-		log.info("batchUpdate {} rows ", entities.size());
+		if (log.isTraceEnabled())log.debug("batchUpdate {} rows ", entities.size());
 		if (entities == null || entities.isEmpty())
 			return;
 		final List<PartitionDataDetails> savedEntities = new ArrayList<>(entities.size());
