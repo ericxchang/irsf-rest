@@ -2,12 +2,9 @@ package com.iconectiv.irsf.jwt
 
 import com.iconectiv.irsf.portal.core.AppConstants
 import com.iconectiv.irsf.portal.model.common.UserDefinition
-import com.iconectiv.irsf.util.DateTimeHelper
 import io.jsonwebtoken.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-
 /**
  * Created by echang on 3/23/2017.
  */
@@ -58,7 +55,7 @@ class JWTUtil {
 		}
 		
 
-		return createToken(AppConstants.Subject, AppConstants.Audience, userMap, DateTimeHelper.getDateTimeInHours(8))
+		return createToken(AppConstants.Subject, AppConstants.Audience, userMap)
 	}
 }
 
