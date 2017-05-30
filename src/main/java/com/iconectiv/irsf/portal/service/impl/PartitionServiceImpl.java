@@ -509,13 +509,12 @@ public class PartitionServiceImpl implements PartitionService {
 	public List<PartitionDefinition> getAllActivePartitions() {
 		List<PartitionDefinition> partitions = partitionDefRepo.findAllActivePartitions();
 
-		if (log.isDebugEnabled()) log.debug("active partition size: {}", partitions.size());
 		for (PartitionDefinition partition : partitions) {
 			Integer origId = partition.getOrigPartitionId();
 			if (origId == null) {
 				origId = partition.getId();
 			}
-			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId));
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), 2);
 
 			String ruleIds = partition.getRuleIds();
 

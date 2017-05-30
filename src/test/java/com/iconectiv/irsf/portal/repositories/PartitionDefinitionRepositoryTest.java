@@ -71,6 +71,14 @@ public class PartitionDefinitionRepositoryTest {
 	}
 
 	@Test
+	public void testFindTop2PartitionHistory() {
+		PartitionDefinition partitionDefinition = partitionRepo.findOne(32);
+		List<PartitionExportHistory> histories = exportRepo.findAllByOrigPartitionId(18);
+		partitionDefinition.setPartitionExportHistories(histories, 2);
+		assertTrue(partitionDefinition.getPartitionExportHistories().size() <= 2);
+	}
+
+	@Test
 	public void testStalepartitionByBL() {
 		PartitionDefinition partition = createPartition();
 		partitionRepo.staleDraftPartitionsByBListId(1000);

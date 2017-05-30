@@ -180,7 +180,16 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.partitionExportHistories = partitionExportHistories;
 	}
 
-	@Transient
+    public void setPartitionExportHistories(List<PartitionExportHistory> partitionExportHistories, int maxSize) {
+        int historySize = partitionExportHistories.size();
+	    for (int i=0; i<maxSize; i++) {
+            if (historySize > i ) {
+                this.partitionExportHistories.add(partitionExportHistories.get(i));
+            }
+        }
+    }
+
+    @Transient
 	public List<PartitionDataDetails> getPartitionDataDetailses() {
 		return this.partitionDataDetailses;
 	}
@@ -201,4 +210,5 @@ public class PartitionDefinition implements java.io.Serializable {
 	public void addRule(RuleDefinition rule) {
 		this.ruleDefinitions.add(rule);
 	}
+
 }
