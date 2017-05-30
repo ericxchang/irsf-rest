@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.service;
 
 import com.iconectiv.irsf.core.EIResponse;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import org.springframework.scheduling.annotation.Async;
@@ -17,6 +18,7 @@ public interface PartitionExportService {
 
     byte[] createExportFiles(UserDefinition loginUser, PartitionExportHistory partHist, String fileName);
 
-    EIResponse uploadFiles(String uploadFleName, byte[] data, String url);
+    EIResponse uploadFiles(String uploadFleName, byte[] data, String url, String customer, Integer exportPartitionId);
 
+    void updateStatus(UserDefinition loginUser, EIResponse eiStatus) throws AppException;
 }

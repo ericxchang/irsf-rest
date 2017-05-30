@@ -5,6 +5,8 @@ package com.iconectiv.irsf.core
  */
 class EIResponse {
     String id
+    String customer
+    Integer partition
     String status
     String message
 }

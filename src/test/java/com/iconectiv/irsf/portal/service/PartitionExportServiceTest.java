@@ -50,7 +50,8 @@ public class PartitionExportServiceTest {
         UserDefinition loginUser = userRepo.findOneByUserName("user01");
         CustomerDefinition customer = customerRepo.findOne(loginUser.getCustomerId());
         loginUser.setCustomerName(customer.getCustomerName());
-        exportService.sendExportFile2EI(loginUser, exportEntry, "http://NJ01APP5058:9090/upload");
+        loginUser.setSchemaName(customer.getSchemaName());
+        exportService.sendExportFile2EI(loginUser, exportEntry, "https://NJ01APP5058:9433/upload");
     }
 
 

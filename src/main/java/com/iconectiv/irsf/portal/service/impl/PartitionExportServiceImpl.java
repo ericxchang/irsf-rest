@@ -6,6 +6,7 @@ import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -88,9 +89,8 @@ public class PartitionExportServiceImpl implements PartitionExportService {
             // if everything is OK, zip the file and send it to EI server
             String zipFileName = fileName + "_export.zip";
 
-            url = url + "?customer=" + loginUser.getCustomerName() + "&partition=" + partHist.getId();
-            //fileService.saveZipFile(zipFileName, files);
-            EIResponse response = uploadFiles(zipFileName, data, url);
+            url = url + "?customer=" + loginUser.getSchemaName() + "&partition=" + partHist.getId();
+            EIResponse response = uploadFiles(zipFileName, data, url, loginUser.getCustomerName(), partHist.getId());
             partHist.setReferenceId(response.getId());
             partHist.setReason(response.getMessage());
             partHist.setStatus(response.getStatus());
@@ -127,7 +127,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
     }
 
     @Override
-	public EIResponse uploadFiles(String uploadFleName, byte[] data, String url) {
+	public EIResponse uploadFiles(String uploadFleName, byte[] data, String url, String customer, Integer exportPartitionId) {
         EIResponse response = new EIResponse();
 		RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
@@ -149,6 +149,8 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
             }
         };
         map.add("file", contentsAsResource);
+        //map.add("customer", customer);
+        //map.add("partition", exportPartitionId);
 
         try {
             response = restTemplate.postForObject(url, map, EIResponse.class);
@@ -161,7 +163,28 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
         return response;
     }
 
-	private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
+    @Override
+    public void updateStatus(UserDefinition loginUser, EIResponse eiStatus) throws AppException {
+        PartitionExportHistory exportHistory = exportRepo.findOne(eiStatus.getPartition());
+
+        if (exportHistory == null) {
+            throw  new AppException("invalid export partition id " + eiStatus.getPartition());
+        }
+
+        exportHistory.setReason(eiStatus.getMessage());
+        exportHistory.setStatus(eiStatus.getStatus());
+
+        exportRepo.save(exportHistory);
+
+        eiStatus.setMessage("successfully updated partition export status");
+        eiStatus.setStatus(AppConstants.SUCCESS);
+
+        log.info("successfully updated partition export status {}", eiStatus.getPartition() );
+
+        return;
+    }
+
+    private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
 		String status = "success";
 		HttpResponseMessage  httpMsg = null;
 		RestTemplate restTemplate = new RestTemplate();

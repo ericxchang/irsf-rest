@@ -1,14 +1,18 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.core.EIResponse;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.exception.AuthException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
@@ -23,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,8 +49,12 @@ class PartitionServiceController extends BaseRestController {
     private PartitionExportHistoryRepository exportRepo;
 	@Autowired
 	private PartitionDataDetailsRepository partitionDataRepo;
+    @Autowired
+    private UserDefinitionRepository userRepo;
+    @Autowired
+    BCryptPasswordEncoder encoder;
 
-	@RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getPartitionDetails(@RequestHeader Map<String, String> header,
 	        @PathVariable Integer partitionId) {
@@ -395,5 +404,56 @@ class PartitionServiceController extends BaseRestController {
 
 		return rv;
 	}
+
+    @RequestMapping(value = "/loadstatus", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> updateExportStatusRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
+        ResponseEntity<String> rv;
+        EIResponse eiStatus = new EIResponse();
+        try {
+            eiStatus = JsonHelper.fromJson(value, EIResponse.class);
+            String userId = header.get("userId");
+            String password = header.get("password");
+            UserDefinition loginUser = userRepo.findOneByUserName(userId);
+
+            if (loginUser == null) {
+                throw new AuthException("Invalid user Id");
+            }
+
+            if (loginUser.isDisabled()) {
+                throw new AuthException("The User Id has been disabled");
+            }
+
+            if (loginUser.isLocked()) {
+                throw new AuthException("The User Id has been locked");
+            }
+
+            if (!encoder.matches(password, loginUser.getPassword())) {
+                throw new AuthException("Password is NOT correct");
+            }
+
+            assertAuthorized(loginUser, PermissionRole.API.value());
+            loginUser.setCustomerName(eiStatus.getCustomer());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+            exportService.updateStatus(loginUser, eiStatus);
+
+            rv = new ResponseEntity<>(JsonHelper.toJson(eiStatus), HttpStatus.OK);
+        } catch (SecurityException e) {
+            eiStatus.setStatus(AppConstants.FAIL);
+            eiStatus.setMessage(e.getMessage());
+            rv = new ResponseEntity<>(JsonHelper.toJson(eiStatus), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            eiStatus.setStatus(AppConstants.FAIL);
+            eiStatus.setMessage(e.getMessage());
+            rv = new ResponseEntity<>(JsonHelper.toJson(eiStatus), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(JsonHelper.toJson(rv));
+        }
+        return rv;
+    }
 
 }
