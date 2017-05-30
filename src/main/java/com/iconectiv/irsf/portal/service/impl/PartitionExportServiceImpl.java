@@ -109,7 +109,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			partHist.setStatus(AppConstants.FAIL);
 			exportRepo.save(partHist);
 			
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage().substring(0,1000));
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage().substring(0,900));
 		}
 		return;
 	}
