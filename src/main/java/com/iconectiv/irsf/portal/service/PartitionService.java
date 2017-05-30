@@ -13,10 +13,9 @@ public interface PartitionService {
 	void refreshPartition(UserDefinition loginUser, Integer partitionId);
 
     @Transactional
-    void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException;
+    void refreshPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException;
 
     void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException;
-	void resendPartition(UserDefinition loginUser, Integer partitionId);
 	void addRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule) throws AppException;
 	
 	void removeRule(UserDefinition loginUser, PartitionDefinition partition, Integer ruleId) throws AppException;
@@ -29,6 +28,4 @@ public interface PartitionService {
 	void checkStale(UserDefinition loginUser, PartitionDefinition partition, String reason);
 	void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason);
 	void checkStale(UserDefinition loginUser, Integer partitionId, String reason);
-	
-	void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String eventType, String message);
 }

@@ -8,9 +8,13 @@ import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
+import com.iconectiv.irsf.portal.service.PartitionExportService;
 import com.iconectiv.irsf.portal.service.PartitionService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +37,11 @@ class PartitionServiceController extends BaseRestController {
 	@Autowired
 	private PartitionService partitionServ;
 	@Autowired
+	private PartitionExportService exportService;
+	@Autowired
 	private PartitionDefinitionRepository partitionDefRepo;
+	@Autowired
+    private PartitionExportHistoryRepository exportRepo;
 	@Autowired
 	private PartitionDataDetailsRepository partitionDataRepo;
 
@@ -257,7 +264,7 @@ class PartitionServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 	
-			partitionServ.resendPartition(loginUser, exportPartitionId);
+			exportService.resendPartition(loginUser, exportPartitionId);
 			rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -272,7 +279,42 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET)
+    public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
+        try {
+            UserDefinition loginUser = getLoginUser(header);
+            assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+            PartitionExportHistory exportHistory = exportRepo.findOne(exportPartitionId);
+
+            if (exportHistory == null) {
+                throw new AppException("invalid export id " + exportPartitionId);
+            }
+
+            String outputFileName  = exportHistory.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMddHHmmss");
+
+
+            byte[] documentBody = exportService.createExportFiles(loginUser, exportHistory, outputFileName);
+
+            HttpHeaders respHeader = new HttpHeaders();
+
+            respHeader.set("Content-Disposition", "attachment; filename=" + outputFileName);
+            respHeader.setContentLength(documentBody.length);
+
+            return new HttpEntity<byte[]>(documentBody, respHeader);
+
+        } catch(Exception e) {
+            log.error("Error to download partition export data: ", e);
+            //TODO throw SNMP trap
+        }
+
+        return null;
+    }
+
+
+    @RequestMapping(value = "/partition/refresh/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> refreshPartitionRequest(@RequestHeader Map<String, String> header,
 	        @PathVariable Integer partitionId) {

@@ -14,7 +14,6 @@ import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +48,6 @@ public class PartitionServiceImpl implements PartitionService {
 	@Autowired
 	private	ListService listService;
 	@Autowired
-	@Lazy
 	private PartitionExportService exportService;
 
 	@Async
@@ -78,7 +76,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setStatus(PartitionStatus.InProgress.value());
 			partitionDefRepo.save(partition);
 
-			refreshParitionData(loginUser, partition);
+			refreshPartitionData(loginUser, partition);
 		} catch (AppException e) {
 			log.error("Error to refresh partition:", e);
 			partition.setStatus(prevStatus);
@@ -88,7 +86,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
     @Override
-	public void refreshParitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
+	public void refreshPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
 
 		List<PartitionDataDetails> partitionDataList = generateDraftData(partition);
@@ -123,7 +121,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
 
-			sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Export.value(), "export data are ready for partition " + partition.getName());
+			eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Export.value(), "export data are ready for partition " + partition.getName());
 
 			CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
 			if (customer.getExportTarget() != null) {
@@ -138,35 +136,6 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 
 	}
-
-	@Override
-	public void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
-		EventNotification event = new EventNotification();
-		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-		event.setEventType(type);
-		event.setReferenceId(partitionId);
-		event.setCustomerName(loginUser.getCustomerName());
-		event.setStatus("new");
-		event.setMessage(message);
-		eventRepo.save(event);
-		eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);	
-	}
-
-
-	@Override
-	@Async
-	public void resendPartition(UserDefinition loginUser, Integer exportPartitionId) {
-		CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
-		log.info("exportPartition: exportPartitionId: {}", exportPartitionId);
-		PartitionExportHistory partHist = exportRepo.findOne(exportPartitionId);
-
-		if (customer.getExportTarget() != null) {
-			log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}", partHist.getPartitionId());
-			exportService.sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
-		}
-
-	}
-
 
 	private void validateParitionStatus(PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
@@ -309,7 +278,7 @@ public class PartitionServiceImpl implements PartitionService {
         partition.setLastUpdatedBy(loginUser.getUserName());
         partitionDefRepo.save(partition);
 
-        sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
+        eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
 
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
     }
@@ -329,13 +298,18 @@ public class PartitionServiceImpl implements PartitionService {
 
         log.info("Generating {} partition data from rule", partitionDataList.size());
 
+        List<Integer> listIDs = new ArrayList<>();
 		if (partition.getWlId() != null) {
-			generateListData(partition, partition.getWlId(), partitionDataList);
+            listIDs.add(partition.getWlId());
 		}
 
 		if (partition.getBlId() != null) {
-            generateListData(partition, partition.getBlId(), partitionDataList);
+            listIDs.add(partition.getBlId());
 		}
+
+		listIDs.parallelStream().forEach(listId -> {
+            generateListData(partition, listId, partitionDataList);
+        });
 
         log.info("Completed generating partition data {}", partitionDataList.size());
 		return partitionDataList;
@@ -629,18 +603,8 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setStatus(PartitionStatus.Stale.value());
 		partitionDefRepo.save(partition);
 
-		EventNotification event = new EventNotification();
-		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-		event.setEventType(EventTypeDefinition.Partition_Stale.value());
-		event.setReferenceId(partition.getId());
-		event.setCustomerName(loginUser.getCustomerName());
-		event.setStatus("new");
-		event.setMessage("Partition " + partition.getName() + " is staled due to " + reason);
-		event.setLastUpdatedBy("system");
-		eventRepo.save(event);
-		
 		//broadcast to web client
-		eventService.broadcastPartitionEvent(loginUser.getCustomerId(), event);	
+		eventService.sendPartitionEvent(loginUser, partition.getId(),EventTypeDefinition.Partition_Stale.value(), "Partition " + partition.getName() + " is staled due to " + reason);
 	}
 
 

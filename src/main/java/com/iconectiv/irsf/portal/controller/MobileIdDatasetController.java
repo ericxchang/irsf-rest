@@ -3,7 +3,6 @@ package com.iconectiv.irsf.portal.controller;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.*;
 import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
-import com.iconectiv.irsf.portal.repositories.common.IprnRepository;
 import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
@@ -23,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

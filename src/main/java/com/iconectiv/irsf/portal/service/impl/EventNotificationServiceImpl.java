@@ -1,23 +1,22 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.portal.model.common.AuditTrail;
+import com.iconectiv.irsf.portal.model.common.EventNotification;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.repositories.common.AuditTrailRepository;
+import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
+import com.iconectiv.irsf.portal.service.EventNotificationService;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.iconectiv.irsf.portal.model.common.AuditTrail;
-import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
-import com.iconectiv.irsf.portal.model.common.EventNotification;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.repositories.common.AuditTrailRepository;
-import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
-import com.iconectiv.irsf.portal.service.EventNotificationService;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class EventNotificationServiceImpl implements EventNotificationService {
@@ -28,7 +27,7 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 	@Autowired
 	private AuditTrailRepository auditRepo;
 	@Autowired
-	private SimpMessagingTemplate messagingTemplate;	
+	private SimpMessagingTemplate messagingTemplate;
 	
 	@Override
 	public void addEventNotification(EventNotification event) {
@@ -38,16 +37,28 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 
 
 	@Override
-	public void broadcastPartitionEvent(Integer customerId, EventNotification event) {
-		log.info(JsonHelper.toPrettyJson(event));
-		messagingTemplate.convertAndSend("/topic/partitionEvent." + customerId, event);
+	public void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
+		EventNotification event = new EventNotification();
+		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+		event.setEventType(type);
+		event.setReferenceId(partitionId);
+		event.setCustomerName(loginUser.getCustomerName());
+		event.setStatus("new");
+		event.setMessage(message);
+        event.setLastUpdatedBy(loginUser.getUserName());
+		eventRepo.save(event);
+
+        log.info(JsonHelper.toPrettyJson(event));
+        messagingTemplate.convertAndSend("/topic/partitionEvent." + loginUser.getCustomerId(), event);
 	}
-	
-	
+
+
 	@Override
 	public void ackEventNotification(EventNotification event, UserDefinition user) {
-		// TODO Auto-generated method stub
-
+		event.setAcknowledgeTimestamp(DateTimeHelper.nowInUTC());
+		event.setLastUpdatedBy(user.getUserName());
+        event.setStatus("ack");
+        eventRepo.save(event);
 	}
 
 	@Override

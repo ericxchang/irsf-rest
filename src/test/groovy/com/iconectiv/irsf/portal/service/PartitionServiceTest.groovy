@@ -105,7 +105,7 @@ import org.springframework.test.context.web.WebAppConfiguration
         UserDefinition loginUser = userRepo.findOneByUserName("user01")
         CustomerDefinition customer = customerRepo.findOne(loginUser.getCustomerId())
         loginUser.setCustomerName(customer.getCustomerName())
-        service.refreshParitionData(loginUser, partition)
+        service.refreshPartitionData(loginUser, partition)
 	}
 
 }

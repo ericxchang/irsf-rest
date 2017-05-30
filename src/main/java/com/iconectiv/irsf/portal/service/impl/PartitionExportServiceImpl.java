@@ -6,14 +6,16 @@ import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
+import com.iconectiv.irsf.portal.service.EventNotificationService;
 import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.PartitionExportService;
-import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,13 +43,31 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 	private String exportFilePath;
 
 	@Autowired
-	private PartitionService partitionService;
+	private EventNotificationService eventService;
 	@Autowired
 	private PartitionExportHistoryRepository exportRepo;
 	@Autowired
 	private AuditTrailService auditService;
 	@Autowired
 	private FileHandlerService fileService;
+    @Autowired
+    private CustomerDefinitionRepository customerRepo;
+
+	@Override
+	@Async
+	public void resendPartition(UserDefinition loginUser, Integer exportPartitionId) {
+		CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
+		log.info("exportPartition: exportPartitionId: {}", exportPartitionId);
+		PartitionExportHistory partHist = exportRepo.findOne(exportPartitionId);
+
+		if (customer.getExportTarget() != null) {
+			log.info("exportPartition: calling sendExportFile2EI(): partitionId: {}", partHist.getPartitionId());
+			sendExportFile2EI(loginUser, partHist, customer.getExportTarget());
+		}
+
+	}
+
+
 
 	@Transactional
 	@Override
@@ -78,7 +99,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 
             auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, response.getMessage());
 
-			partitionService.sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), response.getMessage());
+			eventService.sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), response.getMessage());
 		} catch (Exception e) {
 			log.error("Error to send to EI", e);
 			partHist.setStatus(AppConstants.FAIL);
