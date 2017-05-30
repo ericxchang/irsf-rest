@@ -38,8 +38,6 @@ public class SpringConfig extends AbstractWebSocketMessageBrokerConfigurer {
 		configurer.setIgnoreUnresolvablePlaceholders(true);
 		configurer.setIgnoreResourceNotFound(true);
 
-		log.info("password:" + env.getProperty("javax.net.ssl.trustStorePassword"));
-		log.info("truststore: " + env.getProperty("javax.net.ssl.trustStore"));
 		return configurer;
 	}
 
