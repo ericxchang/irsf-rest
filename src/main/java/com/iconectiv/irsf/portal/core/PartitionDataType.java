@@ -4,8 +4,8 @@ package com.iconectiv.irsf.portal.core;
  * match data_type column of partition_data_details table
  */
 public enum PartitionDataType {
-    BlackList ("B"),
-    WhiteList ("W"),
+    BlackList ("BL"),
+    WhiteList ("WL"),
     Rule ("R"),
     ;
 
