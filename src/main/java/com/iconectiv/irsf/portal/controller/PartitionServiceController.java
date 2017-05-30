@@ -167,7 +167,7 @@ class PartitionServiceController extends BaseRestController {
 
 			partitionServ.checkStale(loginUser, partition, "different black list");
 
-			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
+			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (AppException e) {
@@ -201,7 +201,7 @@ class PartitionServiceController extends BaseRestController {
 
 			partitionServ.checkStale(loginUser, partition, "different white list");
 
-			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
+			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (AppException e) {
