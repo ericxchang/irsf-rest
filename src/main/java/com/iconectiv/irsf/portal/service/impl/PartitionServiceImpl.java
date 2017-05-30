@@ -89,7 +89,7 @@ public class PartitionServiceImpl implements PartitionService {
 	public void refreshPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
 
-		List<PartitionDataDetails> partitionDataList = generateDraftData(partition);
+		List<PartitionDataDetails> partitionDataList = generateDraftData(loginUser, partition);
         persistDraftData(loginUser, partition, partitionDataList);
 	}
 
@@ -284,7 +284,7 @@ public class PartitionServiceImpl implements PartitionService {
     }
 
 
-	private List<PartitionDataDetails> generateDraftData(final PartitionDefinition partition) {
+	private List<PartitionDataDetails> generateDraftData(UserDefinition loginUser, final PartitionDefinition partition) {
         List<PartitionDataDetails> partitionDataList = new ArrayList<>();
 
 		List<RuleDefinition> rules = partition.getRuleDefinitions();
@@ -293,7 +293,7 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 
 		rules.parallelStream().forEach(rule -> {
-            generatePartitionDataFromRule(partition, rule, partitionDataList);
+            generatePartitionDataFromRule(loginUser, partition, rule, partitionDataList);
         });
 
         log.info("Generating {} partition data from rule", partitionDataList.size());
@@ -308,7 +308,7 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 
 		listIDs.parallelStream().forEach(listId -> {
-            generateListData(partition, listId, partitionDataList);
+            generateListData(loginUser, partition, listId, partitionDataList);
         });
 
         log.info("Completed generating partition data {}", partitionDataList.size());
@@ -316,7 +316,8 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	//TODO use pageination
-	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
+	private void generateListData(UserDefinition loginUser, PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
+        CustomerContextHolder.setSchema(loginUser.getSchemaName());
 		ListDefinition listDef = listDefinitionRepo.findOne(listId);
 
 		List<ListDetails> listData = listService.getListDetailDataByListId(listId);
@@ -331,8 +332,9 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
     //TODO use pageination
-	private void generatePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
-		RangeQueryFilter filter;
+	private void generatePartitionDataFromRule(UserDefinition loginUser, PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
+        CustomerContextHolder.setSchema(loginUser.getSchemaName());
+        RangeQueryFilter filter;
 
         if (!rule.isActive()) {
             log.info("skip inactive rule, rule_id: {}", rule.getId());
