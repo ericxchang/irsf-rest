@@ -19,7 +19,6 @@ import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.PartitionExportService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
-
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -110,7 +109,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			partHist.setStatus(AppConstants.FAIL);
 			exportRepo.save(partHist);
 			
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage());
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage().substring(0,1000));
 		}
 		return;
 	}
