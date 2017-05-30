@@ -19,6 +19,10 @@ import com.iconectiv.irsf.portal.service.FileHandlerService;
 import com.iconectiv.irsf.portal.service.PartitionExportService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,7 +134,13 @@ public class PartitionExportServiceImpl implements PartitionExportService {
     @Override
 	public EIResponse uploadFiles(String uploadFleName, byte[] data, String url, String customer, Integer exportPartitionId) {
         EIResponse response = new EIResponse();
-		RestTemplate restTemplate = new RestTemplate();
+		//RestTemplate restTemplate = new RestTemplate();
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(httpClient);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory); 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
 
         /* TODO add userId and password header
