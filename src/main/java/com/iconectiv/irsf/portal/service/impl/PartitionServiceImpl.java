@@ -367,7 +367,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setOrigPartitionId(partition.getId());
 		}
 		partition.setId(null);
-		partition.setStatus(PartitionStatus.Fresh.value());
+		partition.setStatus(PartitionStatus.Draft.value());
 		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partition.setLastExportDate(null);
 		partition.setDraftDate(null);
