@@ -318,7 +318,7 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces = "application/octet-stream")
     public @ResponseBody HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
         if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
         try {

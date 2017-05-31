@@ -254,6 +254,18 @@ public class PartitionServiceImpl implements PartitionService {
 		return partHist;
 	}
 
+	private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
+		log.info("buildPartitionDataLong(): number of rows: {}", list.size());
+		StringBuilder sb = new StringBuilder();
+		for (PartitionDataDetails p : list) {
+			sb.append(p.toCSVheader(AppConstants.CSV_COMMON_SEPERATOR));
+			sb.append("\n");
+		}
+		list.clear();
+		return sb.toString().getBytes();
+
+	}
+
 	/*
 	    1. delete existing data;
 	    2. persist partition data to data table;
