@@ -319,7 +319,7 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET, produces="application/zip")
     public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
         try {
             UserDefinition loginUser = getLoginUser(header);
