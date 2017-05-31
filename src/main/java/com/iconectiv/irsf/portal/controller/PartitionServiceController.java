@@ -20,6 +20,7 @@ import com.iconectiv.irsf.portal.service.PartitionExportService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+import com.iconectiv.irsf.util.SerializeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -288,7 +289,37 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-    @RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/exportData/{exportPartitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> getPartitionDataFullSetRequest(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+			byte[] partitionData = exportRepo.findPartitonExportFullSet(exportPartitionId);
+			List<PartitionDataDetails> dataSet = (List<PartitionDataDetails>) SerializeHelper.deserialize(partitionData);
+            if (partitionData.length > 0) {
+                rv = makeSuccessResult(MessageDefinition.Query_Success, dataSet);
+            } else {
+                throw new AppException("No data found");
+            }
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			log.error("Error:", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toJson(rv));
+		}
+		return rv;
+	}
+
+	@RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET)
     public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
         try {
             UserDefinition loginUser = getLoginUser(header);

@@ -125,6 +125,17 @@ public class PartitionServiceControllerTest  {
 	        queryPartition(partition);
 	}
 
+    @Test
+    public void testQueryExportDataSet() throws Exception {
+	    Integer exportId = 26;
+        ResultActions action = mockMvc.perform(get("/exportData/" + exportId).header("authorization", "Bearer " + token));
+
+        String result = action.andReturn().getResponse().getContentAsString();
+
+        log.info("test refresh partition(): {}", result);
+    }
+
+
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
 		Integer partId = 16;
@@ -138,6 +149,7 @@ public class PartitionServiceControllerTest  {
 		Thread.sleep(5 * 1000);
 
 	}
+
 	@Test
 	public void testExportPartition() throws Exception {
     	Integer partId = 16;
