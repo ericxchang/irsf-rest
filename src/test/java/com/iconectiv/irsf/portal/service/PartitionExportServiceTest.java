@@ -7,12 +7,18 @@ import com.iconectiv.irsf.core.ByteFile;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
+import com.iconectiv.irsf.util.SerializeHelper;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -32,6 +38,8 @@ import java.util.List;
 
 
 public class PartitionExportServiceTest {
+    private final static Logger log = LoggerFactory.getLogger(PartitionExportServiceTest.class);
+
     @Autowired
     FileHandlerService fileService;
     @Autowired
@@ -42,6 +50,8 @@ public class PartitionExportServiceTest {
     UserDefinitionRepository userRepo;
     @Autowired
     CustomerDefinitionRepository customerRepo;
+    @Autowired
+    PartitionDataDetailsRepository dataDetailsRepository;
 
     @Test
     public void testExportToEI() {
@@ -64,6 +74,19 @@ public class PartitionExportServiceTest {
         files.add(new ByteFile("blockfile.csv", exportEntry.getExportFileShort()));
         files.add(new ByteFile("whitelistfile.csv", exportEntry.getExportWhitelist()));
         fileService.saveZipFile("/tmp/irsf-export.zip", files);
+    }
+
+    @Test
+    public void testSerilizeDeserialize() {
+        CustomerContextHolder.setSchema("cust01");
+        List<PartitionDataDetails> partitionDataListLong = dataDetailsRepository.findAllByPartitionId(32);
+
+        byte[] data = SerializeHelper.serialize(partitionDataListLong);
+
+        List<PartitionDataDetails> result = (List<PartitionDataDetails>) SerializeHelper.deserialize(data);
+
+        log.info("total size: {}", result.size());
+        Assert.assertTrue(partitionDataListLong.size() == result.size());
     }
 
 

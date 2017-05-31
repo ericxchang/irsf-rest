@@ -11,6 +11,7 @@ import com.iconectiv.irsf.portal.repositories.customer.*;
 import com.iconectiv.irsf.portal.service.*;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+import com.iconectiv.irsf.util.SerializeHelper;
 import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,7 +201,7 @@ public class PartitionServiceImpl implements PartitionService {
 			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), nonWLDataType);
 			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),wlDataType);
 
-			partHist.setExportFileLong(buildPartitionDataLong(partitionDataListLong));
+			partHist.setExportFileLong(SerializeHelper.serialize(partitionDataListLong));
 			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
 			partHist.setExportWhitelist(StringUtils.collectionToDelimitedString(whiteList, "\n").getBytes());
 
