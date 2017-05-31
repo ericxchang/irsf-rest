@@ -36,7 +36,7 @@ public class AuditTrail implements java.io.Serializable {
 		this.userName = userName;
 		this.customerName = customerName;
 		this.action = action;
-		this.details = details;
+		setDetails(details);
 		this.lastUpdated = lastUpdated;
 		this.lastUpdatedBy = lastUpdatedBy;
 	}
@@ -86,6 +86,9 @@ public class AuditTrail implements java.io.Serializable {
 	}
 
 	public void setDetails(String details) {
+		if (details != null && details.length() > 1000) {
+			details = details.substring(0,999);
+		}
 		this.details = details;
 	}
 

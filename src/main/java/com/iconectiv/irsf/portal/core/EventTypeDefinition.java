@@ -5,7 +5,7 @@ public enum EventTypeDefinition {
 	Rule_Update ("Rule Update"),
 	Partition_Update ("Partition Update"),
 	Dataset_Update ("DateSet Update"), 
-	MobileIdUpdate ("Refresh Data"), 
+	MobileIdUpdate ("RefreshData"),
 	Partition_Draft ("Partition Draft"), 
 	Partition_Export ("Partition Export"), 
 	Partition_Stale("Partition Stale"),

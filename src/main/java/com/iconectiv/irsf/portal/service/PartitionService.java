@@ -1,12 +1,14 @@
 package com.iconectiv.irsf.portal.service;
 
 import com.iconectiv.irsf.portal.exception.AppException;
+import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 public interface PartitionService {
@@ -28,4 +30,6 @@ public interface PartitionService {
 	void checkStale(UserDefinition loginUser, PartitionDefinition partition, String reason);
 	void checkStale(UserDefinition loginUser, ListDefinition listDefinition, String reason);
 	void checkStale(UserDefinition loginUser, Integer partitionId, String reason);
+
+	void staleDraftPartitions(CustomerDefinition customer, Date lastUpdatedDate);
 }

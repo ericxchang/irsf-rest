@@ -15,7 +15,10 @@ public interface PartitionDefinitionRepository extends CrudRepository<PartitionD
 
     @Query("select pd from PartitionDefinition pd where pd.status <> 'exported' order by pd.origPartitionId desc" )
     List<PartitionDefinition> findAllActivePartitions();
-    
+
+    @Query("select pd from PartitionDefinition pd where pd.status = 'draft'" )
+    List<PartitionDefinition> findAllDraftPartitions();
+
     List<PartitionDefinition> findAllByOrigPartitionIdOrderByOrigPartitionIdDesc(Integer origPartitionId);
     
     @Modifying
@@ -32,4 +35,5 @@ public interface PartitionDefinitionRepository extends CrudRepository<PartitionD
     @Transactional
     @Query("update PartitionDefinition pd set pd.status='stale', pd.draftDate=null where pd.status='draft' and pd.wlId=?1")
     void staleDraftPartitionsByWListId(Integer listId);
+
 }

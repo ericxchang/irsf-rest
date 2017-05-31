@@ -8,7 +8,10 @@ import java.util.List;
 
 public interface EventNotificationService {
 	void addEventNotification(EventNotification event);
-	void ackEventNotification(EventNotification event, UserDefinition user);
+
+    void sendPartitionEvent(UserDefinition loginUser, EventNotification event);
+
+    void ackEventNotification(EventNotification event, UserDefinition user);
 	List<EventNotification> getEvents(UserDefinition loginUser, Date lastQueryTime);
 	List<EventNotification> getEvents();
 

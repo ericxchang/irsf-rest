@@ -32,28 +32,33 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 	@Override
 	public void addEventNotification(EventNotification event) {
 		eventRepo.save(event);
-
 	}
-
 
 	@Override
 	public void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String type, String message) {
 		EventNotification event = new EventNotification();
 		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		event.setEventType(type);
+		event.setSeverity(1);
 		event.setReferenceId(partitionId);
 		event.setCustomerName(loginUser.getCustomerName());
 		event.setStatus("new");
 		event.setMessage(message);
+		sendPartitionEvent(loginUser, event);
+	}
+
+    @Override
+    public void sendPartitionEvent(UserDefinition loginUser, EventNotification event) {
         event.setLastUpdatedBy(loginUser.getUserName());
-		eventRepo.save(event);
+        eventRepo.save(event);
 
         log.info(JsonHelper.toPrettyJson(event));
         messagingTemplate.convertAndSend("/topic/partitionEvent." + loginUser.getCustomerId(), event);
-	}
+    }
 
 
-	@Override
+
+    @Override
 	public void ackEventNotification(EventNotification event, UserDefinition user) {
 		event.setAcknowledgeTimestamp(DateTimeHelper.nowInUTC());
 		event.setLastUpdatedBy(user.getUserName());

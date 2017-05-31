@@ -10,6 +10,7 @@ import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository
 import com.iconectiv.irsf.portal.repositories.customer.*;
 import com.iconectiv.irsf.portal.service.*;
 import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,6 +275,7 @@ public class PartitionServiceImpl implements PartitionService {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         partitionDataRepo.deleteByPartitionId(partition.getId());
         partitionDataRepo.batchUpdate(partitionDataList);
+
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
         partition.setLastUpdated(DateTimeHelper.nowInUTC());
@@ -317,6 +319,7 @@ public class PartitionServiceImpl implements PartitionService {
 	//TODO use pageination
 	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
  		ListDefinition listDef = listDefinitionRepo.findOne(listId);
+        if (log.isDebugEnabled()) log.debug("generating partition data from list: {}", JsonHelper.toJson(listDef));
 
 		List<ListDetails> listData = listService.getListDetailDataByListId(listId);
 
@@ -345,7 +348,7 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-		log.debug("retrieve all partition data for ruleId: {}", rule.getId());
+        if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(rule));
 
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
@@ -372,7 +375,6 @@ public class PartitionServiceImpl implements PartitionService {
 		partition.setStatus(PartitionStatus.Draft.value());
 		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partition.setLastExportDate(null);
-		partition.setDraftDate(null);
 		partition.setLastUpdatedBy("cloned");
 		partitionDefRepo.save(partition);
 
@@ -594,15 +596,42 @@ public class PartitionServiceImpl implements PartitionService {
 				}
 			}
 		}
-
 	}
 
+	@Override
+    public void staleDraftPartitions(CustomerDefinition customer, final Date mobileIdDataLoadDate) {
+        partitionDefRepo.findAllDraftPartitions().forEach(partition -> {
+            if (partition.getDraftDate() == null) {
+                log.error("partition does not draft date: " + JsonHelper.toJson(partition));
+            }
+            if (partition.getDraftDate().before(mobileIdDataLoadDate)) {
+                log.info("Partition draft date {} is before cusrrent MobileId Dateset {}, will move it to stale", partition.getDraftDate(), mobileIdDataLoadDate);
+                UserDefinition user = new UserDefinition();
+                user.setUserName("system");
+                user.setCustomerId(customer.getId());
+                user.setSchemaName(customer.getSchemaName());
+                user.setCustomerName(customer.getCustomerName());
+                setPartitionToStale(user, partition, "new MobileID dataset");
+            }
+        });
+    }
+
 	private void setPartitionToStale(final UserDefinition loginUser, PartitionDefinition partition, final String reason) {
+        log.info("Set partition {} to stale", partition.getName());
 		partition.setStatus(PartitionStatus.Stale.value());
 		partitionDefRepo.save(partition);
 
 		//broadcast to web client
-		eventService.sendPartitionEvent(loginUser, partition.getId(),EventTypeDefinition.Partition_Stale.value(), "Partition " + partition.getName() + " is staled due to " + reason);
+		EventNotification event = new EventNotification();
+		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+		event.setEventType(EventTypeDefinition.Partition_Stale.value());
+		event.setSeverity(3);
+		event.setReferenceId(partition.getId());
+		event.setCustomerName(loginUser.getCustomerName());
+		event.setStatus("new");
+		event.setMessage("Partition " + partition.getName() + " is staled due to " + reason);
+
+		eventService.sendPartitionEvent(loginUser, event);
 	}
 
 

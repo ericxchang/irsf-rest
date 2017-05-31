@@ -1,10 +1,9 @@
 package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.persistence.*;
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -19,6 +18,7 @@ public class EventNotification implements java.io.Serializable {
 	private Integer id;
 	private String customerName;
 	private String eventType;
+	private Integer severity = 1;
 	private Integer referenceId;
 	private String message;
 	private String status = "new";
@@ -70,7 +70,16 @@ public class EventNotification implements java.io.Serializable {
 		this.eventType = eventType;
 	}
 
-	@Column(name = "reference_id")
+    @Column(name = "severity")
+    public Integer getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(Integer severity) {
+        this.severity = severity;
+    }
+
+    @Column(name = "reference_id")
 	public Integer getReferenceId() {
 		return this.referenceId;
 	}
@@ -85,7 +94,10 @@ public class EventNotification implements java.io.Serializable {
 	}
 
 	public void setMessage(String message) {
-		this.message = message;
+		if (message != null && message.length() > 250) {
+		    message = message.substring(0,249);
+        }
+	    this.message = message;
 	}
 
 	@Column(name = "status", nullable = false, length = 45)
