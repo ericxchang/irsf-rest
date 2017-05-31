@@ -1,18 +1,16 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.core.EIResponse;
 import com.iconectiv.irsf.jwt.JWTUtil;
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
-
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,7 +56,7 @@ public class PartitionServiceControllerTest  {
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
-        loginUser.setUserName("guiuser01");
+        loginUser.setUserName("user01");
         loginUser.setCustomerId(1);
         loginUser.setRole(PermissionRole.CustAdmin.value());
         loginUser.setSchemaName("cust01");
@@ -79,7 +71,24 @@ public class PartitionServiceControllerTest  {
 
 	}
 
-	//@Test
+	@Test
+    public void updateExportStatus() throws Exception {
+        EIResponse eiStatus = new EIResponse();
+        eiStatus.setId("1496244063");
+        eiStatus.setStatus(AppConstants.SUCCESS);
+        eiStatus.setCustomer("cust01");
+        eiStatus.setPartition(25);
+        eiStatus.setMessage("data are processed successfully");
+
+        ResultActions action = mockMvc.perform(post("/loadstatus").header("userId", "eiuser").header("password", "irsf")
+                .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(eiStatus)));
+        String result = action.andReturn().getResponse().getContentAsString();
+        log.info(result);
+       // assertTrue(result.lastIndexOf("success") > 1);
+    }
+
+
+    //@Test
 	public void testQueryActivePartition() throws Exception {
         ResultActions action = mockMvc.perform(get("/partitions").header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
@@ -199,6 +208,7 @@ public class PartitionServiceControllerTest  {
         log.info(result);
         assertTrue(result.lastIndexOf("success") > 1);
     }
+
     private void refrehPartition(Integer partitionId) throws Exception {
         ResultActions action = mockMvc.perform(get("/partition/refresh/" + partitionId).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();

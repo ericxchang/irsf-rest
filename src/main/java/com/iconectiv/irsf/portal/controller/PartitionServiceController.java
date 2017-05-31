@@ -433,7 +433,7 @@ class PartitionServiceController extends BaseRestController {
             }
 
             assertAuthorized(loginUser, PermissionRole.API.value());
-            loginUser.setCustomerName(eiStatus.getCustomer());
+            loginUser.setSchemaName(eiStatus.getCustomer());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
