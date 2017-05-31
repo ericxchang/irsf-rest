@@ -27,11 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -319,7 +323,7 @@ class PartitionServiceController extends BaseRestController {
 	}
 
 	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces="application/zip")
-    public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
+    public void downloadPartitionExportData(HttpServletResponse response, @RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
         if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
         try {
             UserDefinition loginUser = getLoginUser(header);
@@ -334,23 +338,23 @@ class PartitionServiceController extends BaseRestController {
             }
 
             String outputFileName  = exportHistory.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMddHHmmss");
-
-
             byte[] documentBody = exportService.createExportFiles(loginUser, exportHistory, outputFileName);
 
-            HttpHeaders respHeader = new HttpHeaders();
+            //setting headers
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.addHeader("Content-Disposition", "attachment; filename=" + outputFileName);
+            response.setContentLength(documentBody.length);
+            OutputStream output = response.getOutputStream();
 
-            respHeader.set("Content-Disposition", "attachment; filename=" + outputFileName);
-            respHeader.setContentLength(documentBody.length);
+            output.write(documentBody, 0, documentBody.length);
 
-            return new HttpEntity<byte[]>(documentBody, respHeader);
+            return;
 
         } catch(Exception e) {
             log.error("Error to download partition export data: ", e);
-            //TODO throw SNMP trap
         }
 
-        return null;
+        return;
     }
 
 
