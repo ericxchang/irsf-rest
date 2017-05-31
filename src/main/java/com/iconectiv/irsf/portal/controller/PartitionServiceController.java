@@ -244,9 +244,9 @@ class PartitionServiceController extends BaseRestController {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
-				rv = makeErrorResult("System is generating partition data, please come back later");
+				rv = makeErrorResult(MessageDefinition.Generating_Partition_Dataset_Success);
 			} else {
-				rv = makeSuccessResult("System starts to export partition data, please come back later");
+				rv = makeSuccessResult(MessageDefinition.Exporting_Partition_Dataset_Success);
 				partitionServ.exportPartition(loginUser, partitionId);
 			}
 		} catch (SecurityException e) {
@@ -337,7 +337,7 @@ class PartitionServiceController extends BaseRestController {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
-				rv = makeErrorResult("System is generating partition data, please come back later");
+				rv = makeErrorResult(MessageDefinition.Generating_Partition_Dataset_Success);
 			} else {
 				partitionServ.refreshPartition(loginUser, partitionId);
 				rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
@@ -375,11 +375,11 @@ class PartitionServiceController extends BaseRestController {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 
 			if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
-				rv = makeSuccessResult("System is generating partition data, please come back later");
+				rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
 			}
 			else if (partition.getStatus().equals(PartitionStatus.Stale.value())
 			        || partition.getStatus().equals(PartitionStatus.Fresh.value())) {
-				rv = makeSuccessResult("System is generating partition data, please come back later");
+				rv = makeSuccessResult(MessageDefinition.Generating_Partition_Dataset_Success);
 				partitionServ.refreshPartition(loginUser, partitionId);
 			} else {
 				if (pageNo == null) {
