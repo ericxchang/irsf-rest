@@ -294,6 +294,8 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> getPartitionDataFullSetRequest(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
 		try {
+		    if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
+
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
@@ -313,9 +315,6 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toJson(rv));
-		}
 		return rv;
 	}
 
