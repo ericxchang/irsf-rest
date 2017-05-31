@@ -294,7 +294,7 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> getPartitionDataFullSetRequest(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
 		try {
-		    if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
+		    if (log.isDebugEnabled()) log.debug("receiing download export data request {}", exportPartitionId);
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -318,8 +318,9 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/export/download/{exportPartitionId}", method = RequestMethod.GET, produces="application/zip")
+	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces="application/zip")
     public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
+        if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
         try {
             UserDefinition loginUser = getLoginUser(header);
             assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
