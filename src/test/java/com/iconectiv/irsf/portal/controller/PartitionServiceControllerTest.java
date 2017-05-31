@@ -29,6 +29,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -135,6 +138,24 @@ public class PartitionServiceControllerTest  {
         log.info("test refresh partition(): {}", result);
     }
 
+    @Test
+    public void testDownloadBlockingList() throws Exception {
+        ResultActions action = mockMvc.perform(get("/blockingfile/28").header("authorization", "Bearer " + token));
+        byte[] result = action.andReturn().getResponse().getContentAsByteArray();
+
+        FileOutputStream fout = null;
+
+        try {
+            fout = new FileOutputStream("/tmp/blockingFile.zip");
+            fout.write(result);
+            fout.close();
+        } catch (FileNotFoundException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
+        }
+
+    }
 
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
