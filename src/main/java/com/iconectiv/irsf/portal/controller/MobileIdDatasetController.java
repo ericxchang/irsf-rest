@@ -240,9 +240,12 @@ class MobileIdDatasetController extends BaseRestController {
 
 
 	@RequestMapping(value = "/download/{type}", method = RequestMethod.GET)
-	public HttpEntity<byte[]> downloadMobileIdDataSet(@PathVariable String type) throws Exception{
+	public HttpEntity<byte[]> downloadMobileIdDataSet(@RequestHeader Map<String, String> header, @PathVariable String type) throws Exception{
 		if (log.isDebugEnabled()) log.debug("Received download mobileID data set request");
 		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
 			byte[] documentBody;
 			String dataFileName;
 			String outputFileName;
