@@ -318,8 +318,8 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces="application/zip")
-    public HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
+	@RequestMapping(value = "/blockingfile/{exportPartitionId}", method = RequestMethod.GET, produces = "application/json")
+    public @ResponseBody HttpEntity<byte[]> downloadPartitionExportData(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) throws Exception{
         if (log.isDebugEnabled()) log.debug("receiing download blocking file request {}", exportPartitionId);
         try {
             UserDefinition loginUser = getLoginUser(header);
