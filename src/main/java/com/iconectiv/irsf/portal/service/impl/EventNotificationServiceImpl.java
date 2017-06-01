@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import com.iconectiv.irsf.portal.core.EventTypeDefinition;
 import com.iconectiv.irsf.portal.model.common.AuditTrail;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -69,6 +70,10 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 	@Override
 	public List<EventNotification> getEvents(UserDefinition loginUser, Date lastQueryTime) {
 		List<EventNotification> events = new ArrayList<>();
+
+		//always return last mobile id refresh event
+        events.add(eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value()));
+
 		if (lastQueryTime == null) {
 			AuditTrail logoutEvent = auditRepo.findTop1ByUserNameAndActionOrderByLastUpdatedDesc(loginUser.getUserName(), "logout");
 			
