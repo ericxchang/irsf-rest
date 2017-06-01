@@ -85,7 +85,7 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 			events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(loginUser.getCustomerName(), lastQueryTime));
 		}
 		
-		events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc("IRSF", lastQueryTime));
+		events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc("irsf", lastQueryTime));
 		
 		return events;
 	}
