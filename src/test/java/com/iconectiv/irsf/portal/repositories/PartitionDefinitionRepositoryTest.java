@@ -131,5 +131,4 @@ public class PartitionDefinitionRepositoryTest {
 		
 		return partition;
 	}
-	
 }

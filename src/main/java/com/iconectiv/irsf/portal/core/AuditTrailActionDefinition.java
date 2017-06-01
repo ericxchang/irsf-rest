@@ -4,7 +4,8 @@ package com.iconectiv.irsf.portal.core;
  * Created by echang on 3/30/2017.
  */
 public class AuditTrailActionDefinition {
-	private AuditTrailActionDefinition() {
+
+    private AuditTrailActionDefinition() {
 		
 	}
     public static final String Clone_Partition = "clone partition";
@@ -16,6 +17,7 @@ public class AuditTrailActionDefinition {
     public static final String Export_Partition_Data = "export partition";
     public static final String Send_Partition_Data_To_EI = "send partition to EI";
     public static final String Re_Send_Partition_Data_To_EI = "resend partition to EI";
+    public static final String Delete_Export_History = "delete partition history";
     public static final String Refresh_Partition_Data = "refresh partition";
 
     public static final String Create_Rule = "create rule";

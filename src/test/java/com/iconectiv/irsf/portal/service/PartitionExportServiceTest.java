@@ -88,6 +88,4 @@ public class PartitionExportServiceTest {
         log.info("total size: {}", result.size());
         Assert.assertTrue(partitionDataListLong.size() == result.size());
     }
-
-
 }

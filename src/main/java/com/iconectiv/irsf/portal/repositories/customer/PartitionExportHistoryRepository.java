@@ -1,8 +1,10 @@
 package com.iconectiv.irsf.portal.repositories.customer;
 
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,4 +20,14 @@ public interface PartitionExportHistoryRepository extends CrudRepository<Partiti
 
 	@Query("select pe.exportFileLong from PartitionExportHistory pe where pe.id=?1")
 	byte[] findPartitonExportFullSet(Integer exportPartitionId);
+
+    @Query("select distinct pe.origPartitionId from PartitionExportHistory pe")
+	List<Integer> findAllOrigPartitionId();
+
+    @Query("select pe.id from PartitionExportHistory pe where pe.origPartitionId=?1 order by id desc")
+    List<Integer> findAllIdByOrigPartitionId(int origPartitionId);
+
+    @Modifying
+    @Transactional
+    void deleteByIdIn(List<Integer> exportIds);
 }

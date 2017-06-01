@@ -7,6 +7,7 @@ import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
 import com.iconectiv.irsf.portal.service.MobileIdDataService;
+import com.iconectiv.irsf.portal.service.PartitionExportService;
 import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.portal.service.ScheduleJobService;
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 	private CustomerDefinitionRepository customerRepo;
 	@Autowired
     private PartitionService partitionService;
+	@Autowired
+    private PartitionExportService exportService;
 	
 	
 	@Override
@@ -66,12 +69,22 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 		mobileIdService.cleanCache();
 
 		checkPartitionState(lastUpdatedDate);
+
+		cleanExportHistory();
 		/* TODO 
 		 * 1. update active rule, update provider info
 		 * 2. mark current partition stale
 		 * 
 		 */
 	}
+
+    private void cleanExportHistory() {
+        for (CustomerDefinition customer: customerRepo.findAllByActive(true)) {
+            log.info("Scanning draft partition for customer {}" + customer.getCustomerName());
+            CustomerContextHolder.setSchema(customer.getSchemaName());
+            exportService.cleanExportHistory(customer);
+        }
+    }
 
     private void checkPartitionState(Date lastUpdatedDate) {
 	    for (CustomerDefinition customer: customerRepo.findAllByActive(true)) {

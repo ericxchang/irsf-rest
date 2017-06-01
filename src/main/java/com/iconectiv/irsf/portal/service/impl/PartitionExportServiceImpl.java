@@ -194,7 +194,23 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
         return;
     }
 
-    private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
+	@Override
+	public void cleanExportHistory(CustomerDefinition customer) {
+		List<Integer> origPartitionIdList = exportRepo.findAllOrigPartitionId();
+		origPartitionIdList.forEach(origId -> {
+			List<Integer> exportIds = exportRepo.findAllIdByOrigPartitionId(origId);
+			log.info("Export IDs for partition {}: {}", origId, exportIds);
+			if (exportIds.size() > 2) {
+				exportIds.remove(0);
+				exportIds.remove(0);
+				log.info("Will remove export IDs for partition {}: {}", origId, exportIds);
+				exportRepo.deleteByIdIn(exportIds);
+				auditService.saveAuditTrailLog("system", customer.getCustomerName(), AuditTrailActionDefinition.Delete_Export_History, "deleted export history record " + exportIds);
+			}
+		});
+	}
+
+	private HttpResponseMessage uploadFiles(String uploadFleName, String url) {
 		String status = "success";
 		HttpResponseMessage  httpMsg = null;
 		RestTemplate restTemplate = new RestTemplate();
