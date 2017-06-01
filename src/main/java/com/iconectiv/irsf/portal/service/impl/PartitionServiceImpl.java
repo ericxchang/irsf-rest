@@ -228,7 +228,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setLastExportDate(DateTimeHelper.nowInUTC());
 			partition.setLastUpdatedBy(loginUser.getUserName());
 
-			Integer oldPartitionId = partition.getId();
+			//Integer oldPartitionId = partition.getId();
 
 			log.debug("exportPartitionData(): update  PartitionDefinition");
 			partitionDefRepo.save(partition);
@@ -237,9 +237,7 @@ public class PartitionServiceImpl implements PartitionService {
 			log.debug("exportPartitionData(): clone partitionDefinition");
 			clonePartition(loginUser, partition);
 
-			log.debug("exportPartitionData():: move PartitionDataDetails: old: {}; new: {} ", oldPartitionId, partition.getId());
-
-			partitionDataRepo.movePartition(oldPartitionId, partition.getId());
+			//partitionDataRepo.movePartition(oldPartitionId, partition.getId());
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());
 		} catch (Exception e) {
@@ -373,8 +371,9 @@ public class PartitionServiceImpl implements PartitionService {
 			partition.setOrigPartitionId(partition.getId());
 		}
 		partition.setId(null);
-		partition.setStatus(PartitionStatus.Draft.value());
+		partition.setStatus(PartitionStatus.Fresh.value());
 		partition.setLastUpdated(DateTimeHelper.nowInUTC());
+		partition.setDraftDate(null);
 		partition.setLastExportDate(null);
 		partition.setLastUpdatedBy("cloned");
 		partitionDefRepo.save(partition);
