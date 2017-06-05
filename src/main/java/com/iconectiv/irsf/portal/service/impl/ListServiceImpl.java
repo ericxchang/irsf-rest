@@ -120,6 +120,7 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
+    @Transactional
 	public Integer createListDefinition(UserDefinition user, String listName, String description, String listType) {
 		ListDefinition listDefintion = new ListDefinition();
 		listDefintion.setListName(listName);
@@ -132,6 +133,9 @@ public class ListServiceImpl implements ListService {
 		listDefintion.setCreateTimestamp(DateTimeHelper.nowInUTC());
 		listDefintion.setLastUpdated(DateTimeHelper.nowInUTC());
 		listDefintion = listDefRepo.save(listDefintion);
+
+        auditService.saveAuditTrailLog(user, AuditTrailActionDefinition.Create_List_Definition, "create new " +
+                listType + " list " + listDefintion.getId());
 
 		return listDefintion.getId();
 	}
@@ -154,6 +158,7 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
+	@Transactional
 	public void updateListName(UserDefinition loginUser, Integer listId, String listName, String description) {
 		ListDefinition listDef = listDefRepo.findOne(listId);
 		
