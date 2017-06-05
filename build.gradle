@@ -116,6 +116,9 @@ dependencies {
     compile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.13'
 
 	compile 'com.google.guava:guava'
+	
+	// iSNMP framework (client)
+	compile 'com.iconectiv.ima:snmp:1.0'
 
 	//support filters in web.xml
 	compile 'com.googlecode.webutilities:webutilities:0.0.8'
