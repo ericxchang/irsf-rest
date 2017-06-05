@@ -1,10 +1,9 @@
 package com.iconectiv.irsf.portal.repositories;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
+import com.iconectiv.irsf.portal.model.common.RangeNdc;
+import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,12 +18,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
-import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
-import com.iconectiv.irsf.portal.model.common.RangeNdc;
-import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -34,8 +29,9 @@ import com.iconectiv.irsf.util.JsonHelper;
 public class RangeNdcRepositoryTest {
 	
 	private static Logger log = LoggerFactory.getLogger(RangeNdcRepositoryTest.class);
+
 	@Autowired
-	RangeNdcRepository repository;
+	private RangeNdcRepository repository;
 	
 
 	
@@ -65,8 +61,16 @@ public class RangeNdcRepositoryTest {
 		pageList = repository.findRangeNdcbyRule28(tosList, tosDescList, providerList, page);
 		for (RangeNdc ndc: pageList)
 			log.info(JsonHelper.toJson(ndc));
-		
-		
-		 
 	}
+
+	@Test
+    public void testEffectiveDateValue() {
+	    RangeNdc rangeNDC = repository.findOne(12980);
+	    log.info("effective date: {}", rangeNDC.getEffectiveDate());
+
+	    rangeNDC.setEffectiveDate(DateTimeHelper.toUTC(rangeNDC.getEffectiveDate()));
+	    repository.save(rangeNDC);
+
+        log.info("effective date: {}", rangeNDC.getEffectiveDate());
+    }
 }

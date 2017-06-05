@@ -120,9 +120,10 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public Integer createListDefinition(UserDefinition user, String name, String listName, String listType) {
+	public Integer createListDefinition(UserDefinition user, String listName, String description, String listType) {
 		ListDefinition listDefintion = new ListDefinition();
 		listDefintion.setListName(listName);
+		listDefintion.setDescription(description);
 		listDefintion.setType(listType);
 		listDefintion.setActive(true);
 		listDefintion.setCustomerName(user.getCustomerName());
@@ -153,11 +154,12 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public void updateListName(UserDefinition loginUser, Integer listId, String name, String listName) {
+	public void updateListName(UserDefinition loginUser, Integer listId, String listName, String description) {
 		ListDefinition listDef = listDefRepo.findOne(listId);
 		
 		if (listDef != null && !listDef.getListName().equals(listName)) {
 			listDef.setListName(listName);
+			listDef.setDescription(description);
 			listDef.setLastUpdated(DateTimeHelper.nowInUTC());
 			listDef.setLastUpdatedBy(loginUser.getUserName());
 			listDefRepo.save(listDef);
