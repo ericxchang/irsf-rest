@@ -162,7 +162,7 @@ public class ListServiceImpl implements ListService {
 	public void updateListName(UserDefinition loginUser, Integer listId, String listName, String description) {
 		ListDefinition listDef = listDefRepo.findOne(listId);
 		
-		if (listDef != null && !listDef.getListName().equals(listName)) {
+		if (listDef != null && !listDef.getListName().equals(listName) && !listDef.getDescription().equals(description)) {
 			listDef.setListName(listName);
 			listDef.setDescription(description);
 			listDef.setLastUpdated(DateTimeHelper.nowInUTC());
