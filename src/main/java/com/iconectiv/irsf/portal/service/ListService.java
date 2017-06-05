@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface ListService {
 
-	Integer createListDefinition(UserDefinition user, String listName, String listType);
+	Integer createListDefinition(UserDefinition user, String name, String listName, String listType);
 
 	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter);
 
@@ -32,7 +32,7 @@ public interface ListService {
 
 	List<ListDefinition> getTop3ListDefinition(String listType);
 
-	void updateListName(UserDefinition loginUser, Integer listId, String listName);
+	void updateListName(UserDefinition loginUser, Integer listId, String name, String listName);
 
 	void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 

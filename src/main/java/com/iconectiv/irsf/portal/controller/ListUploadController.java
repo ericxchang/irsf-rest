@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 public class ListUploadController extends BaseRestController {
@@ -40,7 +39,7 @@ public class ListUploadController extends BaseRestController {
 	@RequestMapping(value = "/uploadListFile", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> multipleSave(@RequestHeader Map<String, String> header, @RequestParam("file") MultipartFile[] files,   
-	        @RequestParam("listType") String listType, @RequestParam("listName") String listName,
+	        @RequestParam("listType") String listType, @RequestParam("listName") String listName, @RequestParam("description") String description,
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 		try {
@@ -56,11 +55,11 @@ public class ListUploadController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());				
             
 			if (listName != null && id == null) {
-				listId = listService.createListDefinition(loginUser, listName, listType);
+				listId = listService.createListDefinition(loginUser, listName, description, listType);
 				isInitialLoading = true;
 			} else if (id != null){
 				listId = id;
-				listService.updateListName(loginUser, listId, listName);
+				listService.updateListName(loginUser, listId, listName, description);
 				isInitialLoading = false;
 			} else {
 				throw new AppException("Invalid request parameter: must provide either listName or listId");

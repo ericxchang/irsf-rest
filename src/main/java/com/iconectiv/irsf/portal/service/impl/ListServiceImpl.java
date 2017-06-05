@@ -120,7 +120,7 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public Integer createListDefinition(UserDefinition user, String listName, String listType) {
+	public Integer createListDefinition(UserDefinition user, String name, String listName, String listType) {
 		ListDefinition listDefintion = new ListDefinition();
 		listDefintion.setListName(listName);
 		listDefintion.setType(listType);
@@ -153,7 +153,7 @@ public class ListServiceImpl implements ListService {
 	}
 
 	@Override
-	public void updateListName(UserDefinition loginUser, Integer listId, String listName) {
+	public void updateListName(UserDefinition loginUser, Integer listId, String name, String listName) {
 		ListDefinition listDef = listDefRepo.findOne(listId);
 		
 		if (listDef != null && !listDef.getListName().equals(listName)) {

@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.model.common;
 // Generated Mar 9, 2017 1:15:40 PM by Hibernate Tools 3.2.2.GA
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.iconectiv.irsf.portal.core.AppConstants;
@@ -39,6 +40,8 @@ public class Premium implements java.io.Serializable {
 	private String provider;
 	private String billingId;
 	private String supplement;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date lastUpdate;
 
 	public Premium() {
