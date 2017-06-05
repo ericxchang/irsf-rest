@@ -69,7 +69,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 					
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile)
-                            .param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
+                            .param("listType", "BL").param("listName",listName).param("description",listName + " deccription").param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
@@ -107,7 +107,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 					def token = createToken(it)
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile).file(secondFile).file(thirdFile).
-                            param("listType", "BL").param("listName",listName).param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
+                            param("listType", "BL").param("listName",listName).param("description",listName + " deccription").param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
