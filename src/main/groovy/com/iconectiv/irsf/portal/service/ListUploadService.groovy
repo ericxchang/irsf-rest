@@ -1,15 +1,10 @@
 package com.iconectiv.irsf.portal.service
 
-import com.iconectiv.irsf.portal.exception.AppException;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.exception.AppException
 import com.iconectiv.irsf.portal.model.customer.ListDetails
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest
 import com.iconectiv.irsf.portal.repositories.customer.ListDetailsRepository
 import com.iconectiv.irsf.util.DateTimeHelper
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,13 +19,17 @@ class ListUploadService {
     @Autowired
     private ListDetailsRepository listDetailRepo
 	@Autowired
-	MobileIdDataService midDataService;
+	MobileIdDataService midDataService
 
 	void parseBlackWhiteListData(ListUploadRequest uploadReq, List<ListDetails> listEntries, StringBuilder errorList) {
         def headerMap = parseHeader(uploadReq, uploadReq.delimiter)
 		uploadReq.data.eachWithIndex {item, index ->
 			if (item.trim()) {
-				parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)				
+                try {
+                    parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)
+                } catch (Exception e) {
+                    errorList.append("line $index has invalid date value <$item>\n")
+                }
 			}
 		}
 		log.info("Finish parsing input file, about to insert")
@@ -126,7 +125,7 @@ class ListUploadService {
         listDetails.listRefId = uploadReq.listRefId
         listDetails.upLoadRefId = uploadReq.id
         listDetails.active = true
-        listDetails.lastUpdated = DateTimeHelper.nowInUTC();
+        listDetails.lastUpdated = DateTimeHelper.nowInUTC()
         listDetails.lastUpdatedBy = uploadReq.lastUpdatedBy
 		listEntries.add(listDetails)
 	}
@@ -167,7 +166,7 @@ class ListUploadService {
     boolean hasDuplicateEntry(listEntries, dialPattern) {
         for (def listDetail : listEntries) {
             if (listDetail.dialPattern.equals(dialPattern)) {
-				return true;			
+				return true
             }
         }
         return false
