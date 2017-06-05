@@ -28,7 +28,7 @@ class ListUploadService {
                 try {
                     parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)
                 } catch (Exception e) {
-                    errorList.append("line $index has invalid date value <$item>\n")
+                    errorList.append("line $index has invalid value <$item>\n")
                 }
 			}
 		}
