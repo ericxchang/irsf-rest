@@ -173,18 +173,18 @@ public class MobileIdDatasetControllerTest {
 		TosTosDesc tosDesc = new TosTosDesc();
 		Provider prov = new Provider();
 		
-		codeList.add("93");
-		codeList.add("886");
-		iso2List.add("AL");
+		//codeList.add("93");
+		//codeList.add("886");
+		iso2List.add("GR");
 
 		
 		tosDesc = new TosTosDesc("G", "Geographic");
 		tosDescList.add(tosDesc);
-		tosDesc = new TosTosDesc("U", null);
-		tosDescList.add(tosDesc);
+		//tosDesc = new TosTosDesc("U", null);
+		//tosDescList.add(tosDesc);
 		
-		prov.setProvider("Aircel");
-		providerList.add(prov);
+		//prov.setProvider("Aircel");
+		//providerList.add(prov);
 		
 		
 		RangeQueryFilter filter =  new RangeQueryFilter();
