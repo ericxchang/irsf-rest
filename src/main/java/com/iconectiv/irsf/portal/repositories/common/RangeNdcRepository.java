@@ -59,13 +59,13 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select p from RangeNdc p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
 	List<RangeNdc>  findRangeNdcbyRule12(List<String> tosList, List<String> tosDescList);
 
-	@Query("select p from RangeNdc p where (code in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3 ")
+	@Query("select p from RangeNdc p where (code in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3) ")
 	List<RangeNdc>  findRangeNdcbyRule13(List<String> codeList, List<String> tosList, List<String> tosDescList);
 
-	@Query("select p from RangeNdc p where (iso2 in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3 ")
+	@Query("select p from RangeNdc p where (iso2 in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3) ")
 	List<RangeNdc>  findRangeNdcbyRule14(List<String> iso2List, List<String> tosList, List<String> tosDescList);
 
-	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and tos in ?3 or concat(tos,',',tosdesc) in ?4 ")
+	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 or concat(tos,',',tosdesc) in ?4) ")
 	List<RangeNdc>  findRangeNdcbyRule15(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList);
 
 	@Query("select p from RangeNdc p where (provider in ?1 )")
@@ -104,16 +104,16 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<RangeNdc>  findRangeNdcbyRule27(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from RangeNdc p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
+	@Query("select p from RangeNdc p where (tos in ?1 or concat(tos,',',tosdesc) in ?2)  and (provider in ?3 )")
 	List<RangeNdc>  findRangeNdcbyRule28(List<String> tosList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from RangeNdc p where (code in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3  and (provider in ?4 )")
+	@Query("select p from RangeNdc p where (code in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3)  and (provider in ?4 )")
 	List<RangeNdc>  findRangeNdcbyRule29(List<String> codeList, List<String> tosList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from RangeNdc p where (iso2 in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3  and (provider in ?4 )")
+	@Query("select p from RangeNdc p where (iso2 in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	List<RangeNdc>  findRangeNdcbyRule30(List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList);
 
-	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and tos in ?3 or concat(tos,',',tosdesc) in ?4  and (provider in ?5 )")
+	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 or concat(tos,',',tosdesc) in ?4)  and (provider in ?5 )")
 	List<RangeNdc>  findRangeNdcbyRule31(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList);
 
 
@@ -154,13 +154,13 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select p from RangeNdc p where tos in ?1 or concat(tos,',',tosdesc) in ?2 ")
 	Page<RangeNdc>  findRangeNdcbyRule12(List<String> tosList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (code in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3 ")
+	@Query("select p from RangeNdc p where (code in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3) ")
 	Page<RangeNdc>  findRangeNdcbyRule13(List<String> codeList, List<String> tosList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (iso2 in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3 ")
+	@Query("select p from RangeNdc p where (iso2 in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3) ")
 	Page<RangeNdc>  findRangeNdcbyRule14(List<String> iso2List, List<String> tosList, List<String> tosDescList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and tos in ?3 or concat(tos,',',tosdesc) in ?4 ")
+	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 or concat(tos,',',tosdesc) in ?4) ")
 	Page<RangeNdc>  findRangeNdcbyRule15(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, Pageable pageable);
 
 	@Query("select p from RangeNdc p where (provider in ?1 )")
@@ -199,16 +199,16 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (concat(tos,',',tosdesc) in ?3 ) and (provider in ?4 )")
 	Page<RangeNdc>  findRangeNdcbyRule27(List<String> codeList, List<String> iso2List, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where tos in ?1 or concat(tos,',',tosdesc) in ?2  and (provider in ?3 )")
+	@Query("select p from RangeNdc p where (tos in ?1 or concat(tos,',',tosdesc) in ?2)  and (provider in ?3 )")
 	Page<RangeNdc>  findRangeNdcbyRule28(List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (code in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3  and (provider in ?4 )")
+	@Query("select p from RangeNdc p where (code in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3)  and (provider in ?4 )")
 	Page<RangeNdc>  findRangeNdcbyRule29(List<String> codeList, List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (iso2 in ?1 ) and tos in ?2 or concat(tos,',',tosdesc) in ?3  and (provider in ?4 )")
+	@Query("select p from RangeNdc p where (iso2 in ?1 ) and (tos in ?2 or concat(tos,',',tosdesc) in ?3)  and (provider in ?4 )")
 	Page<RangeNdc>  findRangeNdcbyRule30(List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and tos in ?3 or concat(tos,',',tosdesc) in ?4  and (provider in ?5 )")
+	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 or concat(tos,',',tosdesc) in ?4)  and (provider in ?5 )")
 	Page<RangeNdc>  findRangeNdcbyRule31(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
 
