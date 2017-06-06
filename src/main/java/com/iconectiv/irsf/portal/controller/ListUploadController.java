@@ -43,6 +43,8 @@ public class ListUploadController extends BaseRestController {
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 		try {
+            if (log.isDebugEnabled()) log.debug("Received list upload request {}, {}, {}, {}, {}", id, listType, listName, description, delimiter);
+
             Assert.notNull(listName);
             Assert.notNull(delimiter);
             Assert.notNull(listType);
@@ -73,6 +75,7 @@ public class ListUploadController extends BaseRestController {
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
+		    log.error("error to process lit upload request:", e);
 			rv = makeErrorResult(e);
 		}
 
@@ -84,7 +87,9 @@ public class ListUploadController extends BaseRestController {
 
 	@Async
 	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
-		try {
+        if (log.isDebugEnabled()) log.debug("Processing list upload file {}, size: {}", file.getOriginalFilename(), file.getSize());
+
+        try {
 			ListDefinition listDef = listDefRepo.findOne(listId);
 			
 			if (listDef != null) {

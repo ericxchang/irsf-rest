@@ -134,6 +134,7 @@ public class ListServiceImpl implements ListService {
 		listDefintion.setLastUpdated(DateTimeHelper.nowInUTC());
 		listDefintion = listDefRepo.save(listDefintion);
 
+		if (log.isDebugEnabled()) log.debug("created list definition recrod {}", JsonHelper.toJson(listDefintion));
         auditService.saveAuditTrailLog(user, AuditTrailActionDefinition.Create_List_Definition, "create new " +
                 listType + " list " + listDefintion.getId());
 
