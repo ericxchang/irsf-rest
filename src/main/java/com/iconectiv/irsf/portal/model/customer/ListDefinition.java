@@ -81,6 +81,9 @@ public class ListDefinition implements java.io.Serializable {
 
 	@Column(name = "description", length = 100)
 	public String getDescription() {
+		if (this.description == null) {
+			this.description = "";
+		}
 		return this.description;
 	}
 
