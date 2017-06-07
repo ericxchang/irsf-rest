@@ -1,22 +1,5 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
@@ -26,6 +9,17 @@ import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
 import com.iconectiv.irsf.portal.repositories.customer.RuleDefinitionRepository;
 import com.iconectiv.irsf.portal.service.RuleService;
 import com.iconectiv.irsf.util.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -96,7 +90,8 @@ class RuleServiceController extends BaseRestController {
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             ruleService.createRule(loginUser, rule);
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, rule);
+
+            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
@@ -124,8 +119,8 @@ class RuleServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            rule = ruleService.updateRule(loginUser, rule);
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success, rule);
+            ruleService.updateRule(loginUser, rule);
+            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {

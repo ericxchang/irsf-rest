@@ -117,7 +117,7 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 
 	@Test
 	public void testRuleDetails() throws JsonValidationException, IOException, AppException {
-		RuleDefinition rule = ruleRepo.findOne(96);
+		RuleDefinition rule = ruleRepo.findOne(196);
 
 		log.info(rule.getDetails());
 		RangeQueryFilter filter = rule.getRangeQueryFilter();
