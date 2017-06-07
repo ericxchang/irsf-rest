@@ -71,6 +71,7 @@ public class ListUploadController extends BaseRestController {
             Arrays.asList(files).stream().forEach(file -> {
 				saveSingleFile(loginUser, listId, listType, file, delimiter, isInitialLoading);
 			});
+
 			rv = makeSuccessResult(MessageDefinition.Process_List_Upload);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -80,13 +81,13 @@ public class ListUploadController extends BaseRestController {
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toJson(rv));
+			log.debug("rest return: {} ", JsonHelper.toJson(rv));
 		}
 		return rv;
 	}
 
 	@Async
-	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
+	public void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
         if (log.isDebugEnabled()) log.debug("Processing list upload file {}, size: {}", file.getOriginalFilename(), file.getSize());
 
         try {
