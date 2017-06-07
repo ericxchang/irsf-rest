@@ -1,26 +1,5 @@
 package com.iconectiv.irsf.portal.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.ListType;
@@ -39,6 +18,19 @@ import com.iconectiv.irsf.portal.service.ListService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import com.iconectiv.irsf.util.ListDetailConvert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 class ListServiceController extends BaseRestController {
@@ -284,7 +276,6 @@ class ListServiceController extends BaseRestController {
     public ResponseEntity<String> updateListDefinitionRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
         ResponseEntity<String> rv;
         try {
-        	if (log.isDebugEnabled()) log.debug("Receive data: " + value);
         	ListDefinition listDef = JsonHelper.fromJson(value, ListDefinition.class);
         	
         	if (listDef.getId() == null) {
@@ -307,9 +298,6 @@ class ListServiceController extends BaseRestController {
             rv = makeErrorResult(e);
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(JsonHelper.toJson(rv));
-        }
         return rv;
     }
 
