@@ -82,7 +82,7 @@ class FileUploadControllerTest extends GroovyTestCase {
             withPool {
                 ["cust01"].eachParallel {
 					def token = createToken(it)
-                    def action = mockMvc.perform(get("/list?listName=${listName}").header("authorization", "Bearer " + token)).andExpect(status().isOk())
+                    def action = mockMvc.perform(get("/list?listName=${listName}").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
                 }

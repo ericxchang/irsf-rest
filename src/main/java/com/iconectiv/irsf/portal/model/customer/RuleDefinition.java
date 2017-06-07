@@ -4,23 +4,15 @@ package com.iconectiv.irsf.portal.model.customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
-import com.iconectiv.irsf.util.JsonHelper;
-
-import javax.persistence.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -99,7 +91,7 @@ public class RuleDefinition implements java.io.Serializable {
 		this.dataSource = dataSource;
 	}
 
-	@Column(name = "details", nullable = false, length = 2000)
+	@Column(name = "details", nullable = false)
 	public String getDetails() {
 		return this.details;
 	}
