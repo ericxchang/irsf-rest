@@ -525,7 +525,11 @@ public class PartitionServiceImpl implements PartitionService {
 
 			if (ruleIds != null && !"".equals(ruleIds)) {
 				for (String ruleId : ruleIds.trim().split(",")) {
-					partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+				    try {
+                        partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+                    } catch (Exception e) {
+				        //ignore this error
+                    }
 				}
 			}
 		}
