@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
+import com.iconectiv.irsf.util.DateTimeHelper;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -155,6 +156,9 @@ public class RangeNdc implements java.io.Serializable {
 	@Temporal(TemporalType.DATE)
 	@Column(name = "effective_date", length = 10)
 	public Date getEffectiveDate() {
+		if  (this.effectiveDate != null) {
+			return DateTimeHelper.toUTC(this.effectiveDate);
+		}
 		return this.effectiveDate;
 	}
 

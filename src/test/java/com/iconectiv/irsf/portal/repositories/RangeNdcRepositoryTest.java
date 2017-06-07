@@ -2,7 +2,6 @@ package com.iconectiv.irsf.portal.repositories;
 
 import com.iconectiv.irsf.portal.model.common.RangeNdc;
 import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
-import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,11 +65,6 @@ public class RangeNdcRepositoryTest {
 	@Test
     public void testEffectiveDateValue() {
 	    RangeNdc rangeNDC = repository.findOne(12980);
-	    log.info("effective date: {}", rangeNDC.getEffectiveDate());
-
-	    rangeNDC.setEffectiveDate(DateTimeHelper.toUTC(rangeNDC.getEffectiveDate()));
-	    repository.save(rangeNDC);
-
-        log.info("effective date: {}", rangeNDC.getEffectiveDate());
+	    log.info(JsonHelper.toPrettyJson(rangeNDC));
     }
 }
