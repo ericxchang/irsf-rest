@@ -537,8 +537,12 @@ public class PartitionServiceImpl implements PartitionService {
 	@Override
 	public void deleteParitition(UserDefinition loginUser, Integer partitionId) {
 		try {
-		    partitionDefRepo.delete(partitionId);
-		    auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_Partition, "deleted partition " + partitionId);
+		    PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+		    partition.setRuleIds(null);
+		    partition.setLastUpdatedBy(loginUser.getUserName());
+		    partition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+            partitionDefRepo.save(partition);
+		    auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove all rules from partition " + partitionId);
         } catch (Exception e) {
             log.error("Error on delete partition: ", e);
         }
