@@ -22,4 +22,5 @@ public class MessageDefinition {
 	public static final String ListSizeOverLimitError = "Failed to add list record since list size will be over the limit of ";
 	public static final String Remove_Rule =  "Successfully removed rule from partition";
 
+	public static final String DELETE_PARTITION = "Successfully delete partition ";
 }

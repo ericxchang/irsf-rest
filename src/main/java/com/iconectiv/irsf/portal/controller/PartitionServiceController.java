@@ -107,6 +107,33 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
+	@RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<String> deletePartitionRequest(@RequestHeader Map<String, String> header,
+													@PathVariable Integer partitionId) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			CustomerContextHolder.setSchema(loginUser.getSchemaName());
+
+			partitionServ.deleteParitition(loginUser, partitionId);
+
+			rv = makeSuccessResult(MessageDefinition.DELETE_PARTITION);
+		} catch (SecurityException e) {
+			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+		} catch (Exception e) {
+			log.error("Error: ", e);
+			rv = makeErrorResult(e);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(JsonHelper.toPrettyJson(rv));
+		}
+		return rv;
+	}
+
 	@RequestMapping(value = "/partitions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getPartitionList(@RequestHeader Map<String, String> header) {

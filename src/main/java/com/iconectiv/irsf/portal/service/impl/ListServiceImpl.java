@@ -115,7 +115,6 @@ public class ListServiceImpl implements ListService {
 			event.setStatus("new");
 			eventService.addEventNotification(event);
 
-			log.info("Complete parsing list file {}", JsonHelper.toJson(uploadReq));
 		} catch (Exception e) {
 			log.error("Error to parse black list: \n", e);
 		}

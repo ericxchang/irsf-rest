@@ -33,6 +33,7 @@ public class PartitionServiceImpl implements PartitionService {
 	private PartitionExportHistoryRepository exportRepo;
 	@Autowired
 	private PartitionDataDetailsRepository partitionDataRepo;
+
 	@Autowired
 	private RuleDefinitionRepository ruleRepo;
 	@Autowired
@@ -531,6 +532,18 @@ public class PartitionServiceImpl implements PartitionService {
 
 		return partitions;
 	}
+
+	@Transactional
+	@Override
+	public void deleteParitition(UserDefinition loginUser, Integer partitionId) {
+		try {
+		    partitionDefRepo.delete(partitionId);
+		    auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_Partition, "deleted partition " + partitionId);
+        } catch (Exception e) {
+            log.error("Error on delete partition: ", e);
+        }
+	}
+
 
 	@Transactional
 	@Override

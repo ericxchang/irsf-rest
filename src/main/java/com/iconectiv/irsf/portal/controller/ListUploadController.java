@@ -88,7 +88,7 @@ public class ListUploadController extends BaseRestController {
 
 	@Async
 	private void saveSingleFile(UserDefinition user, final Integer listId, String type, MultipartFile file, String delimiter, boolean isInitialLoading) {
-        if (log.isDebugEnabled()) log.debug("Processing list upload file {}", file.getOriginalFilename());
+        if (log.isDebugEnabled()) log.debug("Processing list upload file {}, size: {}", file.getOriginalFilename(), file.getSize());
 
         try {
 			ListDefinition listDef = listDefRepo.findOne(listId);

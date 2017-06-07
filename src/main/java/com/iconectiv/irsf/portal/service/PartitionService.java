@@ -32,4 +32,6 @@ public interface PartitionService {
 	void checkStale(UserDefinition loginUser, Integer partitionId, String reason);
 
 	void staleDraftPartitions(CustomerDefinition customer, Date lastUpdatedDate);
+
+	void deleteParitition(UserDefinition loginUser, Integer partitionId);
 }
