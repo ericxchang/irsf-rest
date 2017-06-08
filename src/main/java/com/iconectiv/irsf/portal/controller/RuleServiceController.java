@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -91,14 +92,17 @@ class RuleServiceController extends BaseRestController {
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             ruleService.createRule(loginUser, rule);
 
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success);
+            List<String> partitionName = new ArrayList<>();
+            rule.getPartitions().forEach(partition -> {
+                partitionName.add(partition.getName());
+            });
+            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success + String.join(",", partitionName));
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
         	log.error("Error:", e);
             rv = makeErrorResult(e);
         } catch (Exception e) {
-        	//TODO throw trap
         	log.error("Error:", e);
             rv = makeErrorResult(e);
         }
