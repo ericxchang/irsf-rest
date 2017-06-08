@@ -96,7 +96,7 @@ class RuleServiceController extends BaseRestController {
             rule.getPartitions().forEach(partition -> {
                 partitionName.add(partition.getName());
             });
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success + String.join(",", partitionName));
+            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success + String.join(", ", partitionName));
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
