@@ -2,13 +2,16 @@ package com.iconectiv.irsf.portal.controller;
 
 
 import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.exception.AuthException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.repositories.common.CustomerDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.common.UserDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
 import com.iconectiv.irsf.portal.service.AuditTrailService;
 import com.iconectiv.irsf.portal.service.UserService;
 import com.iconectiv.irsf.util.JsonHelper;
@@ -23,6 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -35,8 +39,8 @@ public class AuthServiceController extends BaseRestController {
     UserDefinitionRepository userRepo;
 	@Autowired
 	CustomerDefinitionRepository customerRepo;
-
-	
+    @Autowired
+    ListDefinitionRepository listRepo;
 	@Autowired
     AuditTrailService auditService;
 	@Autowired
@@ -79,6 +83,10 @@ public class AuthServiceController extends BaseRestController {
 				}
 				loginUser.setCustomerName(customer.getCustomerName());
 				loginUser.setSchemaName(customer.getSchemaName());
+
+                CustomerContextHolder.setSchema(loginUser.getSchemaName());
+                List<ListDefinition> listDefinitionData = listRepo.findTop3ByActive(true);
+                loginUser.setHasList(listDefinitionData != null && listDefinitionData.size() > 0);
 			}
 			
             auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "login", request.getRemoteAddr());

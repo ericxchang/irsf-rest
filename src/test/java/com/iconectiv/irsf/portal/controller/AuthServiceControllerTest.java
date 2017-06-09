@@ -1,7 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
 import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
@@ -88,6 +87,20 @@ public class AuthServiceControllerTest {
 		assertTrue(result.lastIndexOf("success") > 1);
 
 		userRepo.deleteByUserName("guiuser03");
+	}
+
+	@Test
+	public void tesLoginRequest() throws Exception {
+		UserDefinition user = new UserDefinition();
+		user.setUserName("user01");
+		user.setPassword("irsf");
+
+		ResultActions action = mockMvc.perform(post("/login").contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(user)));
+		String result = action.andReturn().getResponse().getContentAsString();
+
+		log.info(result);
+		assertTrue(result.lastIndexOf("success") > 1);
+
 	}
 
 	@Test

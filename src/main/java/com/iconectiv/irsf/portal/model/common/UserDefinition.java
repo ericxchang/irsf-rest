@@ -38,7 +38,7 @@ public class UserDefinition implements java.io.Serializable {
 	private Date createTimestamp;
 	private Date lastUpdated;
 	private String lastUpdatedBy;
-
+	private boolean hasList;
 	
 	public UserDefinition() {
 	}
@@ -204,6 +204,14 @@ public class UserDefinition implements java.io.Serializable {
 		this.schemaName = schemaName;
 	}
 
+	@Transient
+	public boolean isHasList() {
+		return hasList;
+	}
+
+	public void setHasList(boolean hasList) {
+		this.hasList = hasList;
+	}
 
 	@Transient
 	@JsonIgnore
@@ -215,6 +223,7 @@ public class UserDefinition implements java.io.Serializable {
 		map.put("customerId", this.customerId);
 		map.put("customerName", this.customerName);
 		map.put("schemaName", this.schemaName);
+		map.put("hasList", this.hasList);
 		return map;
 	}
 
