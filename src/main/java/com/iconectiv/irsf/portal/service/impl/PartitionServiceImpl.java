@@ -504,7 +504,11 @@ public class PartitionServiceImpl implements PartitionService {
 			return partition;
 		}
 		for (String ruleId : partition.getRuleIds().split(",")) {
-			partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+			try {
+				partition.addRule(ruleRepo.findOne(Integer.valueOf(ruleId)));
+			} catch (Exception e) {
+				//ignore this error
+			}
 		}
 
 		return partition;
