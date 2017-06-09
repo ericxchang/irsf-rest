@@ -23,6 +23,7 @@ public class AuditTrailActionDefinition {
 
     public static final String Create_Rule = "create rule";
     public static final String Update_Rule = "update rule";
+    public static final String Delete_Rule = "delete rule";
 
     public static final String Create_List_Definition = "create list";
     public static final String Update_List_Definition = "update list";

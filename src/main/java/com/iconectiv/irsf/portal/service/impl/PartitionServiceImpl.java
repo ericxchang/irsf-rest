@@ -295,7 +295,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		List<RuleDefinition> rules = partition.getRuleDefinitions();
 		if (rules == null || rules.isEmpty()) {
-			rules = ruleRepo.findAllByPartitionId(partition.getId());
+			rules = ruleRepo.findAllByPartitionIdAndActive(partition.getId(), true);
 		}
 
 		rules.parallelStream().forEach(rule -> {
@@ -464,10 +464,9 @@ public class PartitionServiceImpl implements PartitionService {
 			// mark rule as inactive
 			RuleDefinition rule = ruleRepo.findOne(ruleId);
 			if (rule != null) {
-				rule.setActive(false);
-				rule.setPartitionId(null);
-				ruleRepo.save(rule);
-				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_Rule, "deactive rule " + ruleId);
+				//delete rule from partititon
+				ruleRepo.delete(rule.getId());
+				auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_Rule, "delete rule " + ruleId);
 			}
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
@@ -546,10 +545,24 @@ public class PartitionServiceImpl implements PartitionService {
 	public void deleteParitition(UserDefinition loginUser, Integer partitionId) {
 		try {
 		    PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+		    String ruleIds = partition.getRuleIds();
 		    partition.setRuleIds(null);
 		    partition.setLastUpdatedBy(loginUser.getUserName());
 		    partition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
             partitionDefRepo.save(partition);
+
+            if (ruleIds != null) {
+                List<Integer> ruleIdList = new ArrayList<>();
+
+                for (String ruleId : ruleIds.split(",")) {
+                    try {
+                        ruleIdList.add(Integer.parseInt(ruleId));
+                    } catch (Exception e) {
+                        //ignore error
+                    }
+                }
+                ruleRepo.deleteAllById(ruleIdList);
+            }
 		    auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove all rules from partition " + partitionId);
         } catch (Exception e) {
             log.error("Error on delete partition: ", e);

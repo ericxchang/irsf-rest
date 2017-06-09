@@ -66,7 +66,7 @@ class RuleServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-			List<RuleDefinition> rules = ruleRepo.findAllByPartitionId(partitionId);
+			List<RuleDefinition> rules = ruleRepo.findAllByPartitionIdAndActive(partitionId, true);
 			rv = makeSuccessResult(MessageDefinition.Query_Success, rules);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

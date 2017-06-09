@@ -28,7 +28,9 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertNull;
 
@@ -125,4 +127,27 @@ public class RuleAndPartitionDefinitionRepositoryTest {
 
 	}
 
+	@Test
+	public void testDeleteRuleIds() {
+		PartitionDefinition partition = partitionRepo.findOne(57);
+		String ruleIds = partition.getRuleIds();
+		partition.setRuleIds(null);
+		partition.setLastUpdatedBy("test");
+		partition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+		partitionRepo.save(partition);
+
+        if (ruleIds != null) {
+            List<Integer> ruleIdList = new ArrayList<>();
+
+            for (String ruleId : ruleIds.split(",")) {
+                try {
+                    ruleIdList.add(Integer.parseInt(ruleId));
+                } catch (Exception e) {
+                    //ignore error
+                }
+            }
+            log.info("Will delete rules: {}", ruleIdList );
+            ruleRepo.deleteAllById(ruleIdList);
+        }
+	}
 }
