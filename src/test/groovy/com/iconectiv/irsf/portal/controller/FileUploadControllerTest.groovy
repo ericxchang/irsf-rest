@@ -60,7 +60,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 		
 		try {
             withPool {
-                ["cust01"].eachParallel {
+                ["cust02"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
 
@@ -80,7 +80,7 @@ class FileUploadControllerTest extends GroovyTestCase {
             sleep(10 * 1000)
         } finally {
             withPool {
-                ["cust01"].eachParallel {
+                ["cust02"].eachParallel {
 					def token = createToken(it)
                     def action = mockMvc.perform(get("/list?listName=${listName}").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()

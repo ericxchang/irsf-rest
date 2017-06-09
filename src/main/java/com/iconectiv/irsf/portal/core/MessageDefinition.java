@@ -1,7 +1,7 @@
 package com.iconectiv.irsf.portal.core;
 
 public class MessageDefinition {
-	private MessageDefinition() {
+    private MessageDefinition() {
 	}
 
 	public static final String Query_Success = "";
@@ -14,6 +14,8 @@ public class MessageDefinition {
 	public static final String Delete_List_Success = "Successfully delete list";
     public static final String Save_Partition_Success = "Successfully save partition";
 	public static final String Save_Rule_Success = "Your Rule has just been saved into the following partitions: ";
+	public static final String Update_Rule_Success = "Your Rule has just been updated";
+
 	public static final String Add_ListDetails_Success = "Successfully added new list records";
 	public static final String Update_ListDetails_Success = "Successfully updated list records";
 	public static final String Delete_ListDetails_Success = "Successfully deleted list records";

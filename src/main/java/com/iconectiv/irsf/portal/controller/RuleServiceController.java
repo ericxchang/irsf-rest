@@ -124,7 +124,7 @@ class RuleServiceController extends BaseRestController {
 
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
             ruleService.updateRule(loginUser, rule);
-            rv = makeSuccessResult(MessageDefinition.Save_Rule_Success);
+            rv = makeSuccessResult(MessageDefinition.Update_Rule_Success);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
