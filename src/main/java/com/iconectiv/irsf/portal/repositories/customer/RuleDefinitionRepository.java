@@ -16,6 +16,10 @@ public interface RuleDefinitionRepository extends CrudRepository<RuleDefinition,
 
 	List<RuleDefinition> findAllByPartitionIdAndActive(Integer partitionId, boolean active);
 
+    @Modifying
+    @Transactional
+    void deleteAllByPartitionId(Integer parittionId);
+
 	@Modifying
 	@Transactional
 	void deleteAllById(List<Integer> ids);

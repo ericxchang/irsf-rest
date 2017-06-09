@@ -551,19 +551,8 @@ public class PartitionServiceImpl implements PartitionService {
 		    partition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
             partitionDefRepo.save(partition);
 
-            if (ruleIds != null) {
-                List<Integer> ruleIdList = new ArrayList<>();
-
-                for (String ruleId : ruleIds.split(",")) {
-                    try {
-                        ruleIdList.add(Integer.parseInt(ruleId));
-                    } catch (Exception e) {
-                        //ignore error
-                    }
-                }
-                ruleRepo.deleteAllById(ruleIdList);
-            }
-		    auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove all rules from partition " + partitionId);
+            ruleRepo.deleteAllByPartitionId(partitionId);
+            auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove all rules from partition " + partitionId);
         } catch (Exception e) {
             log.error("Error on delete partition: ", e);
         }
