@@ -232,7 +232,7 @@ public class ListServiceImpl implements ListService {
 
 			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
 			
-			partitionService.checkStale(loginUser, listDef, "list " + listDef.getListName() + " is removed");
+			partitionService.checkStale(loginUser, listDef, "list " + listDef.getListName() + " has been removed");
 		}
 
 		return;

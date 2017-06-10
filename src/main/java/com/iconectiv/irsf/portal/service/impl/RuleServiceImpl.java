@@ -1,13 +1,5 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
@@ -24,6 +16,11 @@ import com.iconectiv.irsf.portal.service.PartitionService;
 import com.iconectiv.irsf.portal.service.RuleService;
 import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by echang on 1/11/2017.
@@ -62,7 +59,7 @@ public class RuleServiceImpl implements RuleService {
 		auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
 
 		if (rule.getPartitionId() != null) {
-			partitionService.checkStale(loginUser, rule.getPartitionId(), "rule is changed");
+			partitionService.checkStale(loginUser, rule.getPartitionId(), "rule update");
 		}
 		
 		return rule;
@@ -142,7 +139,7 @@ public class RuleServiceImpl implements RuleService {
 		        "append rule " + rule.getId() + " to partition " + partition.getId());
 		
 		//check partition stale
-		partitionService.checkStale(loginUser, partition, "new rule is added");
+		partitionService.checkStale(loginUser, partition, "new rule has been added");
 		return;
 	}
 }
