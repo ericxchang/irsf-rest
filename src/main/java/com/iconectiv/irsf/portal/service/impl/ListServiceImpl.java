@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.service.impl;
 
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
@@ -25,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,9 +66,23 @@ public class ListServiceImpl implements ListService {
     @Lazy
 	private PartitionService partitionService;
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Async
 	@Override
-	public void processListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
+    public void processListUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter, boolean isInitialLoading) {
+        try {
+            CustomerContextHolder.setSchema(user.getSchemaName());
+            createListDefinition(user, listDef);
+
+            ListUploadRequest uploadRequest = saveUploadRequest(user, listDef, file, delimiter);
+            uploadRequest.setListDefintion(listDef);
+            persistListUploadRequest(uploadRequest, isInitialLoading);
+        } catch (Exception e) {
+            log.error("Error to process list upload request: ", e);
+        }
+    }
+
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
+	private void persistListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
 		log.info("Start parsing black list file {}", uploadReq.getId());
 		StringBuilder errorList = new StringBuilder();
 		List<ListDetails> listEntries = new ArrayList<>();
@@ -121,63 +136,52 @@ public class ListServiceImpl implements ListService {
 
 	}
 
-	@Override
-    @Transactional
-	public Integer createListDefinition(UserDefinition user, String listName, String description, String listType) {
-		ListDefinition listDefintion = new ListDefinition();
-		listDefintion.setListName(listName);
-		listDefintion.setDescription(description);
-		listDefintion.setType(listType);
-		listDefintion.setActive(true);
-		listDefintion.setCustomerName(user.getCustomerName());
-		listDefintion.setCreateBy(user.getUserName());
-		listDefintion.setLastUpdatedBy(user.getUserName());
-		listDefintion.setCreateTimestamp(DateTimeHelper.nowInUTC());
-		listDefintion.setLastUpdated(DateTimeHelper.nowInUTC());
-		listDefintion = listDefRepo.save(listDefintion);
-
-		if (log.isDebugEnabled()) log.debug("created list definition recrod {}", JsonHelper.toJson(listDefintion));
-        auditService.saveAuditTrailLog(user, AuditTrailActionDefinition.Create_List_Definition, "create new " +
-                listType + " list " + listDefintion.getId());
-
-		return listDefintion.getId();
-	}
-
-	public ListUploadRequest createUploadRequest(ListDefinition listDef, String fileName, String delimiter) {
-		if (delimiter == null) {
-			delimiter = "|";
-		}
-		
-		ListUploadRequest uploadReq = new ListUploadRequest();
-		uploadReq.setFileName(fileName);
-		uploadReq.setDelimiter(delimiter);
-		uploadReq.setStatus(AppConstants.PROCESS);
-		uploadReq.setListRefId(listDef.getId());
-		uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
-		uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
-
-		uploadReq = listUploadRepo.save(uploadReq);
-		return uploadReq;
-	}
-
-	@Override
-	@Transactional
-	public void updateListName(UserDefinition loginUser, Integer listId, String listName, String description) {
-		ListDefinition listDef = listDefRepo.findOne(listId);
-		if (description == null) {
-		    description = "";
+    public ListUploadRequest createUploadRequest(ListDefinition listDef, String fileName, String delimiter) {
+        if (delimiter == null) {
+            delimiter = "|";
         }
 
-		if (listDef != null && (!listDef.getListName().equals(listName) || !listDef.getDescription().equals(description))) {
-			listDef.setListName(listName);
-			listDef.setDescription(description);
-			listDef.setLastUpdated(DateTimeHelper.nowInUTC());
-			listDef.setLastUpdatedBy(loginUser.getUserName());
-			listDefRepo.save(listDef);
+        ListUploadRequest uploadReq = new ListUploadRequest();
+        uploadReq.setFileName(fileName);
+        uploadReq.setDelimiter(delimiter);
+        uploadReq.setStatus(AppConstants.PROCESS);
+        uploadReq.setListRefId(listDef.getId());
+        uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
+        uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
+
+        uploadReq = listUploadRepo.save(uploadReq);
+        return uploadReq;
+    }
+
+    @Override
+    public void createListDefinition(UserDefinition user, ListDefinition listDef) {
+        listDef.setActive(true);
+        listDef.setCustomerName(user.getCustomerName());
+        listDef.setLastUpdatedBy(user.getUserName());
+        listDef.setLastUpdated(DateTimeHelper.nowInUTC());
+
+        if (listDef.getId() == null) {
+            listDef.setCreateBy(user.getUserName());
+            listDef.setCreateTimestamp(DateTimeHelper.nowInUTC());
+            listDefRepo.save(listDef);
+
+            if (log.isDebugEnabled()) log.debug("created list definition recrod {}", JsonHelper.toJson(listDef));
+            auditService.saveAuditTrailLog(user, AuditTrailActionDefinition.Create_List_Definition, "create new " +
+                    listDef.getType() + " list " + listDef.getId());
+        } else {
+            updateListName(user, listDef);
+        }
+    }
+
+
+	private void updateListName(UserDefinition loginUser, ListDefinition newListDef) {
+		ListDefinition oldListDef = listDefRepo.findOne(newListDef.getId());
+        if (newListDef.getListName().compareTo(oldListDef.getListName()) == 0 && newListDef.getDescription().compareTo(oldListDef.getDescription()) == 0) {
+            return;
+        }
+			listDefRepo.save(newListDef);
 			
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "rename list " + listId + " to " + listName);
-		}
-		
+			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "update list definition, id " + newListDef.getId());
 	}
 	
 	@Override
@@ -240,7 +244,7 @@ public class ListServiceImpl implements ListService {
 
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	//@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter) {
 		ListUploadRequest uploadReq = createUploadRequest(listDef, file.getOriginalFilename(), delimiter);
 		

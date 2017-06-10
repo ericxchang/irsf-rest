@@ -13,12 +13,9 @@ import java.util.List;
  * Created by echang on 1/11/2017.
  */
 public interface ListService {
-
-	Integer createListDefinition(UserDefinition user, String listName, String description, String listType);
-
 	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter);
 
-	void processListUploadRequest(ListUploadRequest uploadRequest, Boolean isInitialLoading);
+	void processListUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter, boolean isInitialLoading);
 
 	void deleteListDefinition(UserDefinition loginUser, int listId);
 	void deleteListDefinition(UserDefinition loginUser, String listName);
@@ -32,8 +29,6 @@ public interface ListService {
 
 	List<ListDefinition> getTop3ListDefinition(String listType);
 
-	void updateListName(UserDefinition loginUser, Integer listId, String listName, String description);
-
 	void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
 
 	void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException;
@@ -42,5 +37,5 @@ public interface ListService {
 
 	void getListDetailDataByDialPattern(ListDetails listDetail);
 
-
+	void createListDefinition(UserDefinition loginUser, ListDefinition listDef);
 }

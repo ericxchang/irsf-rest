@@ -56,11 +56,11 @@ class FileUploadControllerTest extends GroovyTestCase {
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
-		def data = this.getClass().getResource('/irsf_blacklist.csv').text
+		def data = this.getClass().getResource('/irsf_blacklist_large.csv').text
 		
 		try {
             withPool {
-                ["cust02"].eachParallel {
+                ["cust01"].eachParallel {
                     log.info("Processing upload request from customer $it")
                     MockMultipartFile firstFile = new MockMultipartFile("file", "blacklist01.txt", "text/plain", data.getBytes())
 
@@ -77,8 +77,9 @@ class FileUploadControllerTest extends GroovyTestCase {
                 }
             }
 
-            sleep(10 * 1000)
+            sleep(30 * 1000)
         } finally {
+ /*
             withPool {
                 ["cust02"].eachParallel {
 					def token = createToken(it)
@@ -87,6 +88,7 @@ class FileUploadControllerTest extends GroovyTestCase {
                     log.info(result)
                 }
             }
+            */
         }
     
 	}
