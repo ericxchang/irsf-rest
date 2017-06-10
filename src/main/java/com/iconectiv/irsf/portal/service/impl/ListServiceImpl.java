@@ -40,38 +40,40 @@ import java.util.*;
 @Service
 @Transactional
 public class ListServiceImpl implements ListService {
-	private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
-	
-	@Autowired
-	private ListUploadRequestRepository listUploadRepo;
-	@Autowired
-	private ListDefinitionRepository listDefRepo;
-	@Autowired
-	private ListDetailsRepository listDetailRepo;
-	@Autowired
-	private FileHandlerService fileService;
-	@Autowired
-	private ListUploadService lstUploadService;
-	@Autowired
-	private EventNotificationService eventService;
-	@Autowired
-	EntityManagerFactory customerEntityManagerFactory;
-	@Autowired
-	private AuditTrailService auditService;
-	@Autowired
-	private MobileIdDataService midDataService;
-	@Autowired
-	private RangeNdcRepository rangeRepo;
-	@Autowired
+    private static Logger log = LoggerFactory.getLogger(ListServiceImpl.class);
+    @Autowired
+    EntityManagerFactory customerEntityManagerFactory;
+    @Autowired
+    private ListUploadRequestRepository listUploadRepo;
+    @Autowired
+    private ListDefinitionRepository listDefRepo;
+    @Autowired
+    private ListDetailsRepository listDetailRepo;
+    @Autowired
+    private FileHandlerService fileService;
+    @Autowired
+    private ListUploadService lstUploadService;
+    @Autowired
+    private EventNotificationService eventService;
+    @Autowired
+    private AuditTrailService auditService;
+    @Autowired
+    private MobileIdDataService midDataService;
+    @Autowired
+    private RangeNdcRepository rangeRepo;
+    @Autowired
     @Lazy
-	private PartitionService partitionService;
+    private PartitionService partitionService;
+    @Value("${max_list_size:100000}")
+    private int maxListSize;
 
-	@Async
-	@Override
+    @Async
+    @Override
     public void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadRequest, boolean isInitialLoading) {
         try {
             CustomerContextHolder.setSchema(user.getSchemaName());
             createListDefinition(user, listDef);
+
             uploadRequest.setListRefId(listDef.getId());
             uploadRequest.setStatus(AppConstants.PROCESS);
             uploadRequest.setLastUpdated(DateTimeHelper.nowInUTC());
@@ -87,59 +89,61 @@ public class ListServiceImpl implements ListService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-	private void persistListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
-		log.info("Start parsing black list file {}", uploadReq.getId());
-		StringBuilder errorList = new StringBuilder();
-		List<ListDetails> listEntries = new ArrayList<>();
-		
-		try {
-			lstUploadService.parseBlackWhiteListData(uploadReq, listEntries, errorList);
+    private void persistListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
+        log.info("Start parsing black list file {}", uploadReq.getId());
+        StringBuilder errorList = new StringBuilder();
+        List<ListDetails> listEntries = new ArrayList<>();
 
-			AuditTrail audit = new AuditTrail();
-			audit.setAction("upload list");
-			audit.setUserName(uploadReq.getLastUpdatedBy());
-			audit.setCustomerName(uploadReq.getCustomerName());
-			
-			Map<String, String> auditDetail = new LinkedHashMap<>();
-			auditDetail.put("file name", uploadReq.getFileName());
-			auditDetail.put("list type", uploadReq.getListDefintion().getType());
-			auditDetail.put("list name", uploadReq.getListDefintion().getListName());
-			auditDetail.put("initial load", isInitialLoading.toString());
-			
-			if (errorList.length() > 0) {
-				updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
-				auditDetail.put("status", AppConstants.FAIL);
-				auditService.saveAuditTrailLog(audit, auditDetail);
+        try {
+            lstUploadService.parseBlackWhiteListData(uploadReq, listEntries, errorList);
+
+            AuditTrail audit = new AuditTrail();
+            audit.setAction("upload list");
+            audit.setUserName(uploadReq.getLastUpdatedBy());
+            audit.setCustomerName(uploadReq.getCustomerName());
+
+            Map<String, String> auditDetail = new LinkedHashMap<>();
+            auditDetail.put("file name", uploadReq.getFileName());
+            auditDetail.put("list type", uploadReq.getListDefintion().getType());
+            auditDetail.put("list name", uploadReq.getListDefintion().getListName());
+            auditDetail.put("initial load", isInitialLoading.toString());
+
+            if (errorList.length() > 0) {
+                updateUploadRequestWithErrorMessage(uploadReq, errorList.toString());
+                auditDetail.put("status", AppConstants.FAIL);
+                auditService.saveAuditTrailLog(audit, auditDetail);
                 uploadReq.setStatus(AppConstants.FAIL);
                 listUploadRepo.save(uploadReq);
-				return;
-			}
+                return;
+            }
 
-			uploadReq.setStatus(AppConstants.COMPLETE);
-			listUploadRepo.save(uploadReq);
+            uploadReq.setStatus(AppConstants.COMPLETE);
+            listUploadRepo.save(uploadReq);
 
             listDetailRepo.batchUpdate(listEntries);
 
-			auditDetail.put("size", String.valueOf(listEntries.size()));
-			auditDetail.put("status", AppConstants.COMPLETE);
-			auditService.saveAuditTrailLog(audit, auditDetail);
+            auditDetail.put("size", String.valueOf(listEntries.size()));
+            auditDetail.put("status", AppConstants.COMPLETE);
+            auditService.saveAuditTrailLog(audit, auditDetail);
 
-			
-			EventNotification event = new EventNotification();
-			event.setCustomerName(uploadReq.getCustomerName());
-			event.setEventType(EventTypeDefinition.List_Update.value());
-			event.setReferenceId(uploadReq.getListRefId());
-			event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
-			event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-			event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
-			event.setStatus("new");
-			eventService.addEventNotification(event);
 
-		} catch (Exception e) {
-			log.error("Error to parse black list: \n", e);
-		}
+            EventNotification event = new EventNotification();
+            event.setCustomerName(uploadReq.getCustomerName());
+            event.setEventType(EventTypeDefinition.List_Update.value());
+            event.setReferenceId(uploadReq.getListRefId());
+            event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
+            event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+            event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
+            event.setStatus("new");
+            eventService.addEventNotification(event);
 
-	}
+        } catch (Exception e) {
+            log.error("Error to parse black list: \n", e);
+            uploadReq.setStatus(AppConstants.FAIL);
+            listUploadRepo.save(uploadReq);
+        }
+
+    }
 
     private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {
         uploadReq.setErrorData(data);
@@ -168,189 +172,189 @@ public class ListServiceImpl implements ListService {
         }
     }
 
-
-	private void updateListName(UserDefinition loginUser, ListDefinition newListDef) {
-		ListDefinition oldListDef = listDefRepo.findOne(newListDef.getId());
+    private void updateListName(UserDefinition loginUser, ListDefinition newListDef) {
+        ListDefinition oldListDef = listDefRepo.findOne(newListDef.getId());
         if (newListDef.getListName().compareTo(oldListDef.getListName()) == 0 && newListDef.getDescription().compareTo(oldListDef.getDescription()) == 0) {
             return;
         }
-			listDefRepo.save(newListDef);
-			
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "update list definition, id " + newListDef.getId());
-	}
-	
-	@Override
-	public ListDefinition getListDetails(String listName) {
-		ListDefinition listDef = listDefRepo.findOneByListName(listName);
 
-		if (listDef == null) {
-			log.warn("list {} does not exist", listName);
-			return null;
-		}
-		listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
+        newListDef.setCreateBy(oldListDef.getCreateBy());
+        newListDef.setCreateTimestamp(oldListDef.getCreateTimestamp());
 
-		listDef.getListUploadRequests().forEach(uploadReq -> {
-			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
-		});
-		return listDef;
-	}
+        listDefRepo.save(newListDef);
 
-	@Override
-	public ListDefinition getListDetails(int listId) {
-		ListDefinition listDef = listDefRepo.findOne(listId);
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "update list definition, id " + newListDef.getId());
+    }
 
-		if (listDef == null) {
-			log.warn("list {} does not exist", listId);
-			return null;
-		}
-		listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
+    @Override
+    public ListDefinition getListDetails(String listName) {
+        ListDefinition listDef = listDefRepo.findOneByListName(listName);
 
-		listDef.getListUploadRequests().forEach(uploadReq -> {
-			uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
-		});
-		
-		listDef.setListSize(listDetailRepo.getListSizeByListId(listDef.getId()));
-		return listDef;
-	}
+        if (listDef == null) {
+            log.warn("list {} does not exist", listName);
+            return null;
+        }
+        listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
 
-	@Override
-	@Transactional
-	public void deleteListDefinition(UserDefinition loginUser, String listName) {
-		listDefRepo.deleteByListName(listName);
-		return;
-	}
+        listDef.getListUploadRequests().forEach(uploadReq -> {
+            uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
+        });
+        return listDef;
+    }
 
-	@Override
-	@Transactional
-	public void deleteListDefinition(UserDefinition loginUser, int listId) {
-		ListDefinition listDef = listDefRepo.findOne(listId);
-		
-		if (listDef != null) {
-			listUploadRepo.deleteAllByListRefId(listDef.getId());
-			listDetailRepo.deleteAllByListRefId(listDef.getId());
+    @Override
+    public ListDefinition getListDetails(int listId) {
+        ListDefinition listDef = listDefRepo.findOne(listId);
 
-			auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
-			
-			partitionService.checkStale(loginUser, listDef, "list " + listDef.getListName() + " has been removed");
-		}
+        if (listDef == null) {
+            log.warn("list {} does not exist", listId);
+            return null;
+        }
+        listDef.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDef.getId()));
 
-		return;
-	}
+        listDef.getListUploadRequests().forEach(uploadReq -> {
+            uploadReq.setListDetailsList(listDetailRepo.findAllByUpLoadRefId(uploadReq.getId()));
+        });
+
+        listDef.setListSize(listDetailRepo.getListSizeByListId(listDef.getId()));
+        return listDef;
+    }
+
+    @Override
+    @Transactional
+    public void deleteListDefinition(UserDefinition loginUser, String listName) {
+        listDefRepo.deleteByListName(listName);
+        return;
+    }
+
+    @Override
+    @Transactional
+    public void deleteListDefinition(UserDefinition loginUser, int listId) {
+        ListDefinition listDef = listDefRepo.findOne(listId);
+
+        if (listDef != null) {
+            listUploadRepo.deleteAllByListRefId(listDef.getId());
+            listDetailRepo.deleteAllByListRefId(listDef.getId());
+
+            auditService.saveAuditTrailLog(loginUser.getUserName(), loginUser.getCustomerName(), "delete list", "successfully remove list " + listId);
+
+            partitionService.checkStale(loginUser, listDef, "list " + listDef.getListName() + " has been removed");
+        }
+
+        return;
+    }
+
+    @Override
+    public List<ListDetails> getListDetailDataByListId(int listId) {
+        List<ListDetails> dataList = new ArrayList<>();
+
+        for (Object[] row : listDetailRepo.findAllDetailsByListRefId(listId)) {
+            dataList.add(ListHelper.convertToListDetail(row));
+        }
+
+        return dataList;
+    }
+
+    @Override
+    public List<ListDetails> getListDetailDataByUploadId(int uploadId) {
+        List<ListDetails> dataList = new ArrayList<>();
+
+        for (Object[] row : listDetailRepo.findAllDetailsByUpLoadRefId(uploadId)) {
+            dataList.add(ListHelper.convertToListDetail(row));
+        }
+
+        return dataList;
+    }
+
+    @Override
+    public List<ListDefinition> getTop3ListDefinition(String listType) {
+        List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
+
+        for (ListDefinition listDefinition : listDefinitionData) {
+            listDefinition.setListSize(listDetailRepo.getListSizeByListId(listDefinition.getId()));
+            listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
+        }
+        return listDefinitionData;
+    }
+
+    @Override
+    @Transactional
+    public void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+        listDetailRepo.save(Arrays.asList(listDetails));
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Record, "updated " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+    }
+
+    @Override
+    @Transactional
+    public void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+        listDetailRepo.delete(Arrays.asList(listDetails));
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+
+        ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+        partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
+    }
+
+    @Transactional
+    @Override
+    public Iterable<ListDetails> createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+        if (log.isDebugEnabled()) log.debug("the max list size is " + maxListSize);
+        if (listDetails.length < 1) {
+            throw new AppException("received empty list");
+        }
+
+        int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
+
+        if (currentListSize + listDetails.length > maxListSize) {
+            throw new AppException(MessageDefinition.ListSizeOverLimitError + maxListSize);
+        }
 
 
-	@Override
-	public List<ListDetails> getListDetailDataByListId(int listId) {
-		List<ListDetails> dataList = new ArrayList<>();
-		
-		for (Object[] row : listDetailRepo.findAllDetailsByListRefId(listId)) {
-			dataList.add( ListHelper.convertToListDetail(row) );
-		}
-		
-		return dataList;
-	}
+        for (ListDetails listDetail : listDetails) {
+            listDetail.setMatchCCNDC(midDataService.findMatchingCCNDC(listDetail.getDialPattern()));
+            listDetail.setLastUpdatedBy(loginUser.getUserName());
+            listDetail.setLastUpdated(DateTimeHelper.nowInUTC());
+        }
 
-	@Override
-	public List<ListDetails> getListDetailDataByUploadId(int uploadId) {
-		List<ListDetails> dataList = new ArrayList<>();
-		
-		for (Object[] row : listDetailRepo.findAllDetailsByUpLoadRefId(uploadId)) {
-			dataList.add( ListHelper.convertToListDetail(row) );
-		}
-		
-		return dataList;
-	}
 
-	@Override
-	public List<ListDefinition> getTop3ListDefinition(String listType) {
-		List<ListDefinition> listDefinitionData = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc(listType, true);
-		
-		for (ListDefinition listDefinition : listDefinitionData) {
-			listDefinition.setListSize(listDetailRepo.getListSizeByListId(listDefinition.getId()));
-			listDefinition.setListUploadRequests(listUploadRepo.findAllByListRefIdOrderByLastUpdatedDesc(listDefinition.getId()));
-		}
-		return listDefinitionData;
-	}
+        EventNotification event = new EventNotification();
+        event.setCustomerName(loginUser.getCustomerName());
+        event.setEventType(EventTypeDefinition.List_Update.value());
+        event.setReferenceId(listDetails[0].getListRefId());
+        event.setMessage("update list entry");
+        event.setCreateTimestamp(DateTimeHelper.nowInUTC());
+        event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
+        event.setStatus("new");
+        eventService.addEventNotification(event);
 
-	@Override
-	@Transactional
-	public void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
-		listDetailRepo.save(Arrays.asList(listDetails));
-		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Record, "updated " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
-	}
+        Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 
-	@Override
-	@Transactional
-	public void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
-		listDetailRepo.delete(Arrays.asList(listDetails));
-		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+        ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+        partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
+        return result;
+    }
 
-		ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
-		partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
-	}
+    @Override
+    public void getListDetailDataByDialPattern(ListDetails listDetail) {
+        String ccNdc = midDataService.findMatchingCCNDC(listDetail.getDialPattern());
 
-	@Value("${max_list_size:100000}")
-	private int maxListSize;
-	@Transactional
-	@Override
-	public Iterable<ListDetails>  createListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
-		if (log.isDebugEnabled()) log.debug("the max list size is " + maxListSize);
-		if (listDetails.length < 1) {
-			throw new AppException("received empty list");
-		}
-		
-		int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
-		
-		if (currentListSize + listDetails.length > maxListSize) {
-			throw new AppException(MessageDefinition.ListSizeOverLimitError + maxListSize);
-		}
-		
-		
-		for (ListDetails listDetail : listDetails) {
-			listDetail.setMatchCCNDC( midDataService.findMatchingCCNDC(listDetail.getDialPattern()) );
-			listDetail.setLastUpdatedBy(loginUser.getUserName());
-			listDetail.setLastUpdated(DateTimeHelper.nowInUTC());
-		}
-		
-		
-		EventNotification event = new EventNotification();
-		event.setCustomerName(loginUser.getCustomerName());
-		event.setEventType(EventTypeDefinition.List_Update.value());
-		event.setReferenceId(listDetails[0].getListRefId());
-		event.setMessage("update list entry");
-		event.setCreateTimestamp(DateTimeHelper.nowInUTC());
-		event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
-		event.setStatus("new");
-		eventService.addEventNotification(event);
-		
-		Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
-		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
+        RangeNdc rangeNDC = rangeRepo.findTop1ByCcNdc(ccNdc);
 
-		ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
-		partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
-		return result;
-	}
+        if (rangeNDC != null) {
+            listDetail.setCcNdc(ccNdc);
+            listDetail.setIso2(rangeNDC.getIso2());
+            listDetail.setCode(rangeNDC.getCode());
+            listDetail.setTos(rangeNDC.getTos());
+            listDetail.setProvider(rangeNDC.getProvider());
+            listDetail.setTosdesc(rangeNDC.getTosdesc());
+            listDetail.setBillingId(rangeNDC.getBillingId());
+            listDetail.setNdc(rangeNDC.getNdc());
+            listDetail.setSupplement(rangeNDC.getSupplement());
+            listDetail.setTermCountry(rangeNDC.getTermCountry());
+        }
 
-	@Override
-	public void getListDetailDataByDialPattern(ListDetails listDetail) {
-		String ccNdc = midDataService.findMatchingCCNDC(listDetail.getDialPattern());
-		
-		RangeNdc rangeNDC = rangeRepo.findTop1ByCcNdc(ccNdc);
-		
-		if (rangeNDC != null) {
-			listDetail.setCcNdc(ccNdc);
-			listDetail.setIso2(rangeNDC.getIso2());
-			listDetail.setCode(rangeNDC.getCode());
-			listDetail.setTos(rangeNDC.getTos());
-			listDetail.setProvider(rangeNDC.getProvider());
-			listDetail.setTosdesc(rangeNDC.getTosdesc());
-			listDetail.setBillingId(rangeNDC.getBillingId());
-			listDetail.setNdc(rangeNDC.getNdc());
-			listDetail.setSupplement(rangeNDC.getSupplement());
-			listDetail.setTermCountry(rangeNDC.getTermCountry());
-		}
-		
-		return;
-	}
+        return;
+    }
 
 
 }
