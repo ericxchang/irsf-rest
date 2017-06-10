@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,7 +82,7 @@ public class ListServiceImpl implements ListService {
         }
     }
 
-    //@Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
 	private void persistListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
 		log.info("Start parsing black list file {}", uploadReq.getId());
 		StringBuilder errorList = new StringBuilder();
@@ -244,7 +245,7 @@ public class ListServiceImpl implements ListService {
 
 
 	@Override
-	//@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter) {
 		ListUploadRequest uploadReq = createUploadRequest(listDef, file.getOriginalFilename(), delimiter);
 		
