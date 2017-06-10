@@ -30,7 +30,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManagerFactory;
 import java.util.*;
@@ -69,13 +68,18 @@ public class ListServiceImpl implements ListService {
 
 	@Async
 	@Override
-    public void processListUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter, boolean isInitialLoading) {
+    public void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadRequest, boolean isInitialLoading) {
         try {
             CustomerContextHolder.setSchema(user.getSchemaName());
             createListDefinition(user, listDef);
+            uploadRequest.setListRefId(listDef.getId());
+            uploadRequest.setStatus(AppConstants.PROCESS);
+            uploadRequest.setLastUpdated(DateTimeHelper.nowInUTC());
+            uploadRequest.setLastUpdatedBy(listDef.getLastUpdatedBy());
 
-            ListUploadRequest uploadRequest = saveUploadRequest(user, listDef, file, delimiter);
+            listUploadRepo.save(uploadRequest);
             uploadRequest.setListDefintion(listDef);
+
             persistListUploadRequest(uploadRequest, isInitialLoading);
         } catch (Exception e) {
             log.error("Error to process list upload request: ", e);
@@ -137,21 +141,11 @@ public class ListServiceImpl implements ListService {
 
 	}
 
-    public ListUploadRequest createUploadRequest(ListDefinition listDef, String fileName, String delimiter) {
-        if (delimiter == null) {
-            delimiter = "|";
-        }
-
-        ListUploadRequest uploadReq = new ListUploadRequest();
-        uploadReq.setFileName(fileName);
-        uploadReq.setDelimiter(delimiter);
-        uploadReq.setStatus(AppConstants.PROCESS);
-        uploadReq.setListRefId(listDef.getId());
+    private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {
+        uploadReq.setErrorData(data);
+        uploadReq.setStatus(AppConstants.FAIL);
         uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
-        uploadReq.setLastUpdatedBy(listDef.getLastUpdatedBy());
-
-        uploadReq = listUploadRepo.save(uploadReq);
-        return uploadReq;
+        listUploadRepo.save(uploadReq);
     }
 
     @Override
@@ -243,54 +237,6 @@ public class ListServiceImpl implements ListService {
 		return;
 	}
 
-
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter) {
-		ListUploadRequest uploadReq = createUploadRequest(listDef, file.getOriginalFilename(), delimiter);
-		
-		log.debug(file.getContentType());
-
-		if (fileService.getFileSize(file) == 0) {
-			String errorMessage = file.getOriginalFilename() + " is empty";
-			log.error(errorMessage);
-			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
-			return null;
-		}
-
-		if (!AppConstants.UploadFileType.contains( file.getContentType() )) {
-			String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
-			log.error(errorMessage);
-			updateUploadRequestWithErrorMessage(uploadReq, errorMessage);
-			return null;
-		}
-
-		uploadReq = listUploadRepo.save(uploadReq);
-
-		uploadReq.setCustomerName(user.getCustomerName());
-		uploadReq.setData(fileService.getContentAsList(file));
-		
-		//check list size
-		int currentListSize = 0;
-		if (listDef.getId() != null) {
-			currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
-		}
-		if (currentListSize + uploadReq.getData().size() > maxListSize) {
-			updateUploadRequestWithErrorMessage(uploadReq, MessageDefinition.ListSizeOverLimitError + maxListSize);
-			return null;
-		}
-		
-		
-		
-		return uploadReq;
-	}
-
-	private void updateUploadRequestWithErrorMessage(ListUploadRequest uploadReq, String data) {
-		uploadReq.setErrorData(data);
-		uploadReq.setStatus(AppConstants.FAIL);
-		uploadReq.setLastUpdated(DateTimeHelper.nowInUTC());
-		listUploadRepo.save(uploadReq);
-	}
 
 	@Override
 	public List<ListDetails> getListDetailDataByListId(int listId) {

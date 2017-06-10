@@ -5,7 +5,6 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.model.customer.ListUploadRequest;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,9 +12,7 @@ import java.util.List;
  * Created by echang on 1/11/2017.
  */
 public interface ListService {
-	ListUploadRequest saveUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter);
-
-	void processListUploadRequest(UserDefinition user, ListDefinition listDef, MultipartFile file, String delimiter, boolean isInitialLoading);
+	void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadReq, boolean isInitialLoading);
 
 	void deleteListDefinition(UserDefinition loginUser, int listId);
 	void deleteListDefinition(UserDefinition loginUser, String listName);
