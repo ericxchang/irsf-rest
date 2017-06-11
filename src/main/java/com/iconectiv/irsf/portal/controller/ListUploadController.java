@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.controller;
 
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
@@ -58,6 +59,7 @@ public class ListUploadController extends BaseRestController {
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
             isInitialLoading = id == null;
 
