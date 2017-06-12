@@ -93,7 +93,8 @@ dependencies {
 	compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda'
 	compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
 
-	compile 'commons-dbcp:commons-dbcp'
+	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '8.5.15'
+
 	compile 'commons-lang:commons-lang'
 	compile 'commons-fileupload:commons-fileupload'
 	compile 'commons-io:commons-io'
