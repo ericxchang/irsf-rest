@@ -20,7 +20,7 @@ public interface PartitionDataDetailsRepository extends CrudRepository<Partition
 	List<PartitionDataDetails> findAllByPartitionId(Integer partitionid);
 	Page<PartitionDataDetails> findAllByPartitionId(Integer partitionId, Pageable pageable);
 	
-	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and dataType in ?2 ")
+	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and pd.dataType in ?2 ")
 	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId, List<String> dataTypeList);
 	
 	@Modifying
