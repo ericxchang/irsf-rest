@@ -437,7 +437,7 @@ public class PartitionServiceImpl implements PartitionService {
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_Rule_To_Partition,
 					"append rule " + rule.getId() + " to partition " + partition.getId());
 
-			checkStale(loginUser, partition, "new rule is added");
+			checkStale(loginUser, partition, "new rule has been added");
 		} catch (Exception e) {
 			log.error("Fail to add rule to parition: ", e);
 			throw new AppException(e);
@@ -470,7 +470,7 @@ public class PartitionServiceImpl implements PartitionService {
 			}
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Remove_Rule_From_Partition, "remove rule " + ruleId + " from partition " + partition.getId());
-			checkStale(loginUser, partition, "rule is removed");
+			checkStale(loginUser, partition, "rule was removed");
 		} catch (Exception e) {
 			log.error("Fail to remove rule to parition: ", e);
 			throw new AppException(e);
@@ -656,7 +656,7 @@ public class PartitionServiceImpl implements PartitionService {
 		event.setReferenceId(partition.getId());
 		event.setCustomerName(loginUser.getCustomerName());
 		event.setStatus("new");
-		event.setMessage("Partition " + partition.getName() + " is staled due to " + reason);
+		event.setMessage("Partition " + partition.getName() + " is staled because " + reason);
 
 		eventService.sendPartitionEvent(loginUser, event);
 	}
