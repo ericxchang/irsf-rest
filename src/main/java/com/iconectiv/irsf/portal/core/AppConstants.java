@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AppConstants {
-	private AppConstants() {
+    private AppConstants() {
 	}
 
 	public static final String SecretKey = "iconectiv.irsf.jwt";
@@ -20,7 +20,9 @@ public class AppConstants {
 	public static final String NORECORDFOUND = "No record found";
 	public static final String BLACKLIST = "BL";
 	public static final String WHITELIST = "WL";
-	
+	public static final int MAX_NO_OF_EXPORT_HOSTORY = 3;
+
+
 	public static List<String> UploadFileType = new ArrayList<>(Arrays.asList("application/vnd.ms-excel", "text/plain"));
 	
 	public static int CODE = 1;

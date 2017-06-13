@@ -200,7 +200,7 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
 		origPartitionIdList.forEach(origId -> {
 			List<Integer> exportIds = exportRepo.findAllIdByOrigPartitionId(origId);
 			log.info("Export IDs for partition {}: {}", origId, exportIds);
-			if (exportIds.size() > 2) {
+			if (exportIds.size() >  AppConstants.MAX_NO_OF_EXPORT_HOSTORY) {
 				exportIds.remove(0);
 				exportIds.remove(0);
 				log.info("Will remove export IDs for partition {}: {}", origId, exportIds);
