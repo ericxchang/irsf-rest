@@ -522,7 +522,7 @@ public class PartitionServiceImpl implements PartitionService {
 			if (origId == null) {
 				origId = partition.getId();
 			}
-			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), 2);
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
 
 			String ruleIds = partition.getRuleIds();
 
