@@ -248,6 +248,7 @@ public class Premium implements java.io.Serializable {
 		p.setTosdesc(this.getTosdesc());
 		p.setDataType(PartitionDataType.Rule.value());
 		p.setType(AppConstants.EXPORT_TYPE_IPRN);
+		p.setCountry(this.getTermCountry());
 
 		return p;	
 	}

@@ -30,6 +30,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String dialPattern;
     private String type;
     private String dialPatternType;
+    private String country;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
     private String reason;
@@ -148,6 +149,17 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.dataType = dataType;
     }
     
+    @Column(name="country", length=40)    
+	public String getCountry() {
+		return country;
+	}
+
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+
 	@Column(name = "notes", length = 100)
     public String getNotes() {
         return this.notes;
