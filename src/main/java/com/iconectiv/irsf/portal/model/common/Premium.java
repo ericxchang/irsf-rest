@@ -219,16 +219,23 @@ public class Premium implements java.io.Serializable {
 
 		if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
 			p.setDialPattern(this.getPrimeMinus2());
+			p.setDialPatternType(AppConstants.EXPORT_PRIME2);
 		} else if (AppConstants.PRIME3.equals(rule.getDialPatternType())) {
 			p.setDialPattern(this.getPrimeMinus3());
-			if (p.getDialPattern() == null)
+			p.setDialPatternType(AppConstants.EXPORT_PRIME3);
+			if (p.getDialPattern() == null) {
 				p.setDialPattern(this.getPrimeMinus2());
+				p.setDialPatternType(AppConstants.EXPORT_PRIME2);
+			}
 		} else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
 			p.setDialPattern(this.getPrimeMinus3());
+			p.setDialPatternType(AppConstants.EXPORT_PRIME3);
 			if (p.getDialPattern() == null)
 				p.setDialPattern(this.getPrimeMinus3());
-			if (p.getDialPattern() == null)
+			if (p.getDialPattern() == null) {
 				p.setDialPattern(this.getPrimeMinus2());
+				p.setDialPatternType(AppConstants.EXPORT_PRIME3);
+			}
 		}
 
 		p.setIso2(this.getIso2());
@@ -240,9 +247,9 @@ public class Premium implements java.io.Serializable {
 		p.setTos(this.getTos());
 		p.setTosdesc(this.getTosdesc());
 		p.setDataType(PartitionDataType.Rule.value());
+		p.setType(AppConstants.EXPORT_TYPE_IPRN);
 
-		return p;
-
+		return p;	
 	}
 
 

@@ -308,7 +308,7 @@ public class ListDetails implements java.io.Serializable {
 	}
 
     @Transient
-	public PartitionDataDetails toPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef) {
+	public PartitionDataDetails toPartitionDataDetails(PartitionDefinition partition, ListDefinition listDef, String type) {
         PartitionDataDetails p = new PartitionDataDetails();
         p.setPartitionId(partition.getId());
         p.setBillingId(this.getBillingId());
@@ -324,6 +324,7 @@ public class ListDetails implements java.io.Serializable {
         p.setTos(this.getTos());
         p.setTosdesc(this.getTosdesc());
         p.setDataType(listDef.getType());
+        p.setType(type);
 
         return p;
     }

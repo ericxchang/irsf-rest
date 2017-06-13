@@ -5,15 +5,15 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="customerDataSource1" parent="abstractDataSource">
+	<bean id="customerDataSource1" parent="customerAbstractDataSource">
 		<property name="url" value="${jdbc.customerDatabaseurl1}" />
 	</bean>
 
-	<bean id="customerDataSource2" parent="abstractDataSource">
+	<bean id="customerDataSource2" parent="customerAbstractDataSource">
 		<property name="url" value="${jdbc.customerDatabaseurl2}" />
 	</bean>
 
-	<bean id="customerDataSource3" parent="abstractDataSource">
+	<bean id="customerDataSource3" parent="customerAbstractDataSource">
 		<property name="url" value="${jdbc.customerDatabaseurl3}" />
 	</bean>
 

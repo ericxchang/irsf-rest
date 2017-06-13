@@ -4,6 +4,7 @@ package com.iconectiv.irsf.portal.model.common;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
@@ -184,6 +185,13 @@ public class RangeNdc implements java.io.Serializable {
 		p.setTos(this.getTos());
 		p.setTosdesc(this.getTosdesc());
 		p.setDataType("R");
+		
+		if ("U".equals(p.getTos()))
+			p.setType(AppConstants.EXPORT_TYPE_UNALLOCATED);  // U
+		else
+			p.setType(AppConstants.EXPORT_TYPE_RESTRICT);   // R
+		
+			
 		return p;
 	}
 

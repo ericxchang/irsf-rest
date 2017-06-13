@@ -305,11 +305,11 @@ public class PartitionServiceImpl implements PartitionService {
         log.info("Generating {} partition data from rule", partitionDataList.size());
 
 		if (partition.getWlId() != null) {
-            generateListData(partition, partition.getWlId(), partitionDataList);
+            generateListData(partition, partition.getWlId(), partitionDataList, "W");
 		}
 
 		if (partition.getBlId() != null) {
-            generateListData(partition, partition.getBlId(), partitionDataList);
+            generateListData(partition, partition.getBlId(), partitionDataList, "B");
 		}
 
         log.info("Completed generating partition data {}", partitionDataList.size());
@@ -317,7 +317,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	//TODO use pageination
-	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
+	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList, String type) {
  		ListDefinition listDef = listDefinitionRepo.findOne(listId);
         if (log.isDebugEnabled()) log.debug("generating partition data from list: {}", JsonHelper.toJson(listDef));
 
@@ -325,7 +325,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		listData.stream().forEach(listDetail -> {
 		    if (listDetail.isActive()) {
-                partitionDataList.add(listDetail.toPartitionDataDetails(partition, listDef));
+                partitionDataList.add(listDetail.toPartitionDataDetails(partition, listDef, type));
             }
         });
 

@@ -28,6 +28,8 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String reference;    //save list name instead of id; save rule id
     private String dataType;
     private String dialPattern;
+    private String type;
+    private String dialPatternType;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
     private String reason;
@@ -97,7 +99,28 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.dialPattern = dialPattern;
     }
 
-    @Temporal(TemporalType.DATE)
+    @Column(name="type", length=2)
+    public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Column(name = "dial_pattern_type", length = 10)
+	public String getDialPatternType() {
+		return dialPatternType;
+	}
+
+
+	public void setDialPatternType(String dialPatternType) {
+		this.dialPatternType = dialPatternType;
+	}
+
+
+	@Temporal(TemporalType.DATE)
     @Column(name = "customer_date", length = 10)
     public Date getCustomerDate() {
         return this.customerDate;
