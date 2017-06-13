@@ -6,7 +6,7 @@ package com.iconectiv.irsf.portal.core;
 public enum PartitionExportStatus {
     Sending ("sending"),
     Failed ("failed"),
-    Success ("success"),
+    Success ("exported"),
     ;
 
     private String value;
