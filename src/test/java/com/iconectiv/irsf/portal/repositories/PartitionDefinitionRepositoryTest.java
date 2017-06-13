@@ -1,6 +1,7 @@
 package com.iconectiv.irsf.portal.repositories;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
@@ -74,8 +75,8 @@ public class PartitionDefinitionRepositoryTest {
 	public void testFindTop2PartitionHistory() {
 		PartitionDefinition partitionDefinition = partitionRepo.findOne(32);
 		List<PartitionExportHistory> histories = exportRepo.findAllByOrigPartitionId(18);
-		partitionDefinition.setPartitionExportHistories(histories, 2);
-		assertTrue(partitionDefinition.getPartitionExportHistories().size() <= 2);
+		partitionDefinition.setPartitionExportHistories(histories,  AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
+		assertTrue(partitionDefinition.getPartitionExportHistories().size() <=  AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
 	}
 
 	@Test
