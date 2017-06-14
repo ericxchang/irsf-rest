@@ -277,6 +277,7 @@ public class PartitionServiceImpl implements PartitionService {
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         partitionDataRepo.deleteByPartitionId(partition.getId());
+        log.debug("generateDraftData:batch  update {} partition data", partitionDataList.size());
         partitionDataRepo.batchUpdate(partitionDataList);
 
         partition.setStatus(PartitionStatus.Draft.value());
@@ -315,7 +316,7 @@ public class PartitionServiceImpl implements PartitionService {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
 		}
 
-        log.info("Completed generating partition data {}", partitionDataList.size());
+        log.info("Completed generating partition data. Number of rows: {}", partitionDataList.size());
 		return partitionDataList;
 	}
 
