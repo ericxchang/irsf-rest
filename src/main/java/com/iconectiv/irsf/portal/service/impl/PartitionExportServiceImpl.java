@@ -81,7 +81,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			return;
 
 		try {
-            String fileName = partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMddHHmmss");
+            String fileName = partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMdd_HHmmss");
 			byte[] data = createExportFiles(loginUser, partHist, fileName);
 
             // if no file was added to the list, return error
@@ -119,12 +119,12 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 	    List<ByteFile> files = new ArrayList<>();
         // create file 1 from ExportFileShort
         if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
-            files.add(new ByteFile(loginUser.getUserName() + "_" + fileName + ".csv", partHist.getExportFileShort()));
+            files.add(new ByteFile(loginUser.getCustomerName() + "_" + fileName + "_screeninglist.csv", partHist.getExportFileShort()));
         }
 
         // create file 2 from ExportWhitelist
         if (partHist.getExportWhitelist() != null && partHist.getExportWhitelist().length > 0) {
-            files.add(new ByteFile(loginUser.getUserName() + "_WL_" + fileName + ".csv", partHist.getExportWhitelist()));
+            files.add(new ByteFile(loginUser.getCustomerName() + "_" + fileName + "_exceptionlist.csv", partHist.getExportWhitelist()));
         }
 
         return fileService.zipFile(files);
