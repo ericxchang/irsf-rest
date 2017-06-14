@@ -54,6 +54,8 @@ class PartitionServiceController extends BaseRestController {
     private UserDefinitionRepository userRepo;
     @Autowired
     BCryptPasswordEncoder encoder;
+    
+      
 
     @RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

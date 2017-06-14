@@ -16,6 +16,8 @@ import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,9 @@ public class PartitionServiceImpl implements PartitionService {
 	@Autowired
 	private PartitionExportService exportService;
 
+	@Value("${jdbc.query_batch_size:2000}")
+	private int batchSize;
+	
 	@Async
 	@Override
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
@@ -347,17 +352,47 @@ public class PartitionServiceImpl implements PartitionService {
 		}
 
         if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(rule));
-
+        int pageNo = 0;
+		int limit = batchSize;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
-			dataList.stream().forEach(entry -> {
-                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
-            });
+			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
+			Page<RangeNdc> ndcList = null;
+			List<RangeNdc> dataList = null;
+			
+			while(true) {
+				filter.setPageNo(pageNo);
+				filter.setLimit(limit);
+				ndcList = mobileIdService.findRangeNdcByFilters(filter);
+				dataList = ndcList.getContent();
+				dataList.stream().forEach(entry -> {
+					partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+				});
+				 
+				if (!ndcList.hasNext()) {
+					log.info("Reach the last page when retrieving  Range_NdcC data. Total pages is {}", ndcList.getTotalPages());
+					break;
+				}
+				pageNo++;
+			}
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-			List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
-            dataList.stream().forEach(entry -> {
-                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
-            });
+			Page<Premium> iprnPageList = null;
+			List<Premium> iprnList = null;
+			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
+			while(true) {
+				filter.setPageNo(pageNo);
+				filter.setLimit(limit);
+				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
+				iprnList = iprnPageList.getContent();
+				iprnList.stream().forEach(entry -> {
+	                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+	            });
+				
+				if (!iprnPageList.hasNext()) {
+					log.info("Reach the last page when retrieving  IPRN data. Total pages is {}", iprnPageList.getTotalPages());
+					break;
+				}
+				pageNo++;
+			}
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 		}
