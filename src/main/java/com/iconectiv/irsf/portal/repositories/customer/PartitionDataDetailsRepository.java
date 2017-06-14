@@ -1,7 +1,7 @@
 package com.iconectiv.irsf.portal.repositories.customer;
 
-import java.util.List;
-
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
-import com.iconectiv.irsf.portal.model.customer.PartitionSummary;
+import java.util.List;
 
 /**
  * Created by echang on 3/14/2017.

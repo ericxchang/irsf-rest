@@ -81,7 +81,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			return;
 
 		try {
-            String fileName = partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMdd_HHmmss");
+            String fileName = "partition_" + partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMdd_HHmmss");
 			byte[] data = createExportFiles(loginUser, partHist, fileName);
 
             // if no file was added to the list, return error
@@ -91,7 +91,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
             }
 
             // if everything is OK, zip the file and send it to EI server
-            String zipFileName = fileName + "_export.zip";
+            String zipFileName = fileName + ".zip";
 
             url = url + "?customer=" + loginUser.getSchemaName() + "&partition=" + partHist.getId();
             EIResponse response = uploadFiles(zipFileName, data, url, loginUser.getCustomerName(), partHist.getId());
@@ -119,12 +119,12 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 	    List<ByteFile> files = new ArrayList<>();
         // create file 1 from ExportFileShort
         if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
-            files.add(new ByteFile(loginUser.getCustomerName() + "_" + fileName + "_screeninglist.csv", partHist.getExportFileShort()));
+            files.add(new ByteFile("partition_" + fileName + "_screeninglist.csv", partHist.getExportFileShort()));
         }
 
         // create file 2 from ExportWhitelist
         if (partHist.getExportWhitelist() != null && partHist.getExportWhitelist().length > 0) {
-            files.add(new ByteFile(loginUser.getCustomerName() + "_" + fileName + "_exceptionlist.csv", partHist.getExportWhitelist()));
+            files.add(new ByteFile("partition_" + fileName + "_exceptionlist.csv", partHist.getExportWhitelist()));
         }
 
         return fileService.zipFile(files);

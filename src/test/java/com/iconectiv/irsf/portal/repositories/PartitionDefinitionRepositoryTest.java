@@ -5,7 +5,7 @@ import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
-import com.iconectiv.irsf.portal.model.customer.PartitionSummary; 
+import com.iconectiv.irsf.portal.model.customer.PartitionSummary;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
