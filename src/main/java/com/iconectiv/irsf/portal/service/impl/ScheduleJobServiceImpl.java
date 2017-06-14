@@ -45,6 +45,8 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 	public void checkNewMobileIdUpdate() {
 		EventNotification event = eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value());
 
+		cleanExportHistory();
+
 		if (event == null) {
 		    //should not happen, but add protection anyway
             return;
@@ -70,8 +72,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 
 		checkPartitionState(lastUpdatedDate);
 
-		cleanExportHistory();
-		/* TODO 
+		/* TODO
 		 * 1. update active rule, update provider info
 		 * 2. mark current partition stale
 		 * 
