@@ -199,11 +199,20 @@ public class PartitionServiceImpl implements PartitionService {
 					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
 
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
-			List<String> partitionDataListShort = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), nonWLDataType);
+			List<PartitionSummary> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPrtitionId(partition.getId(), nonWLDataType);
+			List<String> partitionShort = new ArrayList<String>();
+			String prevDp = "";
+			for (PartitionSummary ps: partitionDataListShort) {
+				if (!ps.equals(prevDp)) {
+					partitionShort.add(ps.toString());
+				}
+				prevDp = ps.getDialPattern();
+			}
+			
 			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),wlDataType);
 
 			partHist.setExportFileLong(SerializeHelper.serialize(partitionDataListLong));
-			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
+			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionShort, "\n").getBytes());
 			partHist.setExportWhitelist(StringUtils.collectionToDelimitedString(whiteList, "\n").getBytes());
 
 			partHist.setExportFileLongSize(partitionDataListLong.size());
@@ -253,17 +262,6 @@ public class PartitionServiceImpl implements PartitionService {
 		return partHist;
 	}
 
-	private byte[] buildPartitionDataLong(List<PartitionDataDetails> list) {
-		log.info("buildPartitionDataLong(): number of rows: {}", list.size());
-		StringBuilder sb = new StringBuilder();
-		for (PartitionDataDetails p : list) {
-			sb.append(p.toCSVheader(AppConstants.CSV_COMMON_SEPERATOR));
-			sb.append("\n");
-		}
-		list.clear();
-		return sb.toString().getBytes();
-
-	}
 
 	/*
 	    1. delete existing data;
@@ -305,11 +303,11 @@ public class PartitionServiceImpl implements PartitionService {
         log.info("Generating {} partition data from rule", partitionDataList.size());
 
 		if (partition.getWlId() != null) {
-            generateListData(partition, partition.getWlId(), partitionDataList);
+            generateListData(partition, partition.getWlId(), partitionDataList, "W");
 		}
 
 		if (partition.getBlId() != null) {
-            generateListData(partition, partition.getBlId(), partitionDataList);
+            generateListData(partition, partition.getBlId(), partitionDataList, "B");
 		}
 
         log.info("Completed generating partition data {}", partitionDataList.size());
@@ -317,7 +315,7 @@ public class PartitionServiceImpl implements PartitionService {
 	}
 
 	//TODO use pageination
-	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList) {
+	private void generateListData(PartitionDefinition partition, Integer listId, final List<PartitionDataDetails> partitionDataList, String type) {
  		ListDefinition listDef = listDefinitionRepo.findOne(listId);
         if (log.isDebugEnabled()) log.debug("generating partition data from list: {}", JsonHelper.toJson(listDef));
 
@@ -325,7 +323,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		listData.stream().forEach(listDetail -> {
 		    if (listDetail.isActive()) {
-                partitionDataList.add(listDetail.toPartitionDataDetails(partition, listDef));
+                partitionDataList.add(listDetail.toPartitionDataDetails(partition, listDef, type));
             }
         });
 
@@ -522,7 +520,7 @@ public class PartitionServiceImpl implements PartitionService {
 			if (origId == null) {
 				origId = partition.getId();
 			}
-			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), 2);
 
 			String ruleIds = partition.getRuleIds();
 

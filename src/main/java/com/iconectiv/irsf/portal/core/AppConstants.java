@@ -38,6 +38,13 @@ public class AppConstants {
 	public static final String PRIME2 = "PRIME-2";
 	public static final String PRIME3 = "PRIME-3";
 	public static final String PRIME4 = "PRIME-4";
+	public static final String EXPORT_PRIME2 = "Prime-2";
+	public static final String EXPORT_PRIME3 = "Prime-3";
+	public static final String EXPORT_PRIME4 = "Prime-4";
+	public static final String EXPORT_TYPE_IPRN= "I";
+	public static final String EXPORT_TYPE_UNALLOCATED = "U";
+	public static final String EXPORT_TYPE_BL = "B";
+	public static final String EXPORT_TYPE_RESTRICT = "R";
 	public static final String CSV_COMMON_SEPERATOR = "|";
 	public static final String IRSF_DATA_LOADER_CUSTOMER_NAME = "irsf";
 	public static final String IRSF_DATA_LOADER_EVENT_TYPE = "RefreshData";

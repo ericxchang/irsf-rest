@@ -1,10 +1,12 @@
 package com.iconectiv.irsf.portal.repositories;
 
 import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.core.PartitionDataType;
 import com.iconectiv.irsf.portal.core.PartitionStatus;
 import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
 import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import com.iconectiv.irsf.portal.model.customer.PartitionSummary; 
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
 import com.iconectiv.irsf.portal.service.FileHandlerService;
@@ -23,6 +25,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +43,8 @@ public class PartitionDefinitionRepositoryTest {
 	PartitionDefinitionRepository partitionRepo;
 	@Autowired
 	PartitionExportHistoryRepository exportRepo;
+	@Autowired
+	PartitionDataDetailsRepository partitionDetailRepo;
 	@Autowired
 	FileHandlerService fileService;
 	
@@ -75,8 +80,8 @@ public class PartitionDefinitionRepositoryTest {
 	public void testFindTop2PartitionHistory() {
 		PartitionDefinition partitionDefinition = partitionRepo.findOne(32);
 		List<PartitionExportHistory> histories = exportRepo.findAllByOrigPartitionId(18);
-		partitionDefinition.setPartitionExportHistories(histories,  AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
-		assertTrue(partitionDefinition.getPartitionExportHistories().size() <=  AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
+		partitionDefinition.setPartitionExportHistories(histories, 2);
+		assertTrue(partitionDefinition.getPartitionExportHistories().size() <= 2);
 	}
 
 	@Test
@@ -132,4 +137,29 @@ public class PartitionDefinitionRepositoryTest {
 		
 		return partition;
 	}
+	
+	@Test
+	public void testFindPartitionSummaryData() {
+		Integer partitionId = 61;
+		List<String> dataTypeList = new ArrayList<String>();
+		dataTypeList.add(PartitionDataType.Rule.value());
+		dataTypeList.add(PartitionDataType.BlackList.value());
+		
+		
+		List<PartitionSummary> p = partitionDetailRepo.findDistinctDialPatternSummaryByPrtitionId(partitionId, dataTypeList);
+		log.info(JsonHelper.toPrettyJson(p));
+		
+	}
+	@Test
+	public void testFindPartitionData() {
+		Integer partitionId = 61;
+		List<String> dataTypeList = new ArrayList<String>();
+		dataTypeList.add(PartitionDataType.WhiteList.value());
+		
+		
+		List<String> p = partitionDetailRepo.findDistinctDialPatternByPrtitionId(partitionId, dataTypeList);
+		log.info(JsonHelper.toPrettyJson(p));
+		
+	}
+
 }

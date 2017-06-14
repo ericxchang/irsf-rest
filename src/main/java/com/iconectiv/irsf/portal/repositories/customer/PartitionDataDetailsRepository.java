@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionSummary;
 
 /**
  * Created by echang on 3/14/2017.
@@ -22,6 +23,9 @@ public interface PartitionDataDetailsRepository extends CrudRepository<Partition
 	
 	@Query("select distinct dialPattern from PartitionDataDetails pd where pd.partitionId = ?1 and pd.dataType in ?2 ")
 	List<String> findDistinctDialPatternByPrtitionId(Integer partitionId, List<String> dataTypeList);
+	
+	@Query("select new PartitionSummary(pd.dialPattern, pd.type) from PartitionDataDetails pd where pd.partitionId = ?1 and pd.dataType in ?2 group by pd.dialPattern, pd.type order by  pd.dialPattern ")
+	List<PartitionSummary> findDistinctDialPatternSummaryByPrtitionId(Integer partitionId, List<String> dataTypeList);
 	
 	@Modifying
     @Transactional
