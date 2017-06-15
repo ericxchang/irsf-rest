@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RangeQueryFilter {
+public class RangeQueryFilter implements Cloneable, java.io.Serializable {
 
 	private List<String> codeList;
 	private List<String> iso2List;
@@ -97,5 +97,14 @@ public class RangeQueryFilter {
 		this.numOfMonthsSinceLastObserved = numOfMonthsSinceLastObserved;
 	}
 	
-
+	 //----------------------------------------------------------------
+    // Overwrite object.clone() method
+    //----------------------------------------------------------------
+    public Object clone() {
+        Object obj = null;
+        try {
+            obj = super.clone();
+        } catch (CloneNotSupportedException ce) { }
+        return obj;
+    }
 }

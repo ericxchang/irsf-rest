@@ -16,6 +16,8 @@ import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,9 @@ public class PartitionServiceImpl implements PartitionService {
 	@Autowired
 	private PartitionExportService exportService;
 
+	@Value("${jdbc.query_batch_size:2000}")
+	private int batchSize;
+	
 	@Async
 	@Override
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
@@ -199,12 +204,12 @@ public class PartitionServiceImpl implements PartitionService {
 					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
 
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
-			List<PartitionSummary> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPrtitionId(partition.getId(), nonWLDataType);
+			List<PartitionDataDetails> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPartitionId(partition.getId(), nonWLDataType);
 			List<String> partitionShort = new ArrayList<String>();
 			String prevDp = "";
-			for (PartitionSummary ps: partitionDataListShort) {
+			for (PartitionDataDetails ps: partitionDataListShort) {
 				if (!ps.equals(prevDp)) {
-					partitionShort.add(ps.toString());
+					partitionShort.add(ps.toSummaryString(","));
 				}
 				prevDp = ps.getDialPattern();
 			}
@@ -272,12 +277,15 @@ public class PartitionServiceImpl implements PartitionService {
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         partitionDataRepo.deleteByPartitionId(partition.getId());
+        log.debug("generateDraftData:batch  update {} partition data", partitionDataList.size());
         partitionDataRepo.batchUpdate(partitionDataList);
-
+        if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
+        
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
         partition.setLastUpdated(DateTimeHelper.nowInUTC());
         partition.setLastUpdatedBy(loginUser.getUserName());
+        if (log.isDebugEnabled()) log.debug("generateDraftData:update partition  {} status to {}", partition.getId(),  partition.getStatus());
         partitionDefRepo.save(partition);
 
         eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
@@ -300,17 +308,19 @@ public class PartitionServiceImpl implements PartitionService {
             generatePartitionDataFromRule(partition, rule, partitionDataList);
         });
 
-        log.info("Generating {} partition data from rule", partitionDataList.size());
+        log.info("Generating {} partition data from rules", partitionDataList.size());
 
 		if (partition.getWlId() != null) {
             generateListData(partition, partition.getWlId(), partitionDataList, "W");
+            log.info("After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
 		}
 
 		if (partition.getBlId() != null) {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
+            log.info("After retriving blackList, total number of  partition records: {}", partitionDataList.size());
 		}
 
-        log.info("Completed generating partition data {}", partitionDataList.size());
+        log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
 		return partitionDataList;
 	}
 
@@ -332,6 +342,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     //TODO use pageination
 	private void generatePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
+        RangeQueryFilter origFilter;
         RangeQueryFilter filter;
 
         if (!rule.isActive()) {
@@ -340,24 +351,57 @@ public class PartitionServiceImpl implements PartitionService {
         }
 
         try {
-			filter = rule.getRangeQueryFilter();
+        	origFilter = rule.getRangeQueryFilter();
 		} catch (AppException e) {
 			log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.getMessage(), rule.getId(), rule.getDetails());
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(rule));
-
+        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
+        int pageNo = 0;
+		int limit = batchSize;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
-			dataList.stream().forEach(entry -> {
-                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
-            });
+			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
+			Page<RangeNdc> ndcList = null;
+			List<RangeNdc> dataList = null;
+			
+			while(true) {
+				filter = (RangeQueryFilter) origFilter.clone();
+				filter.setPageNo(pageNo);
+				filter.setLimit(limit);
+				if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
+				ndcList = mobileIdService.findRangeNdcByFilters(filter);
+				dataList = ndcList.getContent();
+				dataList.stream().forEach(entry -> {
+					partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+				});
+				 
+				if (!ndcList.hasNext() || dataList.isEmpty()) {
+					log.info("Reach the last page when retrieving  Range_NdcC data. Total pages is {}", ndcList.getTotalPages());
+					break;
+				}
+				pageNo++;
+			}
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-			List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
-            dataList.stream().forEach(entry -> {
-                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
-            });
+			Page<Premium> iprnPageList = null;
+			List<Premium> iprnList = null;
+			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
+			while(true) {
+				filter = (RangeQueryFilter) origFilter.clone();
+				filter.setPageNo(pageNo);
+				filter.setLimit(limit);
+				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
+				iprnList = iprnPageList.getContent();
+				iprnList.stream().forEach(entry -> {
+	                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+	            });
+				
+				if (!iprnPageList.hasNext()) {
+					log.info("Reach the last page when retrieving  IPRN data. Total pages is {}", iprnPageList.getTotalPages());
+					break;
+				}
+				pageNo++;
+			}
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 		}

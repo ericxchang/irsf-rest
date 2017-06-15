@@ -46,6 +46,11 @@ public class PartitionDataDetails implements java.io.Serializable {
     public PartitionDataDetails() {
     }
 
+    public PartitionDataDetails(String dialPattern,  String type) {
+    	 this.dialPattern = dialPattern;
+    	 this.type = type;
+    }
+
 
     public PartitionDataDetails(PartitionDefinition partitionDefinition, String reference, String dialPattern) {
         this.partitionDefinition = partitionDefinition;
@@ -302,6 +307,15 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(billingId==null?"":billingId);
 		 
 		 return sb.toString();
+	}
+	
+	public String toSummaryString(String seperator) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(dialPattern==null?"":dialPattern);
+		sb.append(seperator);
+		sb.append(type==null?"":type);
+		return sb.toString();
+		 
 	}
 
 }

@@ -1,17 +1,11 @@
 package com.iconectiv.irsf.portal.repositories;
 
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.core.PartitionDataType;
-import com.iconectiv.irsf.portal.core.PartitionStatus;
-import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
-import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
-import com.iconectiv.irsf.portal.model.customer.PartitionSummary;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
-import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
-import com.iconectiv.irsf.portal.service.FileHandlerService;
-import com.iconectiv.irsf.util.DateTimeHelper;
-import com.iconectiv.irsf.util.JsonHelper;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +19,18 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.PartitionDataType;
+import com.iconectiv.irsf.portal.core.PartitionStatus;
+import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
+import com.iconectiv.irsf.portal.model.customer.PartitionDefinition;
+import com.iconectiv.irsf.portal.model.customer.PartitionExportHistory;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionDefinitionRepository;
+import com.iconectiv.irsf.portal.repositories.customer.PartitionExportHistoryRepository;
+import com.iconectiv.irsf.portal.service.FileHandlerService;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -146,7 +147,7 @@ public class PartitionDefinitionRepositoryTest {
 		dataTypeList.add(PartitionDataType.BlackList.value());
 		
 		
-		List<PartitionSummary> p = partitionDetailRepo.findDistinctDialPatternSummaryByPrtitionId(partitionId, dataTypeList);
+		List<PartitionDataDetails> p = partitionDetailRepo.findDistinctDialPatternSummaryByPartitionId(partitionId, dataTypeList);
 		log.info(JsonHelper.toPrettyJson(p));
 		
 	}
