@@ -1,5 +1,6 @@
 package com.iconectiv.irsf.portal.repositories.customer.impl;
 
+import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepositoryCustomer;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 	 
 	@Override
 	@Transactional
-	public void batchUpdate(Collection<PartitionDataDetails> entities) {
+	public void batchUpdate(Collection<PartitionDataDetails> entities) throws AppException {
 		if (log.isTraceEnabled())log.debug("batchUpdate {} rows ", entities.size());
 		if (entities == null || entities.isEmpty()) {
 			log.debug("batchUpdate(): no row found");
@@ -44,12 +45,25 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 			if (i % batchSize == 0) {
 				batchCount++;
 				if (log.isDebugEnabled()) log.debug("Flush ONE batch {}, total: {}, batch number: {}", batchSize, batchCount*batchSize, batchCount);
-				entityManager.flush();
-				entityManager.clear();
+				if (batchCount % 100 == 0) {
+					log.debug("batchUpdate(): Total Memory: {} KB, Free Memory: {} KB ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				}
+				try {
+					entityManager.flush();
+					entityManager.clear();
+				} catch (Exception e) {
+					log.debug("batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+					throw new AppException(e.getMessage());
+				}
 			}
 		}
-		entityManager.flush();
-		entityManager.clear();
+		try {
+			entityManager.flush();
+			entityManager.clear();
+		} catch (Exception e) {
+			log.debug("batchUpdate failed - {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+			throw new AppException(e.getMessage());
+		}
 
 		log.info("Completed partition data list batch insert");
 		return;
