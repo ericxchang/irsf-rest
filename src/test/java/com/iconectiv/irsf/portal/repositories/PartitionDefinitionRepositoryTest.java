@@ -147,7 +147,7 @@ public class PartitionDefinitionRepositoryTest {
 		dataTypeList.add(PartitionDataType.BlackList.value());
 		
 		
-		List<PartitionDataDetails> p = partitionDetailRepo.findDistinctDialPatternSummaryByPrtitionId(partitionId, dataTypeList);
+		List<PartitionDataDetails> p = partitionDetailRepo.findDistinctDialPatternSummaryByPartitionId(partitionId, dataTypeList);
 		log.info(JsonHelper.toPrettyJson(p));
 		
 	}

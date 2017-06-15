@@ -204,7 +204,7 @@ public class PartitionServiceImpl implements PartitionService {
 					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
 
 			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
-			List<PartitionDataDetails> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPrtitionId(partition.getId(), nonWLDataType);
+			List<PartitionDataDetails> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPartitionId(partition.getId(), nonWLDataType);
 			List<String> partitionShort = new ArrayList<String>();
 			String prevDp = "";
 			for (PartitionDataDetails ps: partitionDataListShort) {
