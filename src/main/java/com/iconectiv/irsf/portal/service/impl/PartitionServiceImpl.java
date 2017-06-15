@@ -120,14 +120,16 @@ public class PartitionServiceImpl implements PartitionService {
 		String prevStatus = partition.getStatus();
 		
 		try {
-			log.info("exportPartition: partitionId: {}, status: {}", partitionId, partition.getStatus());
-
+			log.info("exportPartition: partitionId: {}, status: {}, Total Memory: {}, Free Memory: {} ", partitionId, partition.getStatus(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			boolean refresh = validateParitionExportStatus(partition);
 			if (refresh) {
 				partition = syncRefreshPartition(loginUser, partition); 
+				log.info("After refresh partition: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			}
 
 			PartitionExportHistory partHist = exportPartitionData(loginUser, partition);
+			
+			log.debug("After export partition: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 
 			eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Export.value(), "export data are ready for partition " + partition.getName());
 
@@ -255,6 +257,11 @@ public class PartitionServiceImpl implements PartitionService {
 			//partitionDataRepo.movePartition(oldPartitionId, partition.getId());
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());
+			partitionDataListLong.clear();
+			partitionDataListShort.clear();
+			partitionShort.clear();
+			whiteList.clear();
+			
 		} catch (Exception e) {
 			log.error("Error on export partition data", e);
 
@@ -263,6 +270,9 @@ public class PartitionServiceImpl implements PartitionService {
 			partitionDefRepo.save(partition);
 			throw new AppException(e);
 		}
+		
+		
+		
 
 		return partHist;
 	}
@@ -357,7 +367,7 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
+        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}, rule details: ", rule.getId(), JsonHelper.toJson(origFilter), rule.getDetails());
         int pageNo = 0;
 		int limit = batchSize;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
@@ -432,6 +442,10 @@ public class PartitionServiceImpl implements PartitionService {
 
 	private List<String> cloneRules(UserDefinition loginUser, final PartitionDefinition partition) {
 		List<String> ruleIds = new ArrayList<>();
+		if (partition.getRuleIds() == null) {
+			log.error("cloneRules(): no rule included in the partition: {}", partition.getId());
+			return ruleIds;
+		}
 		for (String ruleId : partition.getRuleIds().split(",")) {
 			RuleDefinition rule = ruleRepo.findOne(Integer.valueOf(ruleId));
 			Assert.notNull(rule);
