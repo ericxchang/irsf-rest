@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -284,12 +285,13 @@ public class PartitionServiceImpl implements PartitionService {
 	    3. update partition status to draft
 	 */
     @Transactional
-	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) {
+	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+        
         partitionDataRepo.deleteByPartitionId(partition.getId());
-        log.debug("generateDraftData:batch  update {} partition data", partitionDataList.size());
+        log.debug("generateDraftData:batch  update {} partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
         partitionDataRepo.batchUpdate(partitionDataList);
-        if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
+		if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
         
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
@@ -319,6 +321,7 @@ public class PartitionServiceImpl implements PartitionService {
         });
 
         log.info("Generating {} partition data from rules", partitionDataList.size());
+        log.debug("After generating partition data by rules: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 
 		if (partition.getWlId() != null) {
             generateListData(partition, partition.getWlId(), partitionDataList, "W");
@@ -327,7 +330,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		if (partition.getBlId() != null) {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
-            log.info("After retriving blackList, total number of  partition records: {}", partitionDataList.size());
+            log.debug("After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		}
 
         log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
@@ -578,7 +581,7 @@ public class PartitionServiceImpl implements PartitionService {
 			if (origId == null) {
 				origId = partition.getId();
 			}
-			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), 2);
 
 			String ruleIds = partition.getRuleIds();
 
