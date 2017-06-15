@@ -315,6 +315,7 @@ public class ListDetails implements java.io.Serializable {
         p.setCc(this.getCode());
         p.setCustomerDate(this.getCustomerDate());
         p.setDialPattern(this.getDialPattern());
+        p.setCountry(this.getTermCountry());
         p.setIso2(this.getIso2());
         p.setNdc(this.getNdc());
         p.setNotes(this.getNotes());
