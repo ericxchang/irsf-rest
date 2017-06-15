@@ -357,7 +357,7 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(origFilter));
+        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
         int pageNo = 0;
 		int limit = batchSize;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
