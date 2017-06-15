@@ -279,11 +279,13 @@ public class PartitionServiceImpl implements PartitionService {
         partitionDataRepo.deleteByPartitionId(partition.getId());
         log.debug("generateDraftData:batch  update {} partition data", partitionDataList.size());
         partitionDataRepo.batchUpdate(partitionDataList);
-
+        if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
+        
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
         partition.setLastUpdated(DateTimeHelper.nowInUTC());
         partition.setLastUpdatedBy(loginUser.getUserName());
+        if (log.isDebugEnabled()) log.debug("generateDraftData:update partition  {} status to {}", partition.getId(),  partition.getStatus());
         partitionDefRepo.save(partition);
 
         eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
@@ -306,17 +308,19 @@ public class PartitionServiceImpl implements PartitionService {
             generatePartitionDataFromRule(partition, rule, partitionDataList);
         });
 
-        log.info("Generating {} partition data from rule", partitionDataList.size());
+        log.info("Generating {} partition data from rules", partitionDataList.size());
 
 		if (partition.getWlId() != null) {
             generateListData(partition, partition.getWlId(), partitionDataList, "W");
+            log.info("After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
 		}
 
 		if (partition.getBlId() != null) {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
+            log.info("After retriving blackList, total number of  partition records: {}", partitionDataList.size());
 		}
 
-        log.info("Completed generating partition data. Number of rows: {}", partitionDataList.size());
+        log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
 		return partitionDataList;
 	}
 
@@ -338,6 +342,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     //TODO use pageination
 	private void generatePartitionDataFromRule(PartitionDefinition partition, RuleDefinition rule, final List<PartitionDataDetails> partitionDataList) {
+        RangeQueryFilter origFilter;
         RangeQueryFilter filter;
 
         if (!rule.isActive()) {
@@ -346,7 +351,7 @@ public class PartitionServiceImpl implements PartitionService {
         }
 
         try {
-			filter = rule.getRangeQueryFilter();
+        	origFilter = rule.getRangeQueryFilter();
 		} catch (AppException e) {
 			log.error("can't parse RangeQueryFilter - {}, skip ruleId: {}, details: {}", e.getMessage(), rule.getId(), rule.getDetails());
 			return;
@@ -361,6 +366,7 @@ public class PartitionServiceImpl implements PartitionService {
 			List<RangeNdc> dataList = null;
 			
 			while(true) {
+				filter = (RangeQueryFilter) origFilter.clone();
 				filter.setPageNo(pageNo);
 				filter.setLimit(limit);
 				ndcList = mobileIdService.findRangeNdcByFilters(filter);
@@ -380,6 +386,7 @@ public class PartitionServiceImpl implements PartitionService {
 			List<Premium> iprnList = null;
 			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
 			while(true) {
+				filter = (RangeQueryFilter) origFilter.clone();
 				filter.setPageNo(pageNo);
 				filter.setLimit(limit);
 				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);

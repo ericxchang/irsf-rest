@@ -159,7 +159,7 @@ public class PartitionServiceControllerTest  {
 
 	@Test
 	public void testRefreshPartitionwithRules() throws Exception {
-		Integer partId = 16;
+		Integer partId = 61;  // 59, 62, 65
 		log.info("testExportPartition(): URL:  {}", ("/partition/refresh/" + partId));
 		ResultActions action = mockMvc.perform(get("/partition/refresh/" + partId).header("authorization", "Bearer " + token));
 

@@ -27,8 +27,10 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 	@Transactional
 	public void batchUpdate(Collection<PartitionDataDetails> entities) {
 		if (log.isTraceEnabled())log.debug("batchUpdate {} rows ", entities.size());
-		if (entities == null || entities.isEmpty())
+		if (entities == null || entities.isEmpty()) {
+			log.debug("batchUpdate(): no row found");
 			return;
+		}
 		final List<PartitionDataDetails> savedEntities = new ArrayList<>(entities.size());
 		EntityManager entityManager = customerEntityManagerFactory.createEntityManager();
 		entityManager.joinTransaction();
