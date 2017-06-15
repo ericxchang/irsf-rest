@@ -284,6 +284,7 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error("Error:", e);
+			log.debug("Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			rv = makeErrorResult(e);
 		}
 
@@ -310,6 +311,7 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error("Error:", e);
+			log.debug("Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			rv = makeErrorResult(e);
 		}
 
@@ -342,6 +344,7 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error("Error:", e);
+			log.debug("Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			rv = makeErrorResult(e);
 		}
 
@@ -407,6 +410,7 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error("Error:", e);
+			log.debug("Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			rv = makeErrorResult(e);
 		}
 
@@ -459,6 +463,7 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
 		} catch (Exception e) {
 			log.error("Error:", e);
+			log.debug("Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			rv = makeErrorResult(e);
 		}
 

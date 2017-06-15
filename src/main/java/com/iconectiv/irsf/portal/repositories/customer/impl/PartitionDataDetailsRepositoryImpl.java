@@ -36,11 +36,14 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 		entityManager.joinTransaction();
 		
 		int i = 0;
+		int batchCount = 0;
+		if (log.isDebugEnabled()) log.debug("batchUpdate(): insert {} rows", batchSize, entities.size());
 		for (PartitionDataDetails entity : entities) {
 			savedEntities.add(persistOrMerge(entityManager, entity));
 			i++;
 			if (i % batchSize == 0) {
-				if (log.isDebugEnabled()) log.debug("Flush ONE batch " + batchSize);
+				batchCount++;
+				if (log.isDebugEnabled()) log.debug("Flush ONE batch {}, total: {}, batch number: {}", batchSize, batchCount*batchSize, batchCount);
 				entityManager.flush();
 				entityManager.clear();
 			}
