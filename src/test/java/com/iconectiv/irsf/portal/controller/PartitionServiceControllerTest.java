@@ -32,7 +32,10 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -91,11 +94,13 @@ public class PartitionServiceControllerTest  {
     }
 
 
-    //@Test
+    @Test
 	public void testQueryActivePartition() throws Exception {
         ResultActions action = mockMvc.perform(get("/partitions").header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
-        log.info(result);
+        log.info(JsonHelper.toPrettyJson(result));
+
+/*
         Map<String, Object>  rv = JsonHelper.fromJson(result, Map.class);
         if (rv != null) {
         	log.info("rv: {}", rv.toString());
@@ -112,8 +117,10 @@ public class PartitionServiceControllerTest  {
         			
         	}
         }
-  
+  */
 	}
+
+
 
 	//@Test
 	public void testPartitionCRUD() throws Exception {

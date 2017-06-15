@@ -277,9 +277,25 @@ public class ListServiceImpl implements ListService {
         return listDefinitionData;
     }
 
+    private void updateListDefinitionTime(UserDefinition loginUser, Integer listId) {
+        updateListDefinitionTime(loginUser, listDefRepo.findOne(listId));
+    }
+
+    private void updateListDefinitionTime(UserDefinition loginUser, ListDefinition listDefinition) {
+        listDefinition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+        listDefinition.setLastUpdatedBy(loginUser.getUserName());
+        listDefRepo.save(listDefinition);
+    }
+
     @Override
     @Transactional
     public void updateListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+        if (listDetails.length < 1) {
+            return;
+        }
+        Integer listId = listDetails[0].getListRefId();
+        updateListDefinitionTime(loginUser, listId);
+
         listDetailRepo.save(Arrays.asList(listDetails));
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Record, "updated " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
     }
@@ -287,6 +303,12 @@ public class ListServiceImpl implements ListService {
     @Override
     @Transactional
     public void deleteListDetails(UserDefinition loginUser, ListDetails[] listDetails) throws AppException {
+        if (listDetails.length < 1) {
+            return;
+        }
+        Integer listId = listDetails[0].getListRefId();
+        updateListDefinitionTime(loginUser, listId);
+
         listDetailRepo.delete(Arrays.asList(listDetails));
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Delete_List_Record, "deleted " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 
@@ -330,6 +352,7 @@ public class ListServiceImpl implements ListService {
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 
         ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+        updateListDefinitionTime(loginUser, listDefinition);
         partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
         return result;
     }
