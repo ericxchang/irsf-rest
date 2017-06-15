@@ -357,7 +357,7 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(rule));
+        if (log.isDebugEnabled()) log.debug("generating partition data from rule: {}", JsonHelper.toJson(origFilter));
         int pageNo = 0;
 		int limit = batchSize;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
@@ -369,13 +369,14 @@ public class PartitionServiceImpl implements PartitionService {
 				filter = (RangeQueryFilter) origFilter.clone();
 				filter.setPageNo(pageNo);
 				filter.setLimit(limit);
+				if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
 				ndcList = mobileIdService.findRangeNdcByFilters(filter);
 				dataList = ndcList.getContent();
 				dataList.stream().forEach(entry -> {
 					partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
 				});
 				 
-				if (!ndcList.hasNext()) {
+				if (!ndcList.hasNext() || dataList.isEmpty()) {
 					log.info("Reach the last page when retrieving  Range_NdcC data. Total pages is {}", ndcList.getTotalPages());
 					break;
 				}
