@@ -291,6 +291,7 @@ public class PartitionServiceImpl implements PartitionService {
         partitionDataRepo.deleteByPartitionId(partition.getId());
         log.debug("generateDraftData:batch  update {} partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
         partitionDataRepo.batchUpdate(partitionDataList);
+        
 		if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
         
         partition.setStatus(PartitionStatus.Draft.value());
