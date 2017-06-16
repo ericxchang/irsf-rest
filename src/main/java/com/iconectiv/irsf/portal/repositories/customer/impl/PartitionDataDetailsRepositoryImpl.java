@@ -3,6 +3,8 @@ package com.iconectiv.irsf.portal.repositories.customer.impl;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.customer.PartitionDataDetails;
 import com.iconectiv.irsf.portal.repositories.customer.PartitionDataDetailsRepositoryCustomer;
+
+import org.hibernate.exception.GenericJDBCException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,15 +54,21 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 					entityManager.flush();
 					entityManager.clear();
 				}
+			} catch (GenericJDBCException e) {
+				log.error("GenericJDBCException:: JDBC ERROR: batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				log.error("GenericJDBCException:: ErrorCode: {}, SQLState: {}, SQLException: {}, SQL: {}, message: {}", e.getErrorCode(), e.getSQLState(), e.getSQLException() == null? "No SQLException": e.getMessage(), e.getSQL(), e.getMessage());
+				log.debug("GenericJDBCException:: last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), savedEntities.size());
+				
+				throw new AppException(e.getMessage());
 			} catch (Exception e) {
 				log.error("batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 				log.debug("last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), savedEntities.size());
 				log.info("re-create entityManager...");
-				entityManager = customerEntityManagerFactory.createEntityManager();
-				entityManager.joinTransaction();
-				savedEntities.add(persistOrMerge(entityManager, entity));
+				//entityManager = customerEntityManagerFactory.createEntityManager();
+				//entityManager.joinTransaction();
+				//savedEntities.add(persistOrMerge(entityManager, entity));
 
-				//throw new AppException(e.getMessage());
+				throw new AppException(e.getMessage());
 			}
 		}
 		
@@ -69,11 +77,11 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 			entityManager.clear();
 		} catch (Exception e) {
 			log.error("*batchUpdate failed - {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
-			entityManager = customerEntityManagerFactory.createEntityManager();
-			entityManager.joinTransaction();
-			entityManager.flush();
-			entityManager.clear();
-			//throw new AppException(e.getMessage());
+			//entityManager = customerEntityManagerFactory.createEntityManager();
+			//entityManager.joinTransaction();
+			//entityManager.flush();
+			//entityManager.clear();
+			throw new AppException(e.getMessage());
 		}
 
 		log.info("Completed partition data list batch insert. Number of rows inserted: {}", savedEntities.size());
