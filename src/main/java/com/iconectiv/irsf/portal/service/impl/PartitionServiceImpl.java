@@ -299,7 +299,7 @@ public class PartitionServiceImpl implements PartitionService {
         long begTime = System.currentTimeMillis();
  
         partitionDataRepo.batchUpdate(partitionDataList);
-    
+    /*
         try {
         	partitionDataRepo.save(partitionDataList);
         } catch (Exception e) {
@@ -309,7 +309,7 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException(e.getMessage());
 		}
      
-	      
+	  */    
 		if (log.isDebugEnabled()) log.debug("generateDraftData:insert completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), System.currentTimeMillis() - begTime /1000.0);
         
         partition.setStatus(PartitionStatus.Draft.value());
