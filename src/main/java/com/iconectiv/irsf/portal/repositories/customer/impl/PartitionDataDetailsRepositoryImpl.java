@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,6 +56,28 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 					entityManager.flush();
 					entityManager.clear();
 				}
+			}
+			catch (Throwable e) {
+				Throwable ex = e;
+				while (ex.getCause() != null) {
+					log.error(ex.getMessage(), ex);
+					ex = ex.getCause();
+				}
+				if (ex instanceof java.sql.BatchUpdateException){
+					SQLException nextException = ((java.sql.BatchUpdateException) ex).getNextException();
+					log.error("BatchUpdateException: {}, nextException: {}", nextException.getMessage(), nextException);
+				}
+				else if (ex instanceof GenericJDBCException) {
+					GenericJDBCException ge = (GenericJDBCException) ex;
+					log.error("GenericJDBCException:: ErrorCode: {}, SQLState: {}, SQLException: {}, SQL: {}, message: {}", ge.getErrorCode(), ge.getSQLState(), ge.getSQLException() == null? "No SQLException": ge.getMessage(), ge.getSQL(), ge.getMessage());
+				}
+				
+				log.error("batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				log.debug("last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), savedEntities.size());
+				
+				throw new AppException(ex.getMessage());
+			} 
+			/*
 			} catch (GenericJDBCException e) {
 				log.error("GenericJDBCException:: JDBC ERROR: batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 				log.error("GenericJDBCException:: ErrorCode: {}, SQLState: {}, SQLException: {}, SQL: {}, message: {}", e.getErrorCode(), e.getSQLState(), e.getSQLException() == null? "No SQLException": e.getMessage(), e.getSQL(), e.getMessage());
@@ -70,6 +94,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 
 				throw new AppException(e.getMessage());
 			}
+			*/
 		}
 		
 		try {
