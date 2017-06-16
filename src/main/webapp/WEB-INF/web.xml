@@ -46,6 +46,11 @@
       <param-value>.*MSIE.*</param-value>
     </init-param>
   </filter>
+    <filter-mapping>
+        <filter-name>compressionFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
   <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
