@@ -1,16 +1,12 @@
 package com.iconectiv.irsf.portal.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.iconectiv.irsf.portal.core.AppConstants;
+import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.model.common.*;
+import com.iconectiv.irsf.portal.repositories.common.*;
+import com.iconectiv.irsf.portal.service.MobileIdDataService;
+import com.iconectiv.irsf.util.DateTimeHelper;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.iconectiv.irsf.portal.core.AppConstants;
-import com.iconectiv.irsf.portal.core.EventTypeDefinition;
-import com.iconectiv.irsf.portal.model.common.Country;
-import com.iconectiv.irsf.portal.model.common.EventNotification;
-import com.iconectiv.irsf.portal.model.common.Premium;
-import com.iconectiv.irsf.portal.model.common.Provider;
-import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
-import com.iconectiv.irsf.portal.model.common.RangeNdc;
-import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
-import com.iconectiv.irsf.portal.model.common.TosTosDesc;
-import com.iconectiv.irsf.portal.model.common.TosAndTosDescType;
-import com.iconectiv.irsf.portal.repositories.common.CcNdcIndexRepository;
-import com.iconectiv.irsf.portal.repositories.common.CountryRepository;
-import com.iconectiv.irsf.portal.repositories.common.EventNotificationRepository;
-import com.iconectiv.irsf.portal.repositories.common.PremiumRepository;
-import com.iconectiv.irsf.portal.repositories.common.RangeNdcRepository;
-import com.iconectiv.irsf.portal.service.MobileIdDataService;
-import com.iconectiv.irsf.util.DateTimeHelper;
-import com.iconectiv.irsf.util.JsonHelper;
-import com.iconectiv.irsf.util.ListHelper;
+import java.util.*;
 
 @Service
 public class MobileIdDataServiceImpl implements MobileIdDataService {
@@ -733,7 +710,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 
 
 	@Override
-	public Page<RangeNdc> findRangeNdcByFilters(RangeQueryFilter filter) {
+	public Page<RangeNdc> findRangeNdcByFilters(final RangeQueryFilter filter) {
 		
 		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
 
