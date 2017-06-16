@@ -289,9 +289,26 @@ public class PartitionServiceImpl implements PartitionService {
         
         partitionDataRepo.deleteByPartitionId(partition.getId());
         log.debug("generateDraftData:batch  update {} partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
-        partitionDataRepo.batchUpdate(partitionDataList);
         
-		if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
+        partitionDataRepo.batchUpdate(partitionDataList);
+        List<PartitionDataDetails> savedEntities = new ArrayList<>();
+		long begTime = System.currentTimeMillis();
+        for (PartitionDataDetails entity : partitionDataList) {
+			try {
+				entity = partitionDataRepo.save(entity);
+				savedEntities.add(entity);
+			} catch (Exception e) {
+				log.error("persistDraftData::batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				log.debug("last partition data: {}, number of rows insert so far: {}", entity.toCSVString("|"), savedEntities.size());
+				
+				throw new AppException(e.getMessage());
+			}
+			if (savedEntities.size() % 10000 == 0) {
+				log.error("insert {} rows. The last partitionDataDetails is {}", savedEntities.size() , entity.toCSVString("|"));
+			}
+		}	
+	       
+		if (log.isDebugEnabled()) log.debug("generateDraftData:insert completed, {} rows were inserted, time took: {} seconds", savedEntities.size(), System.currentTimeMillis() - begTime /1000.0);
         
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
@@ -303,6 +320,10 @@ public class PartitionServiceImpl implements PartitionService {
         eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
 
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
+        
+        savedEntities.clear();
+        
+        
     }
 
 
