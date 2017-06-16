@@ -296,6 +296,12 @@ public class ListServiceImpl implements ListService {
         Integer listId = listDetails[0].getListRefId();
         updateListDefinitionTime(loginUser, listId);
 
+        Arrays.stream(listDetails).forEach(item -> {
+            item.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+            item.setLastUpdatedBy(loginUser.getUserName());
+        });
+
+
         listDetailRepo.save(Arrays.asList(listDetails));
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Record, "updated " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
     }

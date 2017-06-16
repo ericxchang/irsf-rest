@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -582,7 +581,7 @@ public class PartitionServiceImpl implements PartitionService {
 			if (origId == null) {
 				origId = partition.getId();
 			}
-			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), 2);
+			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(origId), AppConstants.MAX_NO_OF_EXPORT_HOSTORY);
 
 			String ruleIds = partition.getRuleIds();
 

@@ -380,7 +380,7 @@ class ListServiceController extends BaseRestController {
             
             listService.updateListDetails(loginUser, listDetails);
             
-            rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success);
+            rv = makeSuccessResult(MessageDefinition.Update_ListDetails_Success, listDetails);
         } catch (SecurityException e) {
             rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
