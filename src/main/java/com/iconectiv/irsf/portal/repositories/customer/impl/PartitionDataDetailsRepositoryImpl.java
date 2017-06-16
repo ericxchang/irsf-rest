@@ -55,17 +55,25 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 			} catch (Exception e) {
 				log.error("batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 				log.debug("last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), savedEntities.size());
+				log.info("re-create entityManager...");
 				entityManager = customerEntityManagerFactory.createEntityManager();
 				entityManager.joinTransaction();
+				savedEntities.add(persistOrMerge(entityManager, entity));
+
 				//throw new AppException(e.getMessage());
 			}
 		}
+		
 		try {
 			entityManager.flush();
 			entityManager.clear();
 		} catch (Exception e) {
-			log.error("batchUpdate failed - {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
-			throw new AppException(e.getMessage());
+			log.error("*batchUpdate failed - {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+			entityManager = customerEntityManagerFactory.createEntityManager();
+			entityManager.joinTransaction();
+			entityManager.flush();
+			entityManager.clear();
+			//throw new AppException(e.getMessage());
 		}
 
 		log.info("Completed partition data list batch insert. Number of rows inserted: {}", savedEntities.size());
