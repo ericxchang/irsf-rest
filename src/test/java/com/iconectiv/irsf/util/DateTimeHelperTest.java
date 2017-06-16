@@ -32,5 +32,10 @@ public class DateTimeHelperTest {
 		Date now = new Date();
 		log.info("current time in UTC: " + DateTimeHelper.toUTC(now));
 	}
-
+	@Test
+	public void testFormatDateTime() {
+	
+		log.info("current time in MMddyy_HHmmss format: " + DateTimeHelper.formatDate(new Date(), "MMddyy_HHmmss"));
+	}
+	
 }
