@@ -297,9 +297,9 @@ public class PartitionServiceImpl implements PartitionService {
         log.debug("generateDraftData:insert {} rowa of partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
        
         long begTime = System.currentTimeMillis();
- 
+ /*
         partitionDataRepo.batchUpdate(partitionDataList);
-    /*
+ */  
         try {
         	partitionDataRepo.save(partitionDataList);
         } catch (Exception e) {
@@ -309,7 +309,7 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException(e.getMessage());
 		}
      
-	  */    
+	    
 		if (log.isDebugEnabled()) log.debug("generateDraftData:insert completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), System.currentTimeMillis() - begTime /1000.0);
         
         partition.setStatus(PartitionStatus.Draft.value());
