@@ -42,7 +42,8 @@
 		<property name="password" value="${jdbc.password}" />
 		<property name="removeAbandoned" value="true" />
 		<property name="initialSize" value="${jdbc.initSize}" />
-		<property name="maxActive" value="${jdbc.maxSize}" />
+		<property name="maxActive" value="2" />
+		<property name="maxIdle" value="1" />
 	</bean>
 
 	<bean id="abstractDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
@@ -50,8 +51,8 @@
 		<property name="username" value="${jdbc.username}" />
 		<property name="password" value="${jdbc.password}" />
 		<property name="removeAbandoned" value="true" />
-		<property name="initialSize" value="1" />
-		<property name="maxActive" value="3" />
+		<property name="initialSize" value="2" />
+		<property name="maxActive" value="2" />
 	</bean>
 
 	<bean id="jpaVendorAdapter"
