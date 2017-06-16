@@ -92,8 +92,12 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 
             // if everything is OK, zip the file and send it to EI server
             String zipFileName = fileName + ".zip";
+           
 
             url = url + "?customer=" + loginUser.getSchemaName() + "&partition=" + partHist.getId();
+            
+            log.info("send file to EI: {}, file name: {}", url, zipFileName) ;
+            
             EIResponse response = uploadFiles(zipFileName, data, url, loginUser.getCustomerName(), partHist.getId());
             partHist.setReferenceId(response.getId());
             partHist.setReason(response.getMessage());
@@ -118,13 +122,18 @@ public class PartitionExportServiceImpl implements PartitionExportService {
     public byte[] createExportFiles(UserDefinition loginUser, PartitionExportHistory partHist, String fileName) {
 	    List<ByteFile> files = new ArrayList<>();
         // create file 1 from ExportFileShort
+	    String exportfileName = "";
         if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
-            files.add(new ByteFile(fileName + "_screeninglist.csv", partHist.getExportFileShort()));
+        	exportfileName = fileName + "_screeninglist.csv";
+        	log.info("create xxport short file:  {}", exportfileName) ;
+            files.add(new ByteFile(exportfileName, partHist.getExportFileShort()));
         }
 
         // create file 2 from ExportWhitelist
         if (partHist.getExportWhitelist() != null && partHist.getExportWhitelist().length > 0) {
-            files.add(new ByteFile(fileName + "_exceptionlist.csv", partHist.getExportWhitelist()));
+        	exportfileName = fileName + "_exceptionlist.csv";
+        	log.info("create export white list file:  {}", exportfileName) ;
+            files.add(new ByteFile(exportfileName, partHist.getExportWhitelist()));
         }
 
         return fileService.zipFile(files);
