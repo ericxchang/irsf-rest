@@ -304,7 +304,7 @@ public class PartitionServiceImpl implements PartitionService {
         
         log.debug("persistDraftData: start calling addPartitionDataDetails to insert {} rows of partition data", partitionDataList.size());
         long begTime = System.currentTimeMillis() ;
-        partitionDataRepo.batchUpdate(partitionDataList);
+        //partitionDataRepo.batchUpdate(partitionDataList);
         addPartitionDataDetails(partition, partitionDataList);
   		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
@@ -326,7 +326,7 @@ public class PartitionServiceImpl implements PartitionService {
 
     private void addPartitionDataDetails(PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         long begTime = System.currentTimeMillis();
- /*
+  
         partitionDataRepo.batchUpdate(partitionDataList);
         
         try {
@@ -337,18 +337,17 @@ public class PartitionServiceImpl implements PartitionService {
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
- */  
+   
         log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
         int counter = 0;
-        /*
-        maxBatchUpdateLimit = 150000;
+ 
         if (partitionDataList.size() <= maxBatchUpdateLimit) {
         	counter = partitionDataList.size();
         	log.debug("addPartitionDataDetails: batch update {} rows", counter);
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
-        */
+        
         	log.debug("addPartitionDataDetails: insert one row at a time");
         	counter = 0;
 	        for(PartitionDataDetails entity: partitionDataList) {
@@ -367,8 +366,8 @@ public class PartitionServiceImpl implements PartitionService {
 		        
 	        }
 	        
-      //  }
-        log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+       }
+       log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
      
     }
 	private List<PartitionDataDetails> generateDraftData(UserDefinition loginUser, final PartitionDefinition partition) {
