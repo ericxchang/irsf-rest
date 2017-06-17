@@ -326,8 +326,11 @@ public class PartitionServiceImpl implements PartitionService {
 
     private void addPartitionDataDetails(PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         long begTime = System.currentTimeMillis();
-  /*
+        int counter = 0;
+   
         try {
+        	counter = partitionDataList.size();
+        	log.debug("addPartitionDataDetails:: start inserting (list of partitionDataDetails)  {} rows to PartitionDataDetails table...", counter);
          	partitionDataRepo.save(partitionDataList);
         } catch (Exception e) {
 			log.error("persistDraftData::inseret failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
@@ -335,10 +338,10 @@ public class PartitionServiceImpl implements PartitionService {
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
-		*/
+	/*	 
    
         log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
-        int counter = 0;
+ 
  
         if (partitionDataList.size() <= maxBatchUpdateLimit) {
         	counter = partitionDataList.size();
@@ -366,6 +369,7 @@ public class PartitionServiceImpl implements PartitionService {
 	        }
 	        
        }
+       */
        log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
      
     }
