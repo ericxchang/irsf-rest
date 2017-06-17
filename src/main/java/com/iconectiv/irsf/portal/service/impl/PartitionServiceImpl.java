@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -283,19 +284,42 @@ public class PartitionServiceImpl implements PartitionService {
 	    2. persist partition data to data table;
 	    3. update partition status to draft
 	 */
-    @Transactional
+   // @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         try {
         	partitionDataRepo.deleteByPartitionId(partition.getId());
+        	log.debug("persistDraftData: successfully deleted all partition data for partitionId: {}", partition.getId());
         } catch (Exception e) {
 			log.error("persistDraftData::deleteByPartitionId failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			 partition.setStatus(PartitionStatus.Fresh.value());
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
-        log.debug("generateDraftData:insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
-       
+        
+        log.debug("persistDraftData: start calling addPartitionDataDetails to insert {} rows of partition data", partitionDataList.size());
+        long begTime = System.currentTimeMillis() ;
+        addPartitionDataDetails(partition, partitionDataList);
+  		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
+        
+        partition.setStatus(PartitionStatus.Draft.value());
+        partition.setDraftDate(DateTimeHelper.nowInUTC());
+        partition.setLastUpdated(DateTimeHelper.nowInUTC());
+        partition.setLastUpdatedBy(loginUser.getUserName());
+        
+        if (log.isDebugEnabled()) log.debug("persistDraftData partition  {} status to {}", partition.getId(),  partition.getStatus());
+        
+        partitionDefRepo.save(partition);
+
+        eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
+
+        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
+   
+        
+    }
+
+    private void addPartitionDataDetails(PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         long begTime = System.currentTimeMillis();
  /*
         partitionDataRepo.batchUpdate(partitionDataList);
@@ -309,46 +333,33 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException(e.getMessage());
 		}
  */  
+        log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...", partitionDataList.size());
+        int counter = 0;
         if (partitionDataList.size() <=150000) {
+        	counter = partitionDataList.size();
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
 	        for(PartitionDataDetails entity: partitionDataList) {
-	        	int counter = 0;
+	        	counter = 0;
 		        try {
 		        	entity = partitionDataRepo.save(entity);
 		        } catch (Exception e) {
-					log.error("persistDraftData::inseret failed: {}, partitionDataDetail: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+					log.error("addPartitionDataDetails::inseret failed: {}, partitionDataDetails: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 					partition.setStatus(PartitionStatus.Fresh.value());
 					partitionDefRepo.save(partition);	
 					throw new AppException(e.getMessage());
 				}
 		        counter++;
-		        if (counter % 10000 == 0) {
-		        	log.error("persistDraftData::inseret {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter, entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+		        if (counter % 1000 == 0) {
+		        	log.error("addPartitionDataDetails::insert {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter,  (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		        }
 		        
 	        }
         }
+        log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
      
-	    
-		if (log.isDebugEnabled()) log.debug("generateDraftData:insert completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), System.currentTimeMillis() - begTime /1000.0);
-        
-        partition.setStatus(PartitionStatus.Draft.value());
-        partition.setDraftDate(DateTimeHelper.nowInUTC());
-        partition.setLastUpdated(DateTimeHelper.nowInUTC());
-        partition.setLastUpdatedBy(loginUser.getUserName());
-        if (log.isDebugEnabled()) log.debug("generateDraftData:update partition  {} status to {}", partition.getId(),  partition.getStatus());
-        partitionDefRepo.save(partition);
-
-        eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
-
-        auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
-   
-        
     }
-
-
 	private List<PartitionDataDetails> generateDraftData(UserDefinition loginUser, final PartitionDefinition partition) {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
