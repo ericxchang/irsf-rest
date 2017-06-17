@@ -59,6 +59,9 @@ public class PartitionServiceImpl implements PartitionService {
 	@Value("${jdbc.query_batch_size:2000}")
 	private int batchSize;
 	
+	@Value("${jdbc.max_batch_update_limit:150000}")
+	private int maxBatchUpdateLimit;
+	
 	@Async
 	@Override
 	public void refreshPartition(UserDefinition loginUser, Integer partitionId) {
@@ -284,8 +287,9 @@ public class PartitionServiceImpl implements PartitionService {
 	    2. persist partition data to data table;
 	    3. update partition status to draft
 	 */
-   // @Transactional
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         try {
@@ -300,6 +304,7 @@ public class PartitionServiceImpl implements PartitionService {
         
         log.debug("persistDraftData: start calling addPartitionDataDetails to insert {} rows of partition data", partitionDataList.size());
         long begTime = System.currentTimeMillis() ;
+        partitionDataRepo.batchUpdate(partitionDataList);
         addPartitionDataDetails(partition, partitionDataList);
   		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
@@ -335,13 +340,15 @@ public class PartitionServiceImpl implements PartitionService {
  */  
         log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...", partitionDataList.size());
         int counter = 0;
-        if (partitionDataList.size() <=150000) {
+        if (partitionDataList.size() <=maxBatchUpdateLimit) {
         	counter = partitionDataList.size();
+        	log.debug("addPartitionDataDetails: batch update {} rows", counter);
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
+        	log.debug("addPartitionDataDetails: insert one row at a time");
+        	counter = 0;
 	        for(PartitionDataDetails entity: partitionDataList) {
-	        	counter = 0;
 		        try {
 		        	entity = partitionDataRepo.save(entity);
 		        } catch (Exception e) {
@@ -351,7 +358,7 @@ public class PartitionServiceImpl implements PartitionService {
 					throw new AppException(e.getMessage());
 				}
 		        counter++;
-		        if (counter % 1000 == 0) {
+		        if (counter % 10000 == 0) {
 		        	log.error("addPartitionDataDetails::insert {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter,  (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		        }
 		        
