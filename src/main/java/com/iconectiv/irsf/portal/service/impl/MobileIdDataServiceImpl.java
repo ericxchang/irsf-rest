@@ -723,7 +723,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 
 		if (log.isDebugEnabled())
-			log.debug("findRangeNdcByFilters: receive ndc query rquest pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
+			log.debug("findRangeNdcByFilters: receive ndc query request pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		List<String> codeList = filter.getCodeList();
@@ -770,7 +770,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		if (tosDescList != null && !tosDescList.isEmpty())
 			log.info("findRangeNdcByFilters: tosDesc filter: {}", JsonHelper.toPrettyJson(tosDescList));
 		
-		if (filter.getProviderList() != null) {
+		if (filter.getProviderList() != null && !filter.getProviderList().isEmpty()) {
 			for (Provider p : filter.getProviderList()) {
 
 				if (providerList == null)
