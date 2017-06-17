@@ -294,7 +294,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
-        log.debug("generateDraftData:insert {} rowa of partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+        log.debug("generateDraftData:insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
        
         long begTime = System.currentTimeMillis();
  /*
@@ -314,14 +314,20 @@ public class PartitionServiceImpl implements PartitionService {
         }
         else {
 	        for(PartitionDataDetails entity: partitionDataList) {
+	        	int counter = 0;
 		        try {
-		        	partitionDataRepo.save(entity);
+		        	entity = partitionDataRepo.save(entity);
 		        } catch (Exception e) {
 					log.error("persistDraftData::inseret failed: {}, partitionDataDetail: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 					partition.setStatus(PartitionStatus.Fresh.value());
 					partitionDefRepo.save(partition);	
 					throw new AppException(e.getMessage());
 				}
+		        counter++;
+		        if (counter % 10000 == 0) {
+		        	log.error("persistDraftData::inseret {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter, entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+		        }
+		        
 	        }
         }
      
