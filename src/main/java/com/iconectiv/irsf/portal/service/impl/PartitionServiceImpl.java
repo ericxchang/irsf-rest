@@ -340,6 +340,7 @@ public class PartitionServiceImpl implements PartitionService {
  */  
         log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
         int counter = 0;
+        /*
         maxBatchUpdateLimit = 150000;
         if (partitionDataList.size() <= maxBatchUpdateLimit) {
         	counter = partitionDataList.size();
@@ -347,6 +348,7 @@ public class PartitionServiceImpl implements PartitionService {
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
+        */
         	log.debug("addPartitionDataDetails: insert one row at a time");
         	counter = 0;
 	        for(PartitionDataDetails entity: partitionDataList) {
@@ -364,7 +366,8 @@ public class PartitionServiceImpl implements PartitionService {
 		        }
 		        
 	        }
-        }
+	        
+      //  }
         log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
      
     }
