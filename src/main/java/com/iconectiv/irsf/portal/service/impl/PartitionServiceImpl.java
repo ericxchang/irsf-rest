@@ -326,17 +326,16 @@ public class PartitionServiceImpl implements PartitionService {
 
     private void addPartitionDataDetails(PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         long begTime = System.currentTimeMillis();
-  
-        partitionDataRepo.batchUpdate(partitionDataList);
-        
+  /*
         try {
-         	//partitionDataRepo.save(partitionDataList);
+         	partitionDataRepo.save(partitionDataList);
         } catch (Exception e) {
 			log.error("persistDraftData::inseret failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			 partition.setStatus(PartitionStatus.Fresh.value());
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
+		*/
    
         log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
         int counter = 0;
