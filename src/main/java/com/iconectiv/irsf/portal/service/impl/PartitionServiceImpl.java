@@ -360,7 +360,7 @@ public class PartitionServiceImpl implements PartitionService {
 				}
 		        counter++;
 		        if (counter % 10000 == 0) {
-		        	log.error("addPartitionDataDetails::insert {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter,  (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+		        	log.info("addPartitionDataDetails::insert {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter,  (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		        }
 		        
 	        }
