@@ -148,7 +148,7 @@ class PartitionServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
 			List<PartitionDefinition> partitions = partitionServ.getAllActivePartitions();
-			log.info(JsonHelper.toPrettyJson(partitions));
+			//log.info(JsonHelper.toPrettyJson(partitions));
 			rv = makeSuccessResult(MessageDefinition.Query_Success, partitions);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
