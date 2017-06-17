@@ -299,15 +299,31 @@ public class PartitionServiceImpl implements PartitionService {
         long begTime = System.currentTimeMillis();
  /*
         partitionDataRepo.batchUpdate(partitionDataList);
- */  
+        
         try {
-        	partitionDataRepo.save(partitionDataList);
+         	//partitionDataRepo.save(partitionDataList);
         } catch (Exception e) {
 			log.error("persistDraftData::inseret failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 			 partition.setStatus(PartitionStatus.Fresh.value());
 			partitionDefRepo.save(partition);	
 			throw new AppException(e.getMessage());
 		}
+ */  
+        if (partitionDataList.size() <=150000) {
+        	partitionDataRepo.batchUpdate(partitionDataList);
+        }
+        else {
+	        for(PartitionDataDetails entity: partitionDataList) {
+		        try {
+		        	partitionDataRepo.save(entity);
+		        } catch (Exception e) {
+					log.error("persistDraftData::inseret failed: {}, partitionDataDetail: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+					partition.setStatus(PartitionStatus.Fresh.value());
+					partitionDefRepo.save(partition);	
+					throw new AppException(e.getMessage());
+				}
+	        }
+        }
      
 	    
 		if (log.isDebugEnabled()) log.debug("generateDraftData:insert completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), System.currentTimeMillis() - begTime /1000.0);
