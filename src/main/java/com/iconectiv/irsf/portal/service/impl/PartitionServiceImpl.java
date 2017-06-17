@@ -338,9 +338,10 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException(e.getMessage());
 		}
  */  
-        log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...", partitionDataList.size());
+        log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
         int counter = 0;
-        if (partitionDataList.size() <=maxBatchUpdateLimit) {
+        maxBatchUpdateLimit = 150000;
+        if (partitionDataList.size() <= maxBatchUpdateLimit) {
         	counter = partitionDataList.size();
         	log.debug("addPartitionDataDetails: batch update {} rows", counter);
         	partitionDataRepo.batchUpdate(partitionDataList);
