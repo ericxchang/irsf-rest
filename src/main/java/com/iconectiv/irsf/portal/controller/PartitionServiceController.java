@@ -326,7 +326,7 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> getPartitionDataFullSetRequest(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
 		try {
-		    if (log.isDebugEnabled()) log.debug("receiing download export data request {}", exportPartitionId);
+		    if (log.isDebugEnabled()) log.debug("receiving download export data request {}", exportPartitionId);
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
