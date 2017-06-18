@@ -308,6 +308,8 @@ public class PartitionServiceImpl implements PartitionService {
         addPartitionDataDetails(partition, partitionDataList);
   		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
+  		partitionDataList.clear();
+  		
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
         partition.setLastUpdated(DateTimeHelper.nowInUTC());
