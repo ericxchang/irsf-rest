@@ -339,7 +339,16 @@ public class PartitionServiceImpl implements PartitionService {
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
-        
+        	try {
+        		log.debug("addPartitionDataDetails: insert entire list...");
+	        	 partitionDataRepo.save(partitionDataList);
+	        } catch (Exception e) {
+				log.error("addPartitionDataDetails::inseret failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				partition.setStatus(PartitionStatus.Fresh.value());
+				partitionDefRepo.save(partition);	
+				throw new AppException(e.getMessage());
+			}
+        	/*
         	log.debug("addPartitionDataDetails: insert one row at a time");
         	counter = 0;
 	        for(PartitionDataDetails entity: partitionDataList) {
@@ -357,6 +366,7 @@ public class PartitionServiceImpl implements PartitionService {
 		        }
 		        
 	        }
+	        */
 	        
        }
     
@@ -434,12 +444,12 @@ public class PartitionServiceImpl implements PartitionService {
 		
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 			
-			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(origFilter);
-			dataList.stream().forEach(entry -> {
-				partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
-			});
+			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(origFilter);
+			//dataList.stream().forEach(entry -> {
+			//	partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+			//});
 			
-			/*
+			 
 			filter = (RangeQueryFilter) origFilter.clone();
 			filter.setPageNo(pageNo);
 			filter.setLimit(limit);
@@ -461,7 +471,7 @@ public class PartitionServiceImpl implements PartitionService {
 				 
 				
 			}
-			*/
+			 
 			log.info("generatePartitionDataFromRule(): total RANGE_NDC_TYPE data records: {}",   partitionDataList.size());
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
 			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
