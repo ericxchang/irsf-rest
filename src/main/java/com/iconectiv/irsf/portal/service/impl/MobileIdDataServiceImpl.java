@@ -719,8 +719,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			filter.setLimit(batchSize);
 		}
 
-		if (log.isDebugEnabled())
-			log.debug("findRangeNdcByFilters: receive ndc query request pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
+		//if (log.isDebugEnabled())
+		//	log.debug("findRangeNdcByFilters: receive ndc query request pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
 		
@@ -729,7 +729,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	@Override
 	public Page<RangeNdc> findRangeNdcByFilters(final RangeQueryFilter filter, Pageable page) {
 		
-		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
+		//log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
 
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();

@@ -377,17 +377,17 @@ public class PartitionServiceImpl implements PartitionService {
             generatePartitionDataFromRule(partition, rule, partitionDataList);
         });
 
-        log.info("Generating {} partition data from rules", partitionDataList.size());
-        log.debug("After generating partition data by rules: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+        log.info("generateDraftData:: Generating {} partition data from rules", partitionDataList.size());
+        log.debug("generateDraftData:: After generating partition data by rules: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 
 		if (partition.getWlId() != null) {
             generateListData(partition, partition.getWlId(), partitionDataList, "W");
-            log.info("After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
+            log.info("generateDraftData:: After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
 		}
 
 		if (partition.getBlId() != null) {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
-            log.debug("After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+            log.debug("generateDraftData:: After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		}
 
         log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
@@ -427,13 +427,19 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
+        log.info("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
         int pageNo = 0;
 		int limit = batchSize;
 		Pageable page = null;
+		
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
-				
+			
+			List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(origFilter);
+			dataList.stream().forEach(entry -> {
+				partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+			});
+			
+			/*
 			filter = (RangeQueryFilter) origFilter.clone();
 			filter.setPageNo(pageNo);
 			filter.setLimit(limit);
@@ -455,6 +461,8 @@ public class PartitionServiceImpl implements PartitionService {
 				 
 				
 			}
+			*/
+			log.info("generatePartitionDataFromRule(): total RANGE_NDC_TYPE data records: {}",   partitionDataList.size());
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
 			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
 			
@@ -478,6 +486,7 @@ public class PartitionServiceImpl implements PartitionService {
 	            });
 
 			}
+			
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 		}
