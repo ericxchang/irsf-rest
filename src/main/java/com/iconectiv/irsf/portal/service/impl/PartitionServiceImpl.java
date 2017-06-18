@@ -339,6 +339,7 @@ public class PartitionServiceImpl implements PartitionService {
         	partitionDataRepo.batchUpdate(partitionDataList);
         }
         else {
+        	/*
         	try {
         		log.debug("addPartitionDataDetails: insert entire list...");
 	        	 partitionDataRepo.save(partitionDataList);
@@ -348,14 +349,15 @@ public class PartitionServiceImpl implements PartitionService {
 				partitionDefRepo.save(partition);	
 				throw new AppException(e.getMessage());
 			}
-        	/*
-        	log.debug("addPartitionDataDetails: insert one row at a time");
+			*/
+        	
+           	log.debug("addPartitionDataDetails: insert one row at a time, totol number of rows: {}, Max Memory: {}, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().maxMemory()/1024, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/1024);
         	counter = 0;
 	        for(PartitionDataDetails entity: partitionDataList) {
 		        try {
 		        	entity = partitionDataRepo.save(entity);
 		        } catch (Exception e) {
-					log.error("addPartitionDataDetails::inseret failed: {}, partitionDataDetails: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+					log.error("addPartitionDataDetails::inseret failed: {}, partitionDataDetails: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/1024);
 					partition.setStatus(PartitionStatus.Fresh.value());
 					partitionDefRepo.save(partition);	
 					throw new AppException(e.getMessage());
@@ -366,7 +368,7 @@ public class PartitionServiceImpl implements PartitionService {
 		        }
 		        
 	        }
-	        */
+	        
 	        
        }
     
