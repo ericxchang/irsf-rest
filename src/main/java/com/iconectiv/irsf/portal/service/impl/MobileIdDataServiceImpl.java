@@ -708,11 +708,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		return count;
 	}
 
-
 	@Override
 	public Page<RangeNdc> findRangeNdcByFilters(final RangeQueryFilter filter) {
-		
-		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
 
 		if (filter.getPageNo() == null) {
 			filter.setPageNo(0);
@@ -726,6 +723,14 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.debug("findRangeNdcByFilters: receive ndc query request pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+		
+		return findRangeNdcByFilters(filter,  page) ;
+	}
+	@Override
+	public Page<RangeNdc> findRangeNdcByFilters(final RangeQueryFilter filter, Pageable page) {
+		
+		log.info("findRangeNdcByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
+
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList = new ArrayList<String>();
@@ -785,11 +790,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		return  findRangeNdcByFilters(codeList, iso2List, tosList, tosDescList, providerList, page);
 
 	}
-
 	@Override
 	public Page<Premium> findPremiumRangeByFilters(RangeQueryFilter filter) {
-		log.info("findPremiumRangeByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
-
 		if (filter.getPageNo() == null) {
 			filter.setPageNo(0);
 		}
@@ -802,6 +804,12 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 			log.debug("findPremiumRangeByFilters: receive range premium query rquest pageNo {}, limit: {}", filter.getPageNo(), filter.getLimit());
 
 		PageRequest page = new PageRequest(filter.getPageNo(), filter.getLimit());
+		return findPremiumRangeByFilters(filter, page); 
+	}
+	@Override
+	public Page<Premium> findPremiumRangeByFilters(RangeQueryFilter filter, Pageable page) {
+		log.info("findPremiumRangeByFilters: filter: {}", JsonHelper.toPrettyJson(filter));
+
 		List<String> codeList = filter.getCodeList();
 		List<String> iso2List = filter.getIso2List();
 		List<String> tosList =  new ArrayList<String>();

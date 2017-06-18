@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -429,47 +430,53 @@ public class PartitionServiceImpl implements PartitionService {
         if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
         int pageNo = 0;
 		int limit = batchSize;
+		Pageable page = null;
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
 			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
-			Page<RangeNdc> ndcList = null;
-			List<RangeNdc> dataList = null;
+				
+			filter = (RangeQueryFilter) origFilter.clone();
+			filter.setPageNo(pageNo);
+			filter.setLimit(limit);
+			if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
+			Page<RangeNdc>  ndcList = mobileIdService.findRangeNdcByFilters(filter);
+			log.info("generatePartitionDataFromRule(): retrieve RANGE_NDC_TYPE data:  page {}, page size {}, total page: {}", ndcList.getNumber(), ndcList.getSize(), ndcList.getTotalPages());
+			ndcList.getContent().stream().forEach(entry -> {
+				partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+			});
 			
-			while(true) {
-				filter = (RangeQueryFilter) origFilter.clone();
-				filter.setPageNo(pageNo);
-				filter.setLimit(limit);
-				if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
-				ndcList = mobileIdService.findRangeNdcByFilters(filter);
-				dataList = ndcList.getContent();
-				dataList.stream().forEach(entry -> {
+			
+			while(ndcList.hasNext()) {
+				page = ndcList.nextPageable();
+				ndcList = mobileIdService.findRangeNdcByFilters(filter, page);
+				if (log.isDebugEnabled()) log.debug("generatePartitionDataFromRule(): retrieve RANGE_NDC_TYPE data:  page {}, page size {}, total page: {}", ndcList.getNumber(), ndcList.getSize(), ndcList.getTotalPages());
+				ndcList.getContent().stream().forEach(entry -> {
 					partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
 				});
 				 
-				if (!ndcList.hasNext() || dataList.isEmpty()) {
-					log.info("Reach the last page when retrieving  Range_NdcC data. Total pages is {}", ndcList.getTotalPages());
-					break;
-				}
-				pageNo++;
+				
 			}
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-			Page<Premium> iprnPageList = null;
-			List<Premium> iprnList = null;
 			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
-			while(true) {
-				filter = (RangeQueryFilter) origFilter.clone();
-				filter.setPageNo(pageNo);
-				filter.setLimit(limit);
-				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
-				iprnList = iprnPageList.getContent();
-				iprnList.stream().forEach(entry -> {
+			
+			filter = (RangeQueryFilter) origFilter.clone();
+			filter.setPageNo(pageNo);
+			filter.setLimit(limit);
+			
+			Page<Premium> iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
+			log.info("generatePartitionDataFromRule(): retrieve PREMIUM_RANGE_TYPE data: page {}, page size {}, total page: {}", iprnPageList.getNumber(), iprnPageList.getSize(), iprnPageList.getTotalPages());
+			iprnPageList.getContent().stream().forEach(entry -> {
+                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+            });
+			
+			
+			while(iprnPageList.hasNext()) {
+				page = iprnPageList.nextPageable();
+				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter, page);
+				if (log.isDebugEnabled()) log.debug("generatePartitionDataFromRule(): retrieve PREMIUM_RANGE_TYPE data: page {}, page size {}, total page: {}", iprnPageList.getNumber(), iprnPageList.getSize(), iprnPageList.getTotalPages());
+				iprnPageList.getContent().stream().forEach(entry -> {
 	                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
 	            });
-				
-				if (!iprnPageList.hasNext()) {
-					log.info("Reach the last page when retrieving  IPRN data. Total pages is {}", iprnPageList.getTotalPages());
-					break;
-				}
-				pageNo++;
+
 			}
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
