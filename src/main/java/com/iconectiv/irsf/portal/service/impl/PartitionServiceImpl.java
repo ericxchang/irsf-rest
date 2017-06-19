@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +59,9 @@ public class PartitionServiceImpl implements PartitionService {
 
 	@Value("${jdbc.query_batch_size:2000}")
 	private int batchSize;
+	
+	@Value("${jdbc.max_batch_update_limit:150000}")
+	private int maxBatchUpdateLimit;
 	
 	@Async
 	@Override
@@ -283,29 +288,93 @@ public class PartitionServiceImpl implements PartitionService {
 	    2. persist partition data to data table;
 	    3. update partition status to draft
 	 */
-    @Transactional
+    
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
         log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+        try {
+        	partitionDataRepo.deleteByPartitionId(partition.getId());
+        	log.debug("persistDraftData: successfully deleted all partition data for partitionId: {}", partition.getId());
+        } catch (Exception e) {
+			log.error("persistDraftData::deleteByPartitionId failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+			 partition.setStatus(PartitionStatus.Fresh.value());
+			partitionDefRepo.save(partition);	
+			throw new AppException(e.getMessage());
+		}
         
-        partitionDataRepo.deleteByPartitionId(partition.getId());
-        log.debug("generateDraftData:batch  update {} partition data, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
-        partitionDataRepo.batchUpdate(partitionDataList);
+        log.debug("persistDraftData: start calling addPartitionDataDetails to insert {} rows of partition data", partitionDataList.size());
+        long begTime = System.currentTimeMillis() ;
+        //partitionDataRepo.batchUpdate(partitionDataList);
+        addPartitionDataDetails(partition, partitionDataList);
+  		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
-		if (log.isDebugEnabled()) log.debug("generateDraftData:batch update completed");
-        
+  		partitionDataList.clear();
+  		
         partition.setStatus(PartitionStatus.Draft.value());
         partition.setDraftDate(DateTimeHelper.nowInUTC());
         partition.setLastUpdated(DateTimeHelper.nowInUTC());
         partition.setLastUpdatedBy(loginUser.getUserName());
-        if (log.isDebugEnabled()) log.debug("generateDraftData:update partition  {} status to {}", partition.getId(),  partition.getStatus());
+        
+        if (log.isDebugEnabled()) log.debug("persistDraftData partition  {} status to {}", partition.getId(),  partition.getStatus());
+        
         partitionDefRepo.save(partition);
 
         eventService.sendPartitionEvent(loginUser, partition.getId(), EventTypeDefinition.Partition_Draft.value(), "draft data are ready for partition " + partition.getName());
 
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Refresh_Partition_Data, "generated partition draft data set:" + partition.getId());
+   
+        
     }
 
-
+    private void addPartitionDataDetails(PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
+        long begTime = System.currentTimeMillis();
+        int counter = 0;
+    
+        log.debug("addPartitionDataDetails:: start inserting {} rows to PartitionDataDetails table...maxBatchUpdateLimit: {}", partitionDataList.size(), maxBatchUpdateLimit);
+  
+        if (partitionDataList.size() <= maxBatchUpdateLimit) {
+        	counter = partitionDataList.size();
+        	log.debug("addPartitionDataDetails: batch update {} rows", counter);
+        	partitionDataRepo.batchUpdate(partitionDataList);
+        }
+        else {
+        	/*
+        	try {
+        		log.debug("addPartitionDataDetails: insert entire list...");
+	        	 partitionDataRepo.save(partitionDataList);
+	        } catch (Exception e) {
+				log.error("addPartitionDataDetails::inseret failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+				partition.setStatus(PartitionStatus.Fresh.value());
+				partitionDefRepo.save(partition);	
+				throw new AppException(e.getMessage());
+			}
+			*/
+        	
+           	log.debug("addPartitionDataDetails: insert one row at a time, totol number of rows: {}, Max Memory: {}, Total Memory: {} KB, Free Memory: {} KB ", partitionDataList.size(), (double) Runtime.getRuntime().maxMemory()/1024, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/1024);
+        	counter = 0;
+	        for(PartitionDataDetails entity: partitionDataList) {
+		        try {
+		        	entity = partitionDataRepo.save(entity);
+		        } catch (Exception e) {
+					log.error("addPartitionDataDetails::inseret failed: {}, partitionDataDetails: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), entity.toCSVString("|"), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/1024);
+					partition.setStatus(PartitionStatus.Fresh.value());
+					partitionDefRepo.save(partition);	
+					throw new AppException(e.getMessage());
+				}
+		        counter++;
+		        if (counter % 10000 == 0) {
+		        	log.info("addPartitionDataDetails::insert {} rows,  Total Memory: {} KB, Free Memory: {} KB ", counter,  (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+		        }
+		        
+	        }
+	        
+	        
+       }
+    
+       log.debug("addPartitionDataDetails: insert {} rows of partition data, Total Memory: {} KB, Free Memory: {} KB ", counter, (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+     
+    }
 	private List<PartitionDataDetails> generateDraftData(UserDefinition loginUser, final PartitionDefinition partition) {
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
@@ -320,17 +389,17 @@ public class PartitionServiceImpl implements PartitionService {
             generatePartitionDataFromRule(partition, rule, partitionDataList);
         });
 
-        log.info("Generating {} partition data from rules", partitionDataList.size());
-        log.debug("After generating partition data by rules: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+        log.info("generateDraftData:: Generating {} partition data from rules", partitionDataList.size());
+        log.debug("generateDraftData:: After generating partition data by rules: Total Memory: {}, Free Memory: {} ", (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 
 		if (partition.getWlId() != null) {
             generateListData(partition, partition.getWlId(), partitionDataList, "W");
-            log.info("After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
+            log.info("generateDraftData:: After retriving whiteList, total number of  partition records: {}", partitionDataList.size());
 		}
 
 		if (partition.getBlId() != null) {
             generateListData(partition, partition.getBlId(), partitionDataList, "B");
-            log.debug("After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
+            log.debug("generateDraftData:: After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		}
 
         log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
@@ -370,51 +439,66 @@ public class PartitionServiceImpl implements PartitionService {
 			return;
 		}
 
-        if (log.isDebugEnabled()) log.debug("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
+        log.info("generating partition data from rule:: {}, filter: {}", rule.getId(), JsonHelper.toJson(origFilter));
         int pageNo = 0;
 		int limit = batchSize;
+		Pageable page = null;
+		
 		if (AppConstants.RANGE_NDC_TYPE.equals(rule.getDataSource())) {
-			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(filter);
-			Page<RangeNdc> ndcList = null;
-			List<RangeNdc> dataList = null;
 			
-			while(true) {
-				filter = (RangeQueryFilter) origFilter.clone();
-				filter.setPageNo(pageNo);
-				filter.setLimit(limit);
-				if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
-				ndcList = mobileIdService.findRangeNdcByFilters(filter);
-				dataList = ndcList.getContent();
-				dataList.stream().forEach(entry -> {
+			//List<RangeNdc> dataList = mobileIdService.findAllRangeNdcByFilters(origFilter);
+			//dataList.stream().forEach(entry -> {
+			//	partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+			//});
+			
+			 
+			filter = (RangeQueryFilter) origFilter.clone();
+			filter.setPageNo(pageNo);
+			filter.setLimit(limit);
+			if (log.isDebugEnabled()) log.debug("before calling mobileIdService.findRangeNdcByFilters, filter: {}", JsonHelper.toJson(filter));
+			Page<RangeNdc>  ndcList = mobileIdService.findRangeNdcByFilters(filter);
+			log.info("generatePartitionDataFromRule(): retrieve RANGE_NDC_TYPE data:  page {}, page size {}, total page: {}", ndcList.getNumber(), ndcList.getSize(), ndcList.getTotalPages());
+			ndcList.getContent().stream().forEach(entry -> {
+				partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+			});
+			
+			
+			while(ndcList.hasNext()) {
+				page = ndcList.nextPageable();
+				ndcList = mobileIdService.findRangeNdcByFilters(filter, page);
+				if (log.isDebugEnabled()) log.debug("generatePartitionDataFromRule(): retrieve RANGE_NDC_TYPE data:  page {}, page size {}, total page: {}", ndcList.getNumber(), ndcList.getSize(), ndcList.getTotalPages());
+				ndcList.getContent().stream().forEach(entry -> {
 					partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
 				});
 				 
-				if (!ndcList.hasNext() || dataList.isEmpty()) {
-					log.info("Reach the last page when retrieving  Range_NdcC data. Total pages is {}", ndcList.getTotalPages());
-					break;
-				}
-				pageNo++;
+				
 			}
+			 
+			log.info("generatePartitionDataFromRule(): total RANGE_NDC_TYPE data records: {}",   partitionDataList.size());
 		} else if (AppConstants.PREMIUM_RANGE_TYPE.equals(rule.getDataSource())) {
-			Page<Premium> iprnPageList = null;
-			List<Premium> iprnList = null;
 			//List<Premium> dataList = mobileIdService.findAllPremiumRangeByFilters(filter);
-			while(true) {
-				filter = (RangeQueryFilter) origFilter.clone();
-				filter.setPageNo(pageNo);
-				filter.setLimit(limit);
-				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
-				iprnList = iprnPageList.getContent();
-				iprnList.stream().forEach(entry -> {
+			
+			filter = (RangeQueryFilter) origFilter.clone();
+			filter.setPageNo(pageNo);
+			filter.setLimit(limit);
+			
+			Page<Premium> iprnPageList = mobileIdService.findPremiumRangeByFilters(filter);
+			log.info("generatePartitionDataFromRule(): retrieve PREMIUM_RANGE_TYPE data: page {}, page size {}, total page: {}", iprnPageList.getNumber(), iprnPageList.getSize(), iprnPageList.getTotalPages());
+			iprnPageList.getContent().stream().forEach(entry -> {
+                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
+            });
+			
+			
+			while(iprnPageList.hasNext()) {
+				page = iprnPageList.nextPageable();
+				iprnPageList = mobileIdService.findPremiumRangeByFilters(filter, page);
+				if (log.isDebugEnabled()) log.debug("generatePartitionDataFromRule(): retrieve PREMIUM_RANGE_TYPE data: page {}, page size {}, total page: {}", iprnPageList.getNumber(), iprnPageList.getSize(), iprnPageList.getTotalPages());
+				iprnPageList.getContent().stream().forEach(entry -> {
 	                partitionDataList.add(entry.toPartitionDataDetails(partition, rule));
 	            });
-				
-				if (!iprnPageList.hasNext()) {
-					log.info("Reach the last page when retrieving  IPRN data. Total pages is {}", iprnPageList.getTotalPages());
-					break;
-				}
-				pageNo++;
+
 			}
+			
 		} else {
 			log.error("Unknown data source: {}, rule_id: {}", rule.getDataSource(), rule.getId());
 		}

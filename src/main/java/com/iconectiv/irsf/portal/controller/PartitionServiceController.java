@@ -148,7 +148,7 @@ class PartitionServiceController extends BaseRestController {
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
 			List<PartitionDefinition> partitions = partitionServ.getAllActivePartitions();
-			log.info(JsonHelper.toPrettyJson(partitions));
+			//log.info(JsonHelper.toPrettyJson(partitions));
 			rv = makeSuccessResult(MessageDefinition.Query_Success, partitions);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
@@ -326,7 +326,7 @@ class PartitionServiceController extends BaseRestController {
 	public ResponseEntity<String> getPartitionDataFullSetRequest(@RequestHeader Map<String, String> header, @PathVariable Integer exportPartitionId) {
 		ResponseEntity<String> rv;
 		try {
-		    if (log.isDebugEnabled()) log.debug("receiing download export data request {}", exportPartitionId);
+		    if (log.isDebugEnabled()) log.debug("receiving download export data request {}", exportPartitionId);
 
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());

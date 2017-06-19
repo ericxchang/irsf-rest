@@ -47,6 +47,10 @@ public interface MobileIdDataService {
 	List<Premium> findAllPremiumRangeByFilters(RangeQueryFilter filter);
 
 	String getLastDataSetDate();
+
+	Page<RangeNdc> findRangeNdcByFilters(RangeQueryFilter filter, Pageable page);
+
+	Page<Premium> findPremiumRangeByFilters(RangeQueryFilter filter, Pageable page);
 	
 }
 

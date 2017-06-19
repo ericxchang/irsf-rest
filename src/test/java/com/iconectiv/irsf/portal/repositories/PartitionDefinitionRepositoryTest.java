@@ -12,6 +12,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -160,6 +163,31 @@ public class PartitionDefinitionRepositoryTest {
 		
 		List<String> p = partitionDetailRepo.findDistinctDialPatternByPrtitionId(partitionId, dataTypeList);
 		log.info(JsonHelper.toPrettyJson(p));
+		
+	}
+	@Test
+	public void testFindAllPartitionData() {
+		CustomerContextHolder.setSchema("cust03");
+		int counter = 1;
+		Integer partitionId = 23;
+		PageRequest page = new PageRequest(0, 5);	
+		
+		long begTime = System.currentTimeMillis();
+		
+		Page<PartitionDataDetails> list = partitionDetailRepo.findAllByPartitionId(partitionId, page);
+		log.info("query page {}; time taken: {} seconds, total page: {}, total size: {}, slice: {} ", counter, (System.currentTimeMillis() - begTime)/1000, list.getTotalPages(), list.getSize(), list.getNumber());
+		list.getContent().forEach(p->System.out.println(JsonHelper.toPrettyJson(p)));	
+		 
+		while (list.hasNext() && counter <=5) {
+		   page  = (PageRequest) list.nextPageable();
+		   begTime = System.currentTimeMillis();
+		   list = partitionDetailRepo.findAllByPartitionId(partitionId, page);
+		   log.info("query page {}; time taken: {} seconds, total page: {}, total size: {}, slice: {} ", counter, (System.currentTimeMillis() - begTime)/1000, list.getTotalPages(), list.getSize(), list.getNumber());
+		   list.getContent().forEach(p->System.out.println(JsonHelper.toPrettyJson(p)));
+		   counter++;
+		}
+		 
+	
 		
 	}
 

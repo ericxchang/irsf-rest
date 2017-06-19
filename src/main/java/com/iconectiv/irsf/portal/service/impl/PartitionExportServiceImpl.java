@@ -125,7 +125,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 	    String exportfileName = "";
         if (partHist.getExportFileShort() != null && partHist.getExportFileShort().length > 0) {
         	exportfileName = fileName + "_screeninglist.csv";
-        	log.info("create xxport short file:  {}", exportfileName) ;
+        	log.info("create export short file:  {}", exportfileName) ;
             files.add(new ByteFile(exportfileName, partHist.getExportFileShort()));
         }
 
