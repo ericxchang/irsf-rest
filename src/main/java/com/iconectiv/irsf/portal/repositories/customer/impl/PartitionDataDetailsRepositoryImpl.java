@@ -53,6 +53,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 		if (log.isDebugEnabled())log.debug("batchUpdate(): insert {} rows", batchSize, entities.size());
 		
 		for (PartitionDataDetails entity : entities) {
+
 			try {
 				savedEntities.add(persistOrMerge(entityManager, entity));
 				i++;
@@ -72,13 +73,19 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 						e.getMessage(), (double) Runtime.getRuntime().totalMemory() / 1024,	(double) Runtime.getRuntime().freeMemory() / 1024);
 				log.error("GenericJDBCException:: ErrorCode: {}, SQLState: {}, SQLException: {}, SQL: {}, message: {}",
 						e.getErrorCode(), e.getSQLState(),	e.getSQLException() == null ? "No SQLException" : e.getMessage(), e.getSQL(), e.getMessage());
-				log.debug("GenericJDBCException:: last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), i);
-
+				if (entity != null)
+					log.debug("GenericJDBCException:: last partition date: {}, number of rows insert so far: {}", entity.toCSVString("|"), i);
+				else {
+					log.debug("GenericJDBCException:: last partition datais is null, number of rows insert so far: {}", i);
+				}
 				throw new AppException(e.getMessage());
 			} catch (Exception e) {
 				log.error("batchUpdate failed: {}, Total Memory: {} KB, Free Memory: {} KB ", e.getMessage(), (double) Runtime.getRuntime().totalMemory() / 1024,	(double) Runtime.getRuntime().freeMemory() / 1024);
-				log.debug("last partition data: {}, number of rows insert so far: {}", entity.toCSVString("|"),	i);
-
+				if (entity != null)
+					log.debug("last partition data: {}, number of rows insert so far: {}", entity.toCSVString("|"),	i);
+				else {
+					log.debug("last partition datais is null, number of rows insert so far: {}", i);
+				}
 				throw new AppException(e.getMessage());
 			}
 
