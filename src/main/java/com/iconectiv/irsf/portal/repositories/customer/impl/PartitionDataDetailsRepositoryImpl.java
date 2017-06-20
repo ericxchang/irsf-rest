@@ -36,6 +36,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 	@Override
 	@Transactional
 	public void batchUpdate(Collection<PartitionDataDetails> entities) throws AppException {
+		long begTime = System.currentTimeMillis();
 		if (log.isTraceEnabled())log.debug("batchUpdate {} rows ", entities.size());
 		if (entities == null || entities.isEmpty()) {
 			log.debug("batchUpdate(): no row found");
@@ -59,7 +60,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 					batchCount++;
 					if (log.isDebugEnabled()) log.debug("Flush ONE batch {}, total: {}, batch number: {}", batchSize, batchCount * batchSize, batchCount);
 					if (batchCount % 100 == 0) {
-						log.debug("batchUpdate(): Total Memory: {} KB, Free Memory: {} KB ", (double) Runtime.getRuntime().totalMemory() / 1024,	(double) Runtime.getRuntime().freeMemory() / 1024);
+						log.info("batchUpdate(): Total Memory: {} KB, Free Memory: {} KB ", (double) Runtime.getRuntime().totalMemory() / 1024,	(double) Runtime.getRuntime().freeMemory() / 1024);
 					}
 					entityManager.flush();
 					entityManager.clear();
@@ -93,7 +94,7 @@ public class PartitionDataDetailsRepositoryImpl implements PartitionDataDetailsR
 		}
 	 
 
-		log.info("Completed partition data list batch insert. Number of rows inserted: {}", savedEntities.size());
+		log.info("Completed partition data list batch insert. Number of rows inserted: {}, duration: {} seconds", savedEntities.size(), (System.currentTimeMillis() - begTime)/1000.0);
 			
 		return;
 	}
