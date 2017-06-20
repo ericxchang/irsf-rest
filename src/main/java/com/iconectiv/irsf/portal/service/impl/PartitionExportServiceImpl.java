@@ -6,6 +6,7 @@ import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.core.PartitionExportStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
@@ -101,7 +102,12 @@ public class PartitionExportServiceImpl implements PartitionExportService {
             EIResponse response = uploadFiles(zipFileName, data, url, loginUser.getCustomerName(), partHist.getId());
             partHist.setReferenceId(response.getId());
             partHist.setReason(response.getMessage());
-            partHist.setStatus(response.getStatus());
+
+            if (response.getStatus().equals(AppConstants.SUCCESS)) {
+                partHist.setStatus(PartitionExportStatus.Exported.value());
+            } else {
+                partHist.setStatus(PartitionExportStatus.Failed.value());
+            }
 
             exportRepo.save(partHist);
 
@@ -110,7 +116,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			eventService.sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), response.getMessage());
 		} catch (Exception e) {
 			log.error("Error to send to EI", e);
-			partHist.setStatus(AppConstants.FAIL);
+			partHist.setStatus(PartitionExportStatus.Failed.value());
 			exportRepo.save(partHist);
 			
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage());
@@ -191,14 +197,14 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
         }
 
         exportHistory.setReason(eiStatus.getMessage());
-        exportHistory.setStatus(eiStatus.getStatus());
+
+        if (eiStatus.getStatus().equals(AppConstants.SUCCESS)) {
+			exportHistory.setStatus(PartitionExportStatus.Exported.value());
+		} else {
+			exportHistory.setStatus(PartitionExportStatus.Failed.value());
+		}
 
         exportRepo.save(exportHistory);
-
-        eiStatus.setMessage("successfully updated partition export status");
-        eiStatus.setStatus(AppConstants.SUCCESS);
-
-        log.info("successfully updated partition export status {}", eiStatus.getPartition() );
 
         return;
     }

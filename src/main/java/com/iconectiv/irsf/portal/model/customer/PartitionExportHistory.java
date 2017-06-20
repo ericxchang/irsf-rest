@@ -31,7 +31,7 @@ public class PartitionExportHistory implements java.io.Serializable {
     private Integer exportFileShortSize;
     private Integer exportWhitelistSize;
     private String referenceId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z")
     private Date exportDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date midDataLoadTime;

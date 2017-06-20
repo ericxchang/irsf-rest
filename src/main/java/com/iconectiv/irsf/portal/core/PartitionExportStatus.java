@@ -4,9 +4,9 @@ package com.iconectiv.irsf.portal.core;
  * Created by echang on 4/28/2017.
  */
 public enum PartitionExportStatus {
-    Sending ("sending"),
-    Failed ("failed"),
-    Success ("exported"),
+    Processing ("Processing"),
+    Failed ("Failed"),
+    Exported ("Exported"),
     ;
 
     private String value;
