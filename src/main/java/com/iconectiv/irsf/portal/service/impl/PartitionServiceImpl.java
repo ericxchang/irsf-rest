@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -241,7 +242,8 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setPartitionId(partition.getId());
 			partHist.setStatus(PartitionExportStatus.Success.value());
 			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
-			partHist.setMidDataLoadTime(event.getCreateTimestamp());
+			if (event != null)
+				partHist.setMidDataLoadTime(event.getCreateTimestamp());
 
 			log.debug("exportPartitionData(): save PartitionExportHistory");
 			partHist = exportRepo.save(partHist);
@@ -292,7 +294,7 @@ public class PartitionServiceImpl implements PartitionService {
     //@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Transactional
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
-        log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+        log.info("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         try {
         	partitionDataRepo.deleteByPartitionId(partition.getId());
         	log.debug("persistDraftData: successfully deleted all partition data for partitionId: {}", partition.getId());
@@ -307,7 +309,7 @@ public class PartitionServiceImpl implements PartitionService {
         long begTime = System.currentTimeMillis() ;
         //partitionDataRepo.batchUpdate(partitionDataList);
         addPartitionDataDetails(partition, partitionDataList);
-  		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
+  		if (log.isDebugEnabled()) log.info("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
   		partitionDataList.clear();
   		
@@ -376,6 +378,7 @@ public class PartitionServiceImpl implements PartitionService {
      
     }
 	private List<PartitionDataDetails> generateDraftData(UserDefinition loginUser, final PartitionDefinition partition) {
+		long begTime = System.currentTimeMillis();
         CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
         List<PartitionDataDetails> partitionDataList = new ArrayList<>();
@@ -402,7 +405,7 @@ public class PartitionServiceImpl implements PartitionService {
             log.debug("generateDraftData:: After retriving blackList, total number of  partition records: {}, Total Memory: {}, Free Memory: {} ", partitionDataList.size(), (double) Runtime.getRuntime().totalMemory()/1024,  (double) Runtime.getRuntime().freeMemory()/ 1024);
 		}
 
-        log.info("Completed generating partition data. Number of records: {}", partitionDataList.size());
+        log.info("Completed generating partition data. Number of records: {}, duration: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime)/1000.0);
 		return partitionDataList;
 	}
 
