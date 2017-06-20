@@ -242,7 +242,8 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setPartitionId(partition.getId());
 			partHist.setStatus(PartitionExportStatus.Success.value());
 			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
-			partHist.setMidDataLoadTime(event.getCreateTimestamp());
+			if (event != null)
+				partHist.setMidDataLoadTime(event.getCreateTimestamp());
 
 			log.debug("exportPartitionData(): save PartitionExportHistory");
 			partHist = exportRepo.save(partHist);
@@ -293,7 +294,7 @@ public class PartitionServiceImpl implements PartitionService {
     //@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Transactional
 	private void persistDraftData(UserDefinition loginUser, PartitionDefinition partition, List<PartitionDataDetails> partitionDataList) throws AppException {
-        log.debug("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
+        log.info("generateDraftData: delete all partition data for partitionId: {}", partition.getId());
         try {
         	partitionDataRepo.deleteByPartitionId(partition.getId());
         	log.debug("persistDraftData: successfully deleted all partition data for partitionId: {}", partition.getId());
@@ -308,7 +309,7 @@ public class PartitionServiceImpl implements PartitionService {
         long begTime = System.currentTimeMillis() ;
         //partitionDataRepo.batchUpdate(partitionDataList);
         addPartitionDataDetails(partition, partitionDataList);
-  		if (log.isDebugEnabled()) log.debug("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
+  		if (log.isDebugEnabled()) log.info("persistDraftData completed, {} rows were inserted, time took: {} seconds", partitionDataList.size(), (System.currentTimeMillis() - begTime) /1000.0);
         
   		partitionDataList.clear();
   		
