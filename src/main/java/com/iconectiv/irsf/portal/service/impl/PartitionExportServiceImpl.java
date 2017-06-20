@@ -6,6 +6,7 @@ import com.iconectiv.irsf.json.vaidation.JsonValidationException;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
+import com.iconectiv.irsf.portal.core.PartitionExportStatus;
 import com.iconectiv.irsf.portal.exception.AppException;
 import com.iconectiv.irsf.portal.model.common.CustomerDefinition;
 import com.iconectiv.irsf.portal.model.common.HttpResponseMessage;
@@ -191,14 +192,14 @@ HttpEntity<ObjectToPass> request = new HttpEntity<ObjectToPass>(ObjectToPass, he
         }
 
         exportHistory.setReason(eiStatus.getMessage());
-        exportHistory.setStatus(eiStatus.getStatus());
+
+        if (eiStatus.getStatus().equals(AppConstants.SUCCESS)) {
+			exportHistory.setStatus(PartitionExportStatus.Exported.value());
+		} else {
+			exportHistory.setStatus(PartitionExportStatus.Failed.value());
+		}
 
         exportRepo.save(exportHistory);
-
-        eiStatus.setMessage("successfully updated partition export status");
-        eiStatus.setStatus(AppConstants.SUCCESS);
-
-        log.info("successfully updated partition export status {}", eiStatus.getPartition() );
 
         return;
     }
