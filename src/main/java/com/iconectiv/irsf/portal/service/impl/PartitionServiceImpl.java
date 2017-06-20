@@ -17,12 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -240,7 +238,7 @@ public class PartitionServiceImpl implements PartitionService {
 			partHist.setExportDate(DateTimeHelper.nowInUTC());
 			partHist.setOrigPartitionId(partition.getOrigPartitionId());
 			partHist.setPartitionId(partition.getId());
-			partHist.setStatus(PartitionExportStatus.Success.value());
+			partHist.setStatus(PartitionExportStatus.Exported.value());
 			partHist.setReason(AuditTrailActionDefinition.Export_Partition_Data);
 			if (event != null)
 				partHist.setMidDataLoadTime(event.getCreateTimestamp());
