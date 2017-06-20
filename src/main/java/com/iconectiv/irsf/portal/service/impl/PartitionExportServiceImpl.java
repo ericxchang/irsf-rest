@@ -102,7 +102,12 @@ public class PartitionExportServiceImpl implements PartitionExportService {
             EIResponse response = uploadFiles(zipFileName, data, url, loginUser.getCustomerName(), partHist.getId());
             partHist.setReferenceId(response.getId());
             partHist.setReason(response.getMessage());
-            partHist.setStatus(response.getStatus());
+
+            if (response.getStatus().equals(AppConstants.SUCCESS)) {
+                partHist.setStatus(PartitionExportStatus.Exported.value());
+            } else {
+                partHist.setStatus(PartitionExportStatus.Failed.value());
+            }
 
             exportRepo.save(partHist);
 
@@ -111,7 +116,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			eventService.sendPartitionEvent(loginUser, partHist.getPartitionId(), EventTypeDefinition.Partition_PushToEI.value(), response.getMessage());
 		} catch (Exception e) {
 			log.error("Error to send to EI", e);
-			partHist.setStatus(AppConstants.FAIL);
+			partHist.setStatus(PartitionExportStatus.Failed.value());
 			exportRepo.save(partHist);
 			
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Send_Partition_Data_To_EI, e.getMessage());
