@@ -101,6 +101,9 @@ public class ListUploadController extends BaseRestController {
 			rv = makeSuccessResult(MessageDefinition.Process_List_Upload);
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
+        } catch (AppException e) {
+            log.error("error to process lit upload request:", e);
+            rv = makeErrorResult(e);
 		} catch (Exception e) {
 		    log.error("error to process lit upload request:", e);
 			rv = makeErrorResult(e);
