@@ -86,7 +86,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			byte[] data = createExportFiles(loginUser, partHist, fileName);
 
             // if no file was added to the list, return error
-            if (data.length < 1) {
+            if (data == null || data.length < 1) {
                 log.warn("sendExportFile2EI: no data to sent to blocking system");
                 return;
             }
