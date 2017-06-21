@@ -82,7 +82,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 			return;
 
 		try {
-            String fileName = partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "MMddyy_HHmmss");
+            String fileName = loginUser.getCustomerId() + "_" + partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "MMddyy_HHmmss");
 			byte[] data = createExportFiles(loginUser, partHist, fileName);
 
             // if no file was added to the list, return error

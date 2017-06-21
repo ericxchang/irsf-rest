@@ -59,7 +59,14 @@ public class RuleServiceImpl implements RuleService {
 		auditService.saveAuditTrailLog(loginUser, action, "rule id: " + rule.getId());
 
 		if (rule.getPartitionId() != null) {
-			partitionService.checkStale(loginUser, rule.getPartitionId(), "rule update");
+		    PartitionDefinition partition = partitionRepo.findOne(rule.getPartitionId());
+
+		    if (partition != null) {
+                partition.setLastUpdated(DateTimeHelper.nowInUTC());
+                partition.setLastUpdatedBy(loginUser.getUserName());
+                partitionRepo.save(partition);
+                partitionService.checkStale(loginUser, partition, "rule update");
+            }
 		}
 		
 		return rule;
@@ -134,7 +141,10 @@ public class RuleServiceImpl implements RuleService {
 		}
 
 		partition.setRuleIds(ruleIds);
+		partition.setLastUpdatedBy(loginUser.getUserName());
+		partition.setLastUpdated(DateTimeHelper.nowInUTC());
 		partitionRepo.save(partition);
+
 		auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_Rule_To_Partition,
 		        "append rule " + rule.getId() + " to partition " + partition.getId());
 		

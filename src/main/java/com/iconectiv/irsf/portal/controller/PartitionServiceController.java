@@ -366,7 +366,7 @@ class PartitionServiceController extends BaseRestController {
                 throw new AppException("invalid export id " + exportPartitionId);
             }
 
-            String outputFileName  = exportHistory.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMdd_HHmmss");
+            String outputFileName  = loginUser.getCustomerId() + "_" + exportHistory.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "yyyyMMdd_HHmmss");
 
 
             byte[] documentBody = exportService.createExportFiles(loginUser, exportHistory, outputFileName);
