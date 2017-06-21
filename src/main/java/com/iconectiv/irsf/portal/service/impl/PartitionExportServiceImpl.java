@@ -80,7 +80,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 	public void sendExportFile2EI(UserDefinition loginUser, PartitionExportHistory partHist, String url) {
 		if (loginUser == null || partHist == null || url == null || "".equals(url))
 			return;
-
+		
 		try {
             String fileName = loginUser.getCustomerId() + "_" + partHist.getPartitionId() + "_" + DateTimeHelper.formatDate(new Date(), "MMddyy_HHmmss");
 			byte[] data = createExportFiles(loginUser, partHist, fileName);
