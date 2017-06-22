@@ -88,6 +88,37 @@ public class ListServiceImpl implements ListService {
         }
     }
 
+    @Async
+    @Override
+    public void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadRequest, boolean isInitialLoading, String errorMessage) {
+        try {
+            CustomerContextHolder.setSchema(user.getSchemaName());
+            createListDefinition(user, listDef);
+
+            uploadRequest.setListRefId(listDef.getId());
+            uploadRequest.setStatus(AppConstants.PROCESS);
+            uploadRequest.setLastUpdated(DateTimeHelper.nowInUTC());
+            uploadRequest.setLastUpdatedBy(listDef.getLastUpdatedBy());
+
+            updateUploadRequestWithErrorMessage(uploadRequest, errorMessage);
+
+            AuditTrail audit = new AuditTrail();
+            audit.setAction("upload list");
+            audit.setUserName(uploadRequest.getLastUpdatedBy());
+            audit.setCustomerName(uploadRequest.getCustomerName());
+
+            Map<String, String> auditDetail = new LinkedHashMap<>();
+            auditDetail.put("file name", uploadRequest.getFileName());
+            auditDetail.put("list type", uploadRequest.getListDefintion().getType());
+            auditDetail.put("list name", uploadRequest.getListDefintion().getListName());
+            auditDetail.put("initial load", String.valueOf(isInitialLoading));
+            auditDetail.put("status", AppConstants.FAIL);
+            auditService.saveAuditTrailLog(audit, auditDetail);
+        } catch (Exception e) {
+            log.error("Error to process list upload request: ", e);
+        }
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void persistListUploadRequest(ListUploadRequest uploadReq, Boolean isInitialLoading) {
         log.info("Start parsing black list file {}", uploadReq.getId());
@@ -282,7 +313,7 @@ public class ListServiceImpl implements ListService {
     }
 
     private void updateListDefinitionTime(UserDefinition loginUser, ListDefinition listDefinition) {
-        listDefinition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+        listDefinition.setLastUpdated(DateTimeHelper.nowInUTC());
         listDefinition.setLastUpdatedBy(loginUser.getUserName());
         listDefRepo.save(listDefinition);
     }
@@ -297,7 +328,7 @@ public class ListServiceImpl implements ListService {
         updateListDefinitionTime(loginUser, listId);
 
         Arrays.stream(listDetails).forEach(item -> {
-            item.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+            item.setLastUpdated(DateTimeHelper.nowInUTC());
             item.setLastUpdatedBy(loginUser.getUserName());
         });
 

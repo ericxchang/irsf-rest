@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -70,7 +69,7 @@ public class AuditTrailServiceImpl implements AuditTrailService{
 		audit.setAction(action);
 		audit.setDetails(details);
 		audit.setLastUpdatedBy(lastUpdatedBy);
-		audit.setLastUpdated(new Date());
+		audit.setLastUpdated(DateTimeHelper.nowInUTC());
 		auditRepo.save(audit);
 		log.info("Save audit trail record: \n" + JsonHelper.toJson(audit));
 	}

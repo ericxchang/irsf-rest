@@ -692,7 +692,7 @@ public class PartitionServiceImpl implements PartitionService {
 		    String ruleIds = partition.getRuleIds();
 		    partition.setRuleIds(null);
 		    partition.setLastUpdatedBy(loginUser.getUserName());
-		    partition.setLastUpdated(DateTimeHelper.toUTC(new Date()));
+		    partition.setLastUpdated(DateTimeHelper.nowInUTC());
             partitionDefRepo.save(partition);
 
             ruleRepo.deleteAllByPartitionId(partitionId);

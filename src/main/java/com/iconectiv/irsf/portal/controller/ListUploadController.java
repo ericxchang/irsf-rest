@@ -48,7 +48,10 @@ public class ListUploadController extends BaseRestController {
 	        @RequestParam("listId") Integer id, @RequestParam("delimiter") String delimiter) {
 		ResponseEntity<String> rv;
 
-        Boolean isInitialLoading;
+        UserDefinition loginUser = null;
+        Boolean isInitialLoading = false;
+        ListDefinition listDef = new ListDefinition();
+        ListUploadRequest uploadReq = new ListUploadRequest();
 
         try {
             if (log.isDebugEnabled()) log.debug("Received list upload request {}, {}, {}, {}, {}", id, listType, listName, description, delimiter);
@@ -57,13 +60,23 @@ public class ListUploadController extends BaseRestController {
             Assert.notNull(delimiter);
             Assert.notNull(listType);
 
-			UserDefinition loginUser = getLoginUser(header);
+			loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
             CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-            isInitialLoading = id == null;
+            isInitialLoading = (id == null);
 
             log.debug(file.getContentType());
+
+            listDef.setId(id);
+            listDef.setListName(listName);
+            listDef.setDescription(description);
+            listDef.setType(listType);
+
+            uploadReq.setFileName(file.getOriginalFilename());
+            uploadReq.setDelimiter(delimiter);
+            uploadReq.setCustomerName(loginUser.getCustomerName());
+            uploadReq.setData(fileService.getContentAsList(file));
 
             if (fileService.getFileSize(file) == 0) {
                 throw  new AppException(file.getOriginalFilename() + " is empty");
@@ -71,21 +84,8 @@ public class ListUploadController extends BaseRestController {
 
             if (!AppConstants.UploadFileType.contains( file.getContentType() )) {
                 String errorMessage = file.getOriginalFilename() + " is NOT ascii file " + file.getContentType();
-                log.error(errorMessage);
-                throw  new AppException(errorMessage);
+                throw new AppException(errorMessage);
             }
-
-            ListDefinition listDef = new ListDefinition();
-            listDef.setId(id);
-			listDef.setListName(listName);
-            listDef.setDescription(description);
-            listDef.setType(listType);
-
-            ListUploadRequest uploadReq = new ListUploadRequest();
-            uploadReq.setFileName(file.getOriginalFilename());
-            uploadReq.setDelimiter(delimiter);
-            uploadReq.setCustomerName(loginUser.getCustomerName());
-            uploadReq.setData(fileService.getContentAsList(file));
 
             //check list size
             int currentListSize = 0;
@@ -103,6 +103,7 @@ public class ListUploadController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
             log.error("error to process lit upload request:", e);
+            listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading, e.getMessage());
             rv = makeErrorResult(e);
 		} catch (Exception e) {
 		    log.error("error to process lit upload request:", e);

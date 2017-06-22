@@ -80,7 +80,7 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 			if (logoutEvent != null) {
 				lastQueryTime = logoutEvent.getLastUpdated();
 			} else {
-				lastQueryTime = new Date();
+				lastQueryTime = DateTimeHelper.nowInUTC();
 			}
 		}
 		

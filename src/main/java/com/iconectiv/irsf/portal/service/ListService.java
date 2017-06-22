@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface ListService {
 	void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadReq, boolean isInitialLoading);
+	void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadReq, boolean isInitialLoading, String errorMessage);
 
 	void deleteListDefinition(UserDefinition loginUser, int listId);
 	void deleteListDefinition(UserDefinition loginUser, String listName);
