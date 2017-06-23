@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -209,7 +210,10 @@ public class PartitionServiceImpl implements PartitionService {
 			EventNotification event = eventRepo.findTop1ByCustomerNameAndEventTypeOrderByCreateTimestampDesc(
 					AppConstants.IRSF_DATA_LOADER_CUSTOMER_NAME, AppConstants.IRSF_DATA_LOADER_EVENT_TYPE);
 
-			List<PartitionDataDetails> partitionDataListLong = partitionDataRepo.findAllByPartitionId(partition.getId());
+			
+			/*
+			List<PartitionDataDetails> partitionDataListLong =  queryPartitionDataDetailById(partition.getId());
+			
 			List<PartitionDataDetails> partitionDataListShort = partitionDataRepo.findDistinctDialPatternSummaryByPartitionId(partition.getId(), nonWLDataType);
 			List<String> partitionShort = new ArrayList<String>();
 			String prevDp = "";
@@ -219,11 +223,32 @@ public class PartitionServiceImpl implements PartitionService {
 				}
 				prevDp = ps.getDialPattern();
 			}
+			*/
 			
-			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(),wlDataType);
+			List<PartitionDataDetails> partitionDataListLong = new ArrayList<PartitionDataDetails>();
+			Map<String, String> shortListMap = new HashMap<String, String>();
+			List<String> partitionDataListShort = new ArrayList<String>();
+			
+			PageRequest page = new PageRequest(0, batchSize);
+			Page<PartitionDataDetails> listLong = partitionDataRepo.findAllByPartitionId(partition.getId(), page);
+			
+			while(listLong.hasNext()) {
+				page = (PageRequest) listLong.nextPageable();
+				listLong = partitionDataRepo.findAllByPartitionId(partition.getId(), page);
+				
+				listLong.getContent().stream().forEach(entry -> {
+					partitionDataListLong.add(entry);
+					shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
+				});
+			}
+			for (Map.Entry<String, String> entry : shortListMap.entrySet()) {
+				partitionDataListShort.add(entry.getValue());
+			}
+			
+			List<String> whiteList = partitionDataRepo.findDistinctDialPatternByPrtitionId(partition.getId(), wlDataType);
 
 			partHist.setExportFileLong(SerializeHelper.serialize(partitionDataListLong));
-			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionShort, "\n").getBytes());
+			partHist.setExportFileShort(StringUtils.collectionToDelimitedString(partitionDataListShort, "\n").getBytes());
 			partHist.setExportWhitelist(StringUtils.collectionToDelimitedString(whiteList, "\n").getBytes());
 
 			partHist.setExportFileLongSize(partitionDataListLong.size());
@@ -263,8 +288,8 @@ public class PartitionServiceImpl implements PartitionService {
 
 			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Export_Partition_Data, "export partition data set " + partition.getId());
 			partitionDataListLong.clear();
+			shortListMap.clear();
 			partitionDataListShort.clear();
-			partitionShort.clear();
 			whiteList.clear();
 			
 		} catch (Exception e) {
@@ -281,7 +306,7 @@ public class PartitionServiceImpl implements PartitionService {
 
 		return partHist;
 	}
-
+	
 
 	/*
 	    1. delete existing data;
