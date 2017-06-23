@@ -231,6 +231,10 @@ public class PartitionServiceImpl implements PartitionService {
 			
 			PageRequest page = new PageRequest(0, batchSize);
 			Page<PartitionDataDetails> listLong = partitionDataRepo.findAllByPartitionId(partition.getId(), page);
+			listLong.getContent().stream().forEach(entry -> {
+				partitionDataListLong.add(entry);
+				shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
+			});
 			
 			while(listLong.hasNext()) {
 				page = (PageRequest) listLong.nextPageable();
