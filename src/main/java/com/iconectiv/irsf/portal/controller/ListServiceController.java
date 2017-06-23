@@ -301,6 +301,7 @@ class ListServiceController extends BaseRestController {
         return rv;
     }
 
+    @CrossOrigin
 	@RequestMapping(value = "/list", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deleteListByNameRequest(@RequestHeader Map<String, String> header,
@@ -393,6 +394,7 @@ class ListServiceController extends BaseRestController {
         return rv;
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/listDetails/delete", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<String> deleteListDetailRecordsRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {

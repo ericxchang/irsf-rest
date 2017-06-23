@@ -19,14 +19,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@Controller
+@RestController
 class MobileIdDatasetController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(MobileIdDatasetController.class);
 

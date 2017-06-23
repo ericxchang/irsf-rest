@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@Controller
+@RestController
 class EventServiceController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(EventServiceController.class);
 

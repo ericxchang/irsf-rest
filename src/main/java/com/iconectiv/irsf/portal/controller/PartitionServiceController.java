@@ -29,14 +29,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 class PartitionServiceController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(PartitionServiceController.class);
 
@@ -82,6 +81,7 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/partition/{partitionId}/{ruleId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> removeRuleRequest(@RequestHeader Map<String, String> header,
@@ -109,6 +109,7 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/partition/{partitionId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> deletePartitionRequest(@RequestHeader Map<String, String> header,

@@ -51,7 +51,7 @@ public class SpringConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/events").setAllowedOrigins("*").withSockJS().setSupressCors(true);
+		registry.addEndpoint("/websocket").setAllowedOrigins("*").withSockJS();
 	}
 
 }
