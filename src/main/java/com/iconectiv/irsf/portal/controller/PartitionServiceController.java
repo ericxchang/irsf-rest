@@ -421,7 +421,7 @@ class PartitionServiceController extends BaseRestController {
 		return rv;
 	}
 
-	@Value("${jdbc.query_batch_size:10000}")
+    @Value("${jdbc.gui_query_batch_size:10000}")
 	private int batchSize;
 
 	@RequestMapping(value = "/draftdata", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

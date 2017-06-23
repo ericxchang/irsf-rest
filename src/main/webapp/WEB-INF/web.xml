@@ -13,6 +13,7 @@
     <param-name>contextConfigLocation</param-name>
     <param-value>/WEB-INF/spring-cfg.xml, /WEB-INF/spring-jpa.xml</param-value>
   </context-param>
+
   <listener>
     <listener-class>
           org.springframework.web.context.ContextLoaderListener
@@ -26,6 +27,7 @@
   <listener>
     <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
   </listener>
+
   <filter>
     <filter-name>compressionFilter</filter-name>
     <filter-class>com.googlecode.webutilities.filters.CompressionFilter</filter-class>
@@ -45,6 +47,7 @@
       <param-name>ignoreUserAgentsPattern</param-name>
       <param-value>.*MSIE.*</param-value>
     </init-param>
+      <async-supported>true</async-supported>
   </filter>
     <filter-mapping>
         <filter-name>compressionFilter</filter-name>
@@ -62,6 +65,7 @@
       <param-name>forceEncoding</param-name>
       <param-value>true</param-value>
     </init-param>
+      <async-supported>true</async-supported>
   </filter>
   <filter-mapping>
     <filter-name>encodingFilter</filter-name>
@@ -79,9 +83,7 @@
 
   <servlet>
     <servlet-name>spring-restful</servlet-name>
-    <servlet-class>
-        	org.springframework.web.servlet.DispatcherServlet
-    	</servlet-class>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>/WEB-INF/spring-cfg.xml</param-value>
@@ -93,6 +95,7 @@
     <servlet-name>spring-restful</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
+
   <welcome-file-list>
     <welcome-file>/index.html</welcome-file>
   </welcome-file-list>

@@ -29,7 +29,7 @@ import java.util.Map;
 class MobileIdDatasetController extends BaseRestController {
 	private Logger log = LoggerFactory.getLogger(MobileIdDatasetController.class);
 
-	@Value("${jdbc.query_batch_size:100000}")
+    @Value("${jdbc.gui_query_batch_size:10000}")
 	private int batchSize;
 	@Autowired
 	private PremiumRepository premiumRepo;
