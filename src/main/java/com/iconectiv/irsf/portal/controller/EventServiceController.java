@@ -46,7 +46,7 @@ class EventServiceController extends BaseRestController {
                 if (queryTime == null) {
                     events = eventService.getEvents(loginUser, null);
                 } else {
-                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(queryTime));
+                    events = eventService.getEvents(loginUser, queryTime);
                 }
 
                 lastQueryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:ss z");
