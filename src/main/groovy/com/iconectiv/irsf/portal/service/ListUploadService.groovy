@@ -56,7 +56,7 @@ class ListUploadService {
     }
 	
 	void parseListLine(String item, Integer index, ListUploadRequest uploadReq, String delimiter, headerMap, List<ListDetails> listEntries, StringBuilder errorList) {
-        if (log.isDebugEnabled()) log.debug("Parsing line ${item}")
+        if (log.isTraceEnabled()) log.trace("Parsing line ${item}")
 
 		String[] elements = item.split(/\$delimiter/)
         String dialCode = elements.size() > headerMap['dialpattern'] ? elements[headerMap['dialpattern']] : ''
