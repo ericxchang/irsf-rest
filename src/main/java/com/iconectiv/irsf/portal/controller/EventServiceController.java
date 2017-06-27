@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -30,19 +31,26 @@ class EventServiceController extends BaseRestController {
 	public ResponseEntity<String> getEvents(@RequestHeader Map<String, String> header,
 			@RequestParam(value = "lastQueryTime", required = false) String lastQueryTime) {
 		ResponseEntity<String> rv = null;
+        Date queryTime = null;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
 			List<EventNotification>	events;
+            try {
+                queryTime = DateTimeHelper.formatDate(lastQueryTime, "yyyy-MM-dd HH:mm:SS z");
+            } catch (Exception e) {
+                log.warn(e.getMessage());
+            }
+
 			if (loginUser.getRole().equals(PermissionRole.CustAdmin.value()) || loginUser.getRole().equals(PermissionRole.User.value()) ) {
-                if (lastQueryTime == null) {
+
+                if (queryTime == null) {
                     events = eventService.getEvents(loginUser, null);
                 } else {
-
-                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(DateTimeHelper.formatDate(lastQueryTime, "yyyy-MM-dd HH:mm:SS z")));
+                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(queryTime));
                 }
 
-                String queryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z");
-			    rv = makeSuccessResult(queryTime, events);
+                lastQueryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z");
+			    rv = makeSuccessResult(lastQueryTime, events);
 			}
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
