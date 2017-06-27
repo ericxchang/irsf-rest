@@ -1,12 +1,9 @@
 package com.iconectiv.irsf.portal.controller;
 
-import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Date;
-
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,13 +21,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.core.DialPatternType;
-import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.RuleDefinition;
-import com.iconectiv.irsf.util.DateTimeHelper;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -68,9 +62,10 @@ public class EventServiceControllerTest  {
 	@Test
 	public void testQueryEvent() throws Exception {
 		Date myDate = DateTimeHelper.getDateBefore(30).toDate();
-        ResultActions action = mockMvc.perform(get("/event" + "?lastQueryTime=" + myDate.getTime()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        ResultActions action = mockMvc.perform(get("/userEvents").header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
 
+        log.info(result);
        assertTrue(result.lastIndexOf("success") > 1);
     }
  }

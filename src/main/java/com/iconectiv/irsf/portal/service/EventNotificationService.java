@@ -13,7 +13,6 @@ public interface EventNotificationService {
 
     void ackEventNotification(EventNotification event, UserDefinition user);
 	List<EventNotification> getEvents(UserDefinition loginUser, Date lastQueryTime);
-	List<EventNotification> getEvents();
 
 	void sendPartitionEvent(UserDefinition loginUser, Integer partitionId, String eventType, String message);
 }

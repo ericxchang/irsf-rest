@@ -1,10 +1,10 @@
 package com.iconectiv.irsf.portal.controller;
 
-import com.iconectiv.irsf.portal.core.MessageDefinition;
 import com.iconectiv.irsf.portal.core.PermissionRole;
 import com.iconectiv.irsf.portal.model.common.EventNotification;
 import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.service.EventNotificationService;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,9 @@ class EventServiceController extends BaseRestController {
                 if (lastQueryTime == null) {
                     events = eventService.getEvents(loginUser, null);
                 } else {
-                    events = eventService.getEvents(loginUser, new Date(lastQueryTime));
+                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(new Date(lastQueryTime)));
                 }
-			    rv = makeSuccessResult(MessageDefinition.Query_Success, events);
+			    rv = makeSuccessResult(DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z"), events);
 			}
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);

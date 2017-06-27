@@ -83,9 +83,8 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 				lastQueryTime = DateTimeHelper.nowInUTC();
 			}
 		}
-		
-		//TODO convert time to GMT
-		
+
+		if (log.isDebugEnabled()) log.debug("Query events after " + lastQueryTime.toString());
 		if (loginUser.getCustomerName() != null) {
 			events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(loginUser.getCustomerName(), lastQueryTime));
 		}
@@ -94,11 +93,4 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 		
 		return events;
 	}
-
-	@Override
-	public List<EventNotification> getEvents() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
