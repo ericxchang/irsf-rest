@@ -53,6 +53,7 @@
 		<property name="removeAbandoned" value="true" />
 		<property name="initialSize" value="2" />
 		<property name="maxActive" value="2" />
+		<property name="maxIdle" value="1" />
 	</bean>
 
 	<bean id="jpaVendorAdapter"

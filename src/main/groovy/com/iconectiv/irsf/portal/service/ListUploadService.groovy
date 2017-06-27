@@ -28,6 +28,7 @@ class ListUploadService {
                 try {
                     parseListLine(item, ++index, uploadReq, uploadReq.delimiter, headerMap, listEntries, errorList)
                 } catch (Exception e) {
+                    log.error("Error to parse line:", e)
                     errorList.append("line $index has invalid value <$item>\n")
                 }
 			}
@@ -54,12 +55,12 @@ class ListUploadService {
         return headerMap
     }
 	
-	void parseListLine(String item, Integer index, ListUploadRequest uploadReq, String delimiter, headerMap, listEntries, errorList) {
+	void parseListLine(String item, Integer index, ListUploadRequest uploadReq, String delimiter, headerMap, List<ListDetails> listEntries, StringBuilder errorList) {
 		String[] elements = item.split(/\$delimiter/)
-        def dialCode = elements.size() > headerMap['dialpattern'] ? elements[headerMap['dialpattern']] : ''
-        def customerDate = elements.size() > headerMap['customerdate'] ? elements[headerMap['customerdate']] : null
-        def reason = elements.size() > headerMap['reason'] ? elements[headerMap['reason']] : null
-        def notes = elements.size() > headerMap['notes'] ? elements[headerMap['notes']] : null
+        String dialCode = elements.size() > headerMap['dialpattern'] ? elements[headerMap['dialpattern']] : ''
+        String customerDate = elements.size() > headerMap['customerdate'] ? elements[headerMap['customerdate']] : null
+        String reason = elements.size() > headerMap['reason'] ? elements[headerMap['reason']] : null
+        String notes = elements.size() > headerMap['notes'] ? elements[headerMap['notes']] : null
 
         ['"', ' ', '-', '(', ')'].each {
             dialCode =  dialCode.replaceAll(/\${it}/, '')

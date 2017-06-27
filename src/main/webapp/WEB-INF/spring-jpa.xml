@@ -47,6 +47,7 @@
 		<property name="removeAbandonedTimeout" value="720" />
 		<property name="initialSize" value="${jdbc.initSize}" />
 		<property name="maxActive" value="${jdbc.maxSize}" />
+		<property name="maxIdle" value="${jdbc.maxSize}" />
 		<property name="testOnBorrow" value="true" />
 		<property name="validationQuery" value="SELECT 1" />
 	</bean>
@@ -59,6 +60,7 @@
 		<property name="removeAbandonedTimeout" value="720" />
 		<property name="initialSize" value="${jdbc.initSize}" />
 		<property name="maxActive" value="${jdbc.maxSize}" />
+		<property name="maxIdle" value="${jdbc.maxSize}" />
 	</bean>
 
 	<bean id="jpaVendorAdapter"

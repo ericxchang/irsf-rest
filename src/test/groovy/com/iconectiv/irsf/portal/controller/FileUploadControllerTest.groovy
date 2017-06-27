@@ -56,7 +56,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 	void testLoadLargeFile() throws Exception {
 		def listName = "large-" + DateTimeHelper.formatDate(new Date(), 'yyyyMMddHHmmSS')
 		
-		def data = this.getClass().getResource('/irsf_blacklist.csv').text
+		def data = this.getClass().getResource('/sample_list_upload_file.csv').text
 		
 		try {
             withPool {
@@ -69,7 +69,7 @@ class FileUploadControllerTest extends GroovyTestCase {
 					
                     def action = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/uploadListFile")
                             .file(firstFile)
-                            .param("listType", "BL").param("listName",listName).param("description",listName + " deccription").param("listId", '').param("delimiter", ",").header("authorization", "Bearer " + token))
+                            .param("listType", "BL").param("listName",listName).param("description",listName + " deccription").param("listId", '').param("delimiter", "|").header("authorization", "Bearer " + token))
                     def result = action.andReturn().getResponse().getContentAsString()
                     log.info(result)
 
