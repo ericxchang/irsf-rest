@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ class EventServiceController extends BaseRestController {
 	@RequestMapping(value = "/userEvents", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getEvents(@RequestHeader Map<String, String> header,
-			@RequestParam(value = "lastQueryTime", required = false) Date lastQueryTime) {
+			@RequestParam(value = "lastQueryTime", required = false) String lastQueryTime) {
 		ResponseEntity<String> rv = null;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
@@ -38,7 +37,8 @@ class EventServiceController extends BaseRestController {
                 if (lastQueryTime == null) {
                     events = eventService.getEvents(loginUser, null);
                 } else {
-                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(lastQueryTime));
+
+                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(DateTimeHelper.formatDate(lastQueryTime, "yyyy-MM-dd HH:mm:SS z")));
                 }
 
                 String queryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z");
