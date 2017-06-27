@@ -29,7 +29,7 @@ class EventServiceController extends BaseRestController {
 	@RequestMapping(value = "/userEvents", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<String> getEvents(@RequestHeader Map<String, String> header,
-			@RequestParam(value = "lastQueryTime", required = false) Long lastQueryTime) {
+			@RequestParam(value = "lastQueryTime", required = false) Date lastQueryTime) {
 		ResponseEntity<String> rv = null;
 		try {
 			UserDefinition loginUser = getLoginUser(header);
@@ -38,9 +38,11 @@ class EventServiceController extends BaseRestController {
                 if (lastQueryTime == null) {
                     events = eventService.getEvents(loginUser, null);
                 } else {
-                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(new Date(lastQueryTime)));
+                    events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(lastQueryTime));
                 }
-			    rv = makeSuccessResult(DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z"), events);
+
+                String queryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z");
+			    rv = makeSuccessResult(queryTime, events);
 			}
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
