@@ -36,7 +36,7 @@ class EventServiceController extends BaseRestController {
 			UserDefinition loginUser = getLoginUser(header);
 			List<EventNotification>	events;
             try {
-                queryTime = DateTimeHelper.formatDate(lastQueryTime, "yyyy-MM-dd HH:mm:SS z");
+                queryTime = DateTimeHelper.formatDate(lastQueryTime, "yyyy-MM-dd HH:mm:ss z");
             } catch (Exception e) {
                 log.warn(e.getMessage());
             }
@@ -49,7 +49,7 @@ class EventServiceController extends BaseRestController {
                     events = eventService.getEvents(loginUser, DateTimeHelper.toUTC(queryTime));
                 }
 
-                lastQueryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:SS z");
+                lastQueryTime = DateTimeHelper.formatDate( DateTimeHelper.nowInUTC(), "yyyy-MM-dd HH:mm:ss z");
 			    rv = makeSuccessResult(lastQueryTime, events);
 			}
 		} catch (SecurityException e) {

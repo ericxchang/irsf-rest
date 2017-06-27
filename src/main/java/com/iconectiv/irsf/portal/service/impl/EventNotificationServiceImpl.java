@@ -71,10 +71,10 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 	public List<EventNotification> getEvents(UserDefinition loginUser, Date lastQueryTime) {
 		List<EventNotification> events = new ArrayList<>();
 
-		//always return last mobile id refresh event
-        events.add(eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value()));
-
 		if (lastQueryTime == null) {
+			//always return last mobile id refresh event
+			events.add(eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value()));
+
 			AuditTrail logoutEvent = auditRepo.findTop1ByUserNameAndActionOrderByLastUpdatedDesc(loginUser.getUserName(), "logout");
 			
 			if (logoutEvent != null) {
@@ -84,7 +84,7 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 			}
 		}
 
-		if (log.isDebugEnabled()) log.debug("Query events after " + lastQueryTime.toString());
+		if (log.isDebugEnabled()) log.debug("Query events after " + DateTimeHelper.formatDate( lastQueryTime, "yyyy-MM-dd HH:mm:ss z"));
 		if (loginUser.getCustomerName() != null) {
 			events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(loginUser.getCustomerName(), lastQueryTime));
 		}
