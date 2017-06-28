@@ -49,7 +49,10 @@
 		<property name="maxActive" value="${jdbc.maxSize}" />
 		<property name="maxIdle" value="${jdbc.maxSize}" />
 		<property name="testOnBorrow" value="true" />
-		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnReturn" value="true" />
+		<property name="testWhileIdle" value="true" />
+		<property name="logAbandoned" value="true" />
+		<property name="validationQuery" value="SELECT 1 " />
 	</bean>
 
 	<bean id="abstractDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
@@ -62,7 +65,10 @@
 		<property name="maxActive" value="${jdbc.maxSize}" />
 		<property name="maxIdle" value="${jdbc.maxSize}" />
 		<property name="testOnBorrow" value="true" />
-		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnReturn" value="true" />
+		<property name="testWhileIdle" value="true" />
+		<property name="logAbandoned" value="true" />
+		<property name="validationQuery" value="SELECT 1 " />
 	</bean>
 
 	<bean id="jpaVendorAdapter"
