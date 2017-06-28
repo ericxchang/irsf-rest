@@ -61,6 +61,8 @@
 		<property name="initialSize" value="${jdbc.initSize}" />
 		<property name="maxActive" value="${jdbc.maxSize}" />
 		<property name="maxIdle" value="${jdbc.maxSize}" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="SELECT 1" />
 	</bean>
 
 	<bean id="jpaVendorAdapter"
