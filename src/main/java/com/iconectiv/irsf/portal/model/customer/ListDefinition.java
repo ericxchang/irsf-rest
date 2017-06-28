@@ -27,7 +27,7 @@ public class ListDefinition implements java.io.Serializable {
 	private String type;
 	private String description;
 	private String lastUpdatedBy;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm Z")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	private Date lastUpdated;
 	private String createBy;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
