@@ -162,7 +162,7 @@ public class ListServiceImpl implements ListService {
             event.setCustomerName(uploadReq.getCustomerName());
             event.setEventType(EventTypeDefinition.List_Update.value());
             event.setReferenceId(uploadReq.getListRefId());
-            event.setMessage("upload new " + uploadReq.getListDefintion().getType() + " list");
+            event.setMessage("Successfully upload list file " + uploadReq.getFileName());
             event.setCreateTimestamp(DateTimeHelper.nowInUTC());
             event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
             event.setStatus("new");
@@ -379,7 +379,7 @@ public class ListServiceImpl implements ListService {
         event.setCustomerName(loginUser.getCustomerName());
         event.setEventType(EventTypeDefinition.List_Update.value());
         event.setReferenceId(listDetails[0].getListRefId());
-        event.setMessage("update list entry");
+        event.setMessage("Successfully added new list record(s)");
         event.setCreateTimestamp(DateTimeHelper.nowInUTC());
         event.setLastUpdatedBy(loginUser.getLastUpdatedBy());
         event.setStatus("new");
