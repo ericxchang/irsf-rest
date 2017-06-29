@@ -719,7 +719,8 @@ public class PartitionServiceImpl implements PartitionService {
 		try {
 		    PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
 		    String ruleIds = partition.getRuleIds();
-		    partition.setRuleIds(null);
+            partition.setStatus(PartitionStatus.Fresh.value());
+            partition.setRuleIds(null);
 		    partition.setLastUpdatedBy(loginUser.getUserName());
 		    partition.setLastUpdated(DateTimeHelper.nowInUTC());
             partitionDefRepo.save(partition);
