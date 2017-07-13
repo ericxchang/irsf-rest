@@ -25,7 +25,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	Set<String> ccNdcData = new HashSet<String>();
 	List<Country> countryList = new ArrayList<Country>();
 	List<TosTosDesc> tosTosDescList = new ArrayList<TosTosDesc>();
-	
+	List<RangeNdc> tosProviderList = new ArrayList<>();
+
 	Map<String, String> billingIdProviderMap = new HashMap<>();
 
 	@Value("${jdbc.query_batch_size:100000}")
@@ -61,6 +62,11 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		}
 		return dialPattern;
 	}
+
+	@Override
+    public List<RangeNdc> findAllTosProviderList() {
+	    return rangeNdcRepo.findAllUniqueTOSProvider();
+    }
 
 	@Override
 	public Country findMatchingCountry(String code, String iso2) {
@@ -633,6 +639,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		this.countryList.clear();
 		this.billingIdProviderMap.clear();
 		this.tosTosDescList.clear();
+		this.tosProviderList.clear();
 	}
 
 	@Override

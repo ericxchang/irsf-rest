@@ -1,17 +1,11 @@
 package com.iconectiv.irsf.portal.service;
 
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.portal.model.common.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.iconectiv.irsf.portal.model.common.Country;
-import com.iconectiv.irsf.portal.model.common.Premium;
-import com.iconectiv.irsf.portal.model.common.ProviderBillingId;
-import com.iconectiv.irsf.portal.model.common.RangeNdc;
-import com.iconectiv.irsf.portal.model.common.RangeQueryFilter;
-import com.iconectiv.irsf.portal.model.common.TosTosDesc;
+import java.util.Date;
+import java.util.List;
 
 public interface MobileIdDataService {
 	void cleanCache();
@@ -20,6 +14,8 @@ public interface MobileIdDataService {
 	
 	List<TosTosDesc> findAllTOS();
 	
+	List<RangeNdc> findAllTosProviderList();
+
 	int getTotalTOSCount(String tos);
 	
 	String findProviderByBillingId(String billingId);

@@ -43,6 +43,12 @@ public class RangeNdc implements java.io.Serializable {
 	public RangeNdc() {
 	}
 
+	public RangeNdc(String tos, String tosdesc, String provider) {
+        this.tos = tos;
+        this.tosdesc = tosdesc;
+        this.provider = provider;
+    }
+
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 

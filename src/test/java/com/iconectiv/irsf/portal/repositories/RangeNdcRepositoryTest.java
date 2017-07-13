@@ -32,7 +32,11 @@ public class RangeNdcRepositoryTest {
 	@Autowired
 	private RangeNdcRepository repository;
 	
-
+	@Test
+	public void testFindAllUniqueTOSProvider() {
+	    List<RangeNdc> results = repository.findAllUniqueTOSProvider();
+	    log.info("total size: " + results.size());
+    }
 	
 	@Test
 	public void testQueryrangeNdc() {

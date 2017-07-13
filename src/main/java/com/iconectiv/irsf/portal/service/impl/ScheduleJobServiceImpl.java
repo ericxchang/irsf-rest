@@ -65,7 +65,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 
 	}
 
-	@CacheEvict(cacheNames = {"ccNDC", "country", "tos", "providers"}, allEntries = true)
+	@CacheEvict(cacheNames = {"ccNDC", "country", "tos", "providers", "tosprovider"}, allEntries = true)
 	public void handleMobileIdDataReloadEvent(Date lastUpdatedDate) {
 		log.info("Clear cached data ....");
 		mobileIdService.cleanCache();

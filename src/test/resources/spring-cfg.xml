@@ -41,6 +41,7 @@
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="ccNDC" />
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="country" />
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="tos" />
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="tosprovider" />
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="providers" />
 			</set>
 		</property>
