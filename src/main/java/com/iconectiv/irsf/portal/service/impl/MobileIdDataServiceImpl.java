@@ -38,6 +38,8 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	CountryRepository countryRepo;
 	@Autowired
 	RangeNdcRepository rangeNdcRepo;
+	@Autowired
+	ProviderBillingIdRepository providerBillingIdRepository;
 
 	@Autowired
 	PremiumRepository premiumRepo;
@@ -886,6 +888,11 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 		log.info("findPremiumRangeByFilters: filter: {}", filter);
 		return findPremiumRangeByFilters(codeList, iso2List, tosList, tosDescList, providerList, beforeLastObserved, afterLastObserved, page);
 
+	}
+
+	@Override
+	public List<ProviderBillingId> findDistinctProviders() {
+		return providerBillingIdRepository.findAllGroupByProvider();
 	}
 
 	@Override

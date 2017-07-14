@@ -47,6 +47,7 @@ public interface MobileIdDataService {
 	Page<RangeNdc> findRangeNdcByFilters(RangeQueryFilter filter, Pageable page);
 
 	Page<Premium> findPremiumRangeByFilters(RangeQueryFilter filter, Pageable page);
-	
+
+    List<ProviderBillingId> findDistinctProviders();
 }
 

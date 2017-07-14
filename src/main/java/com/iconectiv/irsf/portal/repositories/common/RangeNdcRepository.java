@@ -13,7 +13,7 @@ import java.util.List;
  * Created by echang on 1/12/2017.
  */
 public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Integer>{
-	@Cacheable("providers") 
+	@Cacheable("providerBillingId")
 	@Query("select r.billingId, r.provider from RangeNdc r where r.provider is not null group by r.provider, r.billingId")
 	List<Object[]> findAllProviders();
 

@@ -119,7 +119,7 @@ class MobileIdDatasetController extends BaseRestController {
 			UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-			List<ProviderBillingId> results = mobileIdDataService.findProviders();
+			List<ProviderBillingId> results = mobileIdDataService.findDistinctProviders();
 			rv = makeSuccessResult("", results);
 
 		} catch (Exception e) {

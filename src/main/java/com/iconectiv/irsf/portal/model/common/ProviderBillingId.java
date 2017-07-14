@@ -1,17 +1,12 @@
 package com.iconectiv.irsf.portal.model.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.persistence.*;
 import java.util.Objects;
 
 import static javax.persistence.GenerationType.IDENTITY;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 
@@ -27,6 +22,11 @@ public class ProviderBillingId {
 	
 	public ProviderBillingId() {	
 	}
+
+	public ProviderBillingId(String provider) {
+		this.provider = provider;
+	}
+
 	public ProviderBillingId(String billingId, String provider) {
 		this.provider = provider;
 		this.billingId = billingId;
