@@ -166,6 +166,24 @@ class MobileIdDatasetController extends BaseRestController {
 		return rv;
 	}
 
+	@RequestMapping(value = "/countryproviders", method = RequestMethod.GET)
+	public ResponseEntity<String> getCountryProviderList(@RequestHeader Map<String, String> header) {
+		ResponseEntity<String> rv;
+		try {
+			UserDefinition loginUser = getLoginUser(header);
+			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+			List<RangeNdc> results = mobileIdDataService.findAllCountryProviderList();
+			rv = makeSuccessResult("", results);
+
+		} catch (Exception e) {
+			log.error("Error to retieve tos provider mapping data", e);
+			rv = makeErrorResult(e);
+		}
+
+		return rv;
+	}
+
 	@RequestMapping(value = "/rangeNDC", method = RequestMethod.GET)
 	public ResponseEntity<String> getRangeNDC(@RequestHeader Map<String, String> header,
 	        @RequestParam(value = "pageNo", required = false) Integer pageNo,

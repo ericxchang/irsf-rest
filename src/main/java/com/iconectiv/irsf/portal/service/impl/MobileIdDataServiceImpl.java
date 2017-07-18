@@ -71,6 +71,11 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
     }
 
 	@Override
+	public List<RangeNdc> findAllCountryProviderList() {
+		return rangeNdcRepo.findAllUniqueCountryProvider();
+	}
+
+	@Override
 	public Country findMatchingCountry(String code, String iso2) {
 		if (countryList.isEmpty()) {
 			countryList = countryRepo.findAll();

@@ -25,6 +25,9 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select new RangeNdc(r.tos, r.tosdesc, r.provider) from RangeNdc r group by r.tos, r.tosdesc, r.provider")
 	List<RangeNdc> findAllUniqueTOSProvider();
 
+	@Cacheable("countryprovider")
+	@Query("select new RangeNdc(r.iso2, r.provider) from RangeNdc r group by r.iso2, r.provider")
+	List<RangeNdc> findAllUniqueCountryProvider();
 
 	RangeNdc findTop1ByCcNdc(String ccNDC);
 
@@ -216,6 +219,4 @@ public interface RangeNdcRepository extends ReadOnlyRepository <RangeNdc, Intege
 	@Query("select p from RangeNdc p where (code in ?1 or iso2 in ?2 ) and (tos in ?3 or concat(tos,',',tosdesc) in ?4)  and (provider in ?5 )")
 	Page<RangeNdc>  findRangeNdcbyRule31(List<String> codeList, List<String> iso2List, List<String> tosList, List<String> tosDescList, List<String> providerList, Pageable pageable);
 
-
-	
 }

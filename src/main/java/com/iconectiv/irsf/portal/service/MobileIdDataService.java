@@ -16,6 +16,8 @@ public interface MobileIdDataService {
 	
 	List<RangeNdc> findAllTosProviderList();
 
+	List<RangeNdc> findAllCountryProviderList();
+
 	int getTotalTOSCount(String tos);
 	
 	String findProviderByBillingId(String billingId);
@@ -49,5 +51,6 @@ public interface MobileIdDataService {
 	Page<Premium> findPremiumRangeByFilters(RangeQueryFilter filter, Pageable page);
 
     List<ProviderBillingId> findDistinctProviders();
+
 }
 
