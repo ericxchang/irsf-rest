@@ -148,12 +148,11 @@ public class ListServiceImpl implements ListService {
                 return;
             }
 
-
-            listDetailRepo.batchUpdate(listEntries);
-
             log.debug("change upload status");
             uploadReq.setStatus(AppConstants.COMPLETE);
             listUploadRepo.save(uploadReq);
+
+            listDetailRepo.batchUpdate(listEntries);
 
             auditDetail.put("size", String.valueOf(listEntries.size()));
             auditDetail.put("status", AppConstants.COMPLETE);
