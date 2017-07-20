@@ -150,6 +150,7 @@ public class ListServiceImpl implements ListService {
 
             listDetailRepo.batchUpdate(listEntries);
 
+            log.debug("change upload status");
             uploadReq.setStatus(AppConstants.COMPLETE);
             listUploadRepo.save(uploadReq);
 
@@ -157,7 +158,7 @@ public class ListServiceImpl implements ListService {
             auditDetail.put("status", AppConstants.COMPLETE);
             auditService.saveAuditTrailLog(audit, auditDetail);
 
-
+        /*
             EventNotification event = new EventNotification();
             event.setCustomerName(uploadReq.getCustomerName());
             event.setEventType(EventTypeDefinition.List_Update.value());
@@ -167,6 +168,7 @@ public class ListServiceImpl implements ListService {
             event.setLastUpdatedBy(uploadReq.getLastUpdatedBy());
             event.setStatus("new");
             eventService.addEventNotification(event);
+            */
 
         } catch (Exception e) {
             log.error("Error to parse black list: \n", e);
