@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -33,7 +32,6 @@ public class ListDetailsRepositoryImpl implements ListDetailsRepositoryCustomer 
 	private int batchSize;
 	 
 	@Override
-	@Transactional
 	public void batchUpdate(Collection<ListDetails> entities) {
 		final List<ListDetails> savedEntities = new ArrayList<>(entities.size());
 		EntityManager entityManager = customerEntityManagerFactory.createEntityManager();
