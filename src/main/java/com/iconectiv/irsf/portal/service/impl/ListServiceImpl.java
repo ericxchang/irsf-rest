@@ -67,7 +67,7 @@ public class ListServiceImpl implements ListService {
     @Value("${max_list_size:100000}")
     private int maxListSize;
 
-    //@Async
+    @Async
     @Override
     public void processListUploadRequest(UserDefinition user, ListDefinition listDef, ListUploadRequest uploadRequest, boolean isInitialLoading) {
         try {
