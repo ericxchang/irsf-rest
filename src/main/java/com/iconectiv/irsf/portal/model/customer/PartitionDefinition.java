@@ -28,7 +28,9 @@ public class PartitionDefinition implements java.io.Serializable {
 	private String name;
 	private String description;
 	private Integer wlId;
+	private String wlName = "";
 	private Integer blId;
+	private String blName = "";
 	private String ruleIds;
 	private String status;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z")
@@ -105,7 +107,16 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.wlId = wlId;
 	}
 
-	@Column(name = "bl_id")
+    @Transient
+	public String getWlName() {
+        return wlName;
+    }
+
+    public void setWlName(String wlName) {
+        this.wlName = wlName;
+    }
+
+    @Column(name = "bl_id")
 	public Integer getBlId() {
 		return this.blId;
 	}
@@ -114,7 +125,16 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.blId = blId;
 	}
 
-	@Column(name = "rule_ids", length = 250)
+    @Transient
+    public String getBlName() {
+        return blName;
+    }
+
+    public void setBlName(String blName) {
+        this.blName = blName;
+    }
+
+    @Column(name = "rule_ids", length = 250)
 	public String getRuleIds() {
 		return this.ruleIds;
 	}

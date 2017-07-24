@@ -131,7 +131,7 @@ public class PartitionServiceControllerTest  {
 	}
 	@Test
 	public void testQueryPartition() throws Exception {
-			PartitionDefinition partition = partitionRepo.findOne(new Integer(16));
+			PartitionDefinition partition = partitionRepo.findOne(new Integer(68));
 	        queryPartition(partition);
 	}
 

@@ -37,7 +37,8 @@ public class PartitionServiceImpl implements PartitionService {
 	private PartitionExportHistoryRepository exportRepo;
 	@Autowired
 	private PartitionDataDetailsRepository partitionDataRepo;
-
+    @Autowired
+    private ListDefinitionRepository listDefRepo;
 	@Autowired
 	private RuleDefinitionRepository ruleRepo;
 	@Autowired
@@ -670,7 +671,21 @@ public class PartitionServiceImpl implements PartitionService {
 			throw new AppException("Invalid partition id " + partitionId);
 		}
 
-		partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(partition.getOrigPartitionId()));
+		if (partition.getWlId() != null) {
+		    ListDefinition wlDef = listDefRepo.findOne(partition.getWlId());
+		    if (wlDef != null) {
+		        partition.setWlName(wlDef.getListName());
+            }
+        }
+
+        if (partition.getBlId() != null) {
+            ListDefinition blDef = listDefRepo.findOne(partition.getWlId());
+            if (blDef != null) {
+                partition.setBlName(blDef.getListName());
+            }
+        }
+
+        partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(partition.getOrigPartitionId()));
 
 		if (partition.getRuleIds() == null) {
 			return partition;
