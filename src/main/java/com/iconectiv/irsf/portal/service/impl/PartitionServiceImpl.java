@@ -234,7 +234,8 @@ public class PartitionServiceImpl implements PartitionService {
 			Page<PartitionDataDetails> listLong = partitionDataRepo.findAllByPartitionId(partition.getId(), page);
 			listLong.getContent().stream().forEach(entry -> {
 				partitionDataListLong.add(entry);
-				shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
+				if (!"WL".equals(entry.getDataType()))
+					shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
 			});
 			
 			while(listLong.hasNext()) {
@@ -243,7 +244,8 @@ public class PartitionServiceImpl implements PartitionService {
 				
 				listLong.getContent().stream().forEach(entry -> {
 					partitionDataListLong.add(entry);
-					shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
+					if (!"WL".equals(entry.getDataType()))
+						shortListMap.put(entry.getDialPattern(), entry.toSummaryString(","));
 				});
 			}
 			for (Map.Entry<String, String> entry : shortListMap.entrySet()) {
