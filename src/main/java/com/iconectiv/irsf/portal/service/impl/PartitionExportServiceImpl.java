@@ -3,7 +3,6 @@ package com.iconectiv.irsf.portal.service.impl;
 import com.iconectiv.irsf.core.ByteFile;
 import com.iconectiv.irsf.core.EIResponse;
 import com.iconectiv.irsf.json.vaidation.JsonValidationException;
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
 import com.iconectiv.irsf.portal.core.AppConstants;
 import com.iconectiv.irsf.portal.core.AuditTrailActionDefinition;
 import com.iconectiv.irsf.portal.core.EventTypeDefinition;
@@ -32,7 +31,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -61,10 +59,9 @@ public class PartitionExportServiceImpl implements PartitionExportService {
     private CustomerDefinitionRepository customerRepo;
 
 	@Override
-	@Async
+    @Transactional
 	public void resendPartition(UserDefinition loginUser, Integer exportPartitionId) {
 		CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
-		CustomerContextHolder.setSchema(loginUser.getSchemaName());
 		log.info("exportPartition: exportPartitionId: {}", exportPartitionId);
 		PartitionExportHistory partHist = exportRepo.findOne(exportPartitionId);
 
