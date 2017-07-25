@@ -679,7 +679,7 @@ public class PartitionServiceImpl implements PartitionService {
         }
 
         if (partition.getBlId() != null) {
-            ListDefinition blDef = listDefRepo.findOne(partition.getWlId());
+            ListDefinition blDef = listDefRepo.findOne(partition.getBlId());
             if (blDef != null) {
                 partition.setBlName(blDef.getListName());
             }
