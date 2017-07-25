@@ -62,7 +62,7 @@ public class PartitionExportServiceImpl implements PartitionExportService {
     @Transactional
 	public void resendPartition(UserDefinition loginUser, Integer exportPartitionId) {
 		CustomerDefinition customer = customerRepo.findByCustomerName(loginUser.getCustomerName());
-		log.info("exportPartition: exportPartitionId: {}", exportPartitionId);
+		log.info("resend partition: exportPartitionId: {}", exportPartitionId);
 		PartitionExportHistory partHist = exportRepo.findOne(exportPartitionId);
 
 		if (customer.getExportTarget() != null) {
@@ -71,8 +71,6 @@ public class PartitionExportServiceImpl implements PartitionExportService {
 		}
 
 	}
-
-
 
 	@Transactional
 	@Override
