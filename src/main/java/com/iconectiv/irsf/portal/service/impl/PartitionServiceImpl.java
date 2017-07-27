@@ -845,7 +845,7 @@ public class PartitionServiceImpl implements PartitionService {
 		event.setReferenceId(partition.getId());
 		event.setCustomerName(loginUser.getCustomerName());
 		event.setStatus("new");
-		event.setMessage("Partition " + partition.getName() + " is staled because " + reason);
+		event.setMessage("Partition " + partition.getName() + " is stale because " + reason);
 
 		eventService.sendPartitionEvent(loginUser, event);
 	}
