@@ -1,13 +1,13 @@
 package com.iconectiv.irsf.portal.controller;
 
-import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.jwt.JWTUtil;
+import com.iconectiv.irsf.portal.config.CustomerContextHolder;
+import com.iconectiv.irsf.portal.core.PermissionRole;
+import com.iconectiv.irsf.portal.model.common.UserDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDefinition;
+import com.iconectiv.irsf.portal.model.customer.ListDetails;
+import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,14 +26,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.iconectiv.irsf.jwt.JWTUtil;
-import com.iconectiv.irsf.portal.config.CustomerContextHolder;
-import com.iconectiv.irsf.portal.core.PermissionRole;
-import com.iconectiv.irsf.portal.model.common.UserDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDefinition;
-import com.iconectiv.irsf.portal.model.customer.ListDetails;
-import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
-import com.iconectiv.irsf.util.JsonHelper;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring-cfg.xml", "classpath:spring-jpa.xml"})
@@ -55,13 +54,13 @@ public class ListServiceControllerTest {
 
 	@Before
 	public void setUp() throws Exception {
-    	CustomerContextHolder.setSchema("cust01");
+    	CustomerContextHolder.setSchema("cust03");
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
-        loginUser.setUserName("user01");
-        loginUser.setCustomerId(1);
+        loginUser.setUserName("user03");
+        loginUser.setCustomerId(3);
         loginUser.setRole(PermissionRole.CustAdmin.value());
-        loginUser.setSchemaName("cust01");
+        loginUser.setSchemaName("cust03");
         loginUser.setCustomerName("Verizon");
 		token = JWTUtil.createToken(loginUser);
 	}

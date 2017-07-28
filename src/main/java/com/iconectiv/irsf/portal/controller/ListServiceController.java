@@ -285,6 +285,7 @@ class ListServiceController extends BaseRestController {
 
         	if (listDef.getId() == null) {
         		isNewList = true;
+        		listDef.setActive(true);
         		listDef.setCreateBy(loginUser.getUserName());
         		listDef.setCreateTimestamp(DateTimeHelper.nowInUTC());
         		listDef.setCustomerName(loginUser.getCustomerName());
