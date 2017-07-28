@@ -287,6 +287,7 @@ class ListServiceController extends BaseRestController {
         		isNewList = true;
         		listDef.setCreateBy(loginUser.getUserName());
         		listDef.setCreateTimestamp(DateTimeHelper.nowInUTC());
+        		listDef.setCustomerName(loginUser.getCustomerName());
         	}
 
             listDef.setLastUpdated(DateTimeHelper.nowInUTC());
