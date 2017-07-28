@@ -277,9 +277,10 @@ class ListServiceController extends BaseRestController {
         ResponseEntity<String> rv;
         try {
         	ListDefinition listDef = JsonHelper.fromJson(value, ListDefinition.class);
-        	
+        	boolean isNewList = false;
+
         	if (listDef.getId() == null) {
-        		throw new AppException("Invalid list Id");
+        		isNewList = true;
         	}
             UserDefinition loginUser = getLoginUser(header);
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
@@ -289,7 +290,12 @@ class ListServiceController extends BaseRestController {
             listDef.setLastUpdated(DateTimeHelper.nowInUTC());
             listDef.setLastUpdatedBy(loginUser.getUserName());
 			listDefRepo.save(listDef);
-			auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "updated list id " + listDef.getId());
+
+			if (isNewList) {
+                auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Create_List_Definition, "created new list id " + listDef.getId());
+            } else {
+                auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Update_List_Definition, "updated list id " + listDef.getId());
+            }
             
             rv = makeSuccessResult(MessageDefinition.Rename_List_Success, listDef);
         } catch (SecurityException e) {
