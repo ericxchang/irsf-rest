@@ -41,7 +41,7 @@ public class Premium implements java.io.Serializable {
 	private String billingId;
 	private String supplement;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMM")
 	private Date lastUpdate;
 
 	public Premium() {
