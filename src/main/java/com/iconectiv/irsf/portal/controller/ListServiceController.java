@@ -276,17 +276,19 @@ class ListServiceController extends BaseRestController {
     public ResponseEntity<String> updateListDefinitionRequest(@RequestHeader Map<String, String> header, @RequestBody String value) {
         ResponseEntity<String> rv;
         try {
+            UserDefinition loginUser = getLoginUser(header);
+            assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
+
+            CustomerContextHolder.setSchema(loginUser.getSchemaName());
         	ListDefinition listDef = JsonHelper.fromJson(value, ListDefinition.class);
         	boolean isNewList = false;
 
         	if (listDef.getId() == null) {
         		isNewList = true;
+        		listDef.setCreateBy(loginUser.getUserName());
+        		listDef.setCreateTimestamp(DateTimeHelper.nowInUTC());
         	}
-            UserDefinition loginUser = getLoginUser(header);
-			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
-            CustomerContextHolder.setSchema(loginUser.getSchemaName());
-            
             listDef.setLastUpdated(DateTimeHelper.nowInUTC());
             listDef.setLastUpdatedBy(loginUser.getUserName());
 			listDefRepo.save(listDef);
