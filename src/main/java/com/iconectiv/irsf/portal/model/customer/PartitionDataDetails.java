@@ -31,6 +31,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String type;
     private String dialPatternType;
     private String country;
+    private String code;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
     private String reason;
@@ -237,6 +238,14 @@ public class PartitionDataDetails implements java.io.Serializable {
 
 	public void setBillingId(String billingId) {
 		this.billingId = billingId;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public String toCSVheader(String seperator) {
