@@ -198,6 +198,7 @@ public class RangeNdc implements java.io.Serializable {
 		p.setDataType("R");
 		p.setCountry(this.getTermCountry());
 		p.setCode(this.getCode());
+		p.setSupplement(this.getSupplement());
 		
 		if ("U".equals(p.getTos()))
 			p.setType(AppConstants.EXPORT_TYPE_UNALLOCATED);  // U

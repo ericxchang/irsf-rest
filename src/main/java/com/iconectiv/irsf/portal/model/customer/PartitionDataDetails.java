@@ -43,6 +43,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String tosdesc;
     private String provider;
     private String billingId;
+    private String supplement;
 
     public PartitionDataDetails() {
     }
@@ -58,8 +59,11 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.reference = reference;
         this.dialPattern = dialPattern;
     }
+    
 
-     @Id
+     
+
+	@Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     public Integer getId() {
@@ -239,13 +243,21 @@ public class PartitionDataDetails implements java.io.Serializable {
 	public void setBillingId(String billingId) {
 		this.billingId = billingId;
 	}
-
+	@Transient
 	public String getCode() {
 		return code;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+	@Column(name = "supplement", length = 40)
+	public String getSupplement() {
+		return supplement;
+	}
+
+	public void setSupplement(String supplement) {
+		this.supplement = supplement;
 	}
 
 	public String toCSVheader(String seperator) {
