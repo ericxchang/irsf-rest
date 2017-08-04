@@ -243,7 +243,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 	public void setBillingId(String billingId) {
 		this.billingId = billingId;
 	}
-	@Transient
+	@Column(name = "code", length = 3)
 	public String getCode() {
 		return code;
 	}
