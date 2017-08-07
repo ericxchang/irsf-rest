@@ -12,6 +12,6 @@ public interface ProviderBillingIdRepository extends CrudRepository<ProviderBill
 	List<ProviderBillingId> findByProvider(String provider);
 
     @Cacheable("providers")
-    @Query("select new ProviderBillingId(r.provider) from ProviderBillingId r group by r.provider")
+    @Query("select new ProviderBillingId(r.provider) from ProviderBillingId r where r.provider is not null group by r.provider ")
 	List<ProviderBillingId> findAllGroupByProvider();
 }
