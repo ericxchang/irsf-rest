@@ -215,7 +215,9 @@ public class Premium implements java.io.Serializable {
 		p.setPartitionId(partition.getId());
 		p.setBillingId(this.getBillingId());
 		p.setCc(this.getCode());
-		p.setCustomerDate(this.getLastUpdate());
+		// customerData will be used for black/white list only
+		//p.setCustomerDate(this.getLastUpdate());
+		p.setCustomerDate(null);
 
 		if (AppConstants.PRIME2.equals(rule.getDialPatternType())) {
 			p.setDialPattern(this.getPrimeMinus2());
