@@ -185,7 +185,9 @@ public class RangeNdc implements java.io.Serializable {
 		p.setPartitionId(partition.getId());
 		p.setBillingId(this.getBillingId());
 		p.setCc(this.getCode());
-		p.setCustomerDate(this.getEffectiveDate());
+		// customerData will be used for black/white list only
+		//p.setCustomerDate(this.getEffectiveDate());
+		p.setCustomerDate(null);
 		p.setDialPattern(this.getCcNdc());
 		p.setIso2(this.getIso2());
 		p.setNdc(this.getNdc());

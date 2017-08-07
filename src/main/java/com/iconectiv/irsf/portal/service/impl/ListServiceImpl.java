@@ -363,10 +363,14 @@ public class ListServiceImpl implements ListService {
             throw new AppException("received empty list");
         }
 
+        ListDefinition listDefinition = null;
         int currentListSize = listDetailRepo.getListSizeByListId(listDetails[0].getListRefId());
-
-        if (currentListSize + listDetails.length > maxListSize) {
-            throw new AppException(MessageDefinition.ListSizeOverLimitError + maxListSize);
+        if (listDetails != null && listDetails.length >0) {
+            listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
+        
+	        if (currentListSize + listDetails.length > maxListSize) {
+	             throw new AppException(MessageDefinition.ListSizeOverLimitError.replace("$1", listDefinition.getType()));
+	        }
         }
 
 
@@ -390,7 +394,6 @@ public class ListServiceImpl implements ListService {
         Iterable<ListDetails> result = listDetailRepo.save(Arrays.asList(listDetails));
         auditService.saveAuditTrailLog(loginUser, AuditTrailActionDefinition.Add_List_Record, "added " + listDetails.length + " new list records to list " + listDetails[0].getListRefId());
 
-        ListDefinition listDefinition = listDefRepo.findOne(listDetails[0].getListRefId());
         updateListDefinitionTime(loginUser, listDefinition);
         partitionService.checkStale(loginUser, listDefinition, "list " + listDefinition.getListName() + " has changed");
         return result;

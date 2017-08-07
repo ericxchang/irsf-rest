@@ -243,7 +243,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 	public void setBillingId(String billingId) {
 		this.billingId = billingId;
 	}
-	@Transient
+	@Column(name = "code", length = 3)
 	public String getCode() {
 		return code;
 	}
@@ -291,6 +291,10 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append("provider");
 		 sb.append(seperator);
 		 sb.append("billingId");
+		 sb.append(seperator);
+		 sb.append("code");
+		 sb.append(seperator);
+		 sb.append("supplement");
 		 
 		 return sb.toString();
 	}
@@ -326,6 +330,10 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(provider==null?"":provider);
 		 sb.append(seperator);
 		 sb.append(billingId==null?"":billingId);
+		 sb.append(seperator);
+		 sb.append(code==null?"":code);
+		 sb.append(seperator);
+		 sb.append(supplement==null?"":supplement);
 		 
 		 return sb.toString();
 	}
