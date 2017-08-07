@@ -92,8 +92,7 @@ public class ListUploadController extends BaseRestController {
                 currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
             }
             if (currentListSize + uploadReq.getData().size() > maxListSize) {
-               // throw new AppException(MessageDefinition.ListSizeOverLimitError + maxListSize);
-                throw new AppException("This " + listType + " has reached the maximum of 100,000 rows.\nNo additional destination numbers can be added");
+                throw new AppException(MessageDefinition.ListSizeOverLimitError.replace("$1", listType));
             }
 
             listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading);
