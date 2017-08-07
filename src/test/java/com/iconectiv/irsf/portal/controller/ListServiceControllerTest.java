@@ -181,6 +181,32 @@ public class ListServiceControllerTest {
         log.info(result);
         assertTrue(result.lastIndexOf("success") > 1);
     }
+	
+	@Test
+    public void testUploadRequest() throws Exception {
+        CustomerContextHolder.setSchema(loginUser.getSchemaName());
+		List<ListDefinition> lists = listDefRepo.findTop3ByTypeAndActiveOrderByLastUpdatedDesc("BL", true);
+		
+		if (lists == null) {
+			return;
+		}
+		
+		ListDefinition listDefinition = lists.get(0);
+				
+		ListDetails listDetails = new ListDetails();
+		listDetails.setListRefId(listDefinition.getId());
+		listDetails.setDialPattern("756893456789");
+		listDetails.setCustomerDate(new Date());
+		listDetails.setReason("add by junit");
+		
+		ListDetails[] myListRecords = {listDetails};
+		
+        ResultActions action = mockMvc.perform(post("/listDetails/create").header("authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonHelper.toJson(myListRecords)));
+        String result = action.andReturn().getResponse().getContentAsString();
+        log.info(result);
+        assertTrue(result.lastIndexOf("success") > 1);
+    }
 
 	
 }

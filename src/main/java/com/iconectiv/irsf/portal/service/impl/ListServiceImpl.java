@@ -94,11 +94,13 @@ public class ListServiceImpl implements ListService {
         try {
             CustomerContextHolder.setSchema(user.getSchemaName());
             createListDefinition(user, listDef);
+             
 
             uploadRequest.setListRefId(listDef.getId());
             uploadRequest.setStatus(AppConstants.PROCESS);
             uploadRequest.setLastUpdated(DateTimeHelper.nowInUTC());
             uploadRequest.setLastUpdatedBy(listDef.getLastUpdatedBy());
+            //uploadRequest.setListDefintion(listDef);
 
             updateUploadRequestWithErrorMessage(uploadRequest, errorMessage);
 
@@ -106,11 +108,32 @@ public class ListServiceImpl implements ListService {
             audit.setAction("upload list");
             audit.setUserName(uploadRequest.getLastUpdatedBy());
             audit.setCustomerName(uploadRequest.getCustomerName());
-
+           
             Map<String, String> auditDetail = new LinkedHashMap<>();
             auditDetail.put("file name", uploadRequest.getFileName());
-            auditDetail.put("list type", uploadRequest.getListDefintion().getType());
-            auditDetail.put("list name", uploadRequest.getListDefintion().getListName());
+            if (uploadRequest.getListDefintion() != null) {
+            	if (uploadRequest.getListDefintion().getType() != null)  
+            		auditDetail.put("list type", uploadRequest.getListDefintion().getType());
+            	else
+            		log.error("uploadRequest.getListDefintion().getType()  is null");
+            	if (uploadRequest.getListDefintion().getListName() != null)  
+            		auditDetail.put("list name", uploadRequest.getListDefintion().getListName());
+            	else
+            		log.error("uploadRequest.getListDefintion().getListName()  is null");
+            }
+            else {
+            	 log.error("uploadRequest.getListDefintion() is null");
+            	 uploadRequest.setListDefintion(listDef);
+            	 if (uploadRequest.getListDefintion().getType() != null)  
+             		auditDetail.put("list type", uploadRequest.getListDefintion().getType());
+             	else
+             		log.error("uploadRequest.getListDefintion().getType()  is null");
+             	if (uploadRequest.getListDefintion().getListName() != null)  
+             		auditDetail.put("list name", uploadRequest.getListDefintion().getListName());
+             	else
+             		log.error("uploadRequest.getListDefintion().getListName()  is null");
+            	 
+            }
             auditDetail.put("initial load", String.valueOf(isInitialLoading));
             auditDetail.put("status", AppConstants.FAIL);
             auditService.saveAuditTrailLog(audit, auditDetail);
