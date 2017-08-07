@@ -110,7 +110,7 @@ public class ListUploadController extends BaseRestController {
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("rest return: {} ", JsonHelper.toJson(rv));
+			log.debug("rest return: {} ", JsonHelper.toPrettyJson(rv));
 		}
 		return rv;
 	}
