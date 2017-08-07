@@ -72,7 +72,7 @@ public class BaseRestController {
 		result.put(STATUS, AppConstants.FAIL);
 		result.put(MESSAGE, ve.getMessage());
 		String json = JsonHelper.toJson(result);
-		log.debug("makeErrorResult(): json: {}", json);
+		//log.debug("makeErrorResult(): json: {}", json);
 		return new ResponseEntity<>(json, HttpStatus.OK);
 	}
 
