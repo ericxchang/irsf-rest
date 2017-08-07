@@ -128,7 +128,7 @@ public class ListServiceImpl implements ListService {
             auditDetail.put("status", AppConstants.FAIL);
             auditService.saveAuditTrailLog(audit, auditDetail);
         } catch (Exception e) {
-            log.error("Error to process list upload request: ", e);
+            log.error("processListUploadRequest(): Error to process list upload request: ", e);
         }
     }
 

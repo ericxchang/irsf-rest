@@ -101,8 +101,9 @@ public class ListUploadController extends BaseRestController {
 		} catch (SecurityException e) {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
-            log.error("error to process lit upload request:", e);
-            listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading, e.getMessage());
+            log.error("error to process list upload request:", e);
+            //listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading, e.getMessage());
+            log.error("return from listService.processListUploadRequest, calling makeErrorResult()");
             rv = makeErrorResult(e);
 		} catch (Exception e) {
 		    log.error("error to process lit upload request:", e);
@@ -110,7 +111,7 @@ public class ListUploadController extends BaseRestController {
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("rest return: {} ", JsonHelper.toPrettyJson(rv));
+			log.debug("before rest return: {} ", JsonHelper.toPrettyJson(rv));
 		}
 		return rv;
 	}
