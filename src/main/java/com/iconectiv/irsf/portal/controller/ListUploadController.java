@@ -92,6 +92,7 @@ public class ListUploadController extends BaseRestController {
                 currentListSize = listDetailRepo.getListSizeByListId(listDef.getId());
             }
             if (currentListSize + uploadReq.getData().size() > maxListSize) {
+            	log.error("list size over limit: new list size; {}", (currentListSize + uploadReq.getData().size()));
                 throw new AppException(MessageDefinition.ListSizeOverLimitError.replace("$1", listType));
             }
 
