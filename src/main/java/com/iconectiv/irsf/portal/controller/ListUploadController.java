@@ -102,8 +102,7 @@ public class ListUploadController extends BaseRestController {
 			rv = makeErrorResult(e, HttpStatus.FORBIDDEN);
         } catch (AppException e) {
             log.error("error to process list upload request:", e);
-            //listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading, e.getMessage());
-            log.error("return from listService.processListUploadRequest, calling makeErrorResult()");
+            listService.processListUploadRequest(loginUser, listDef, uploadReq, isInitialLoading, e.getMessage());
             rv = makeErrorResult(e);
 		} catch (Exception e) {
 		    log.error("error to process lit upload request:", e);
