@@ -184,7 +184,7 @@ public class RangeNdc implements java.io.Serializable {
 		PartitionDataDetails p = new PartitionDataDetails();
 		p.setPartitionId(partition.getId());
 		p.setBillingId(this.getBillingId());
-		p.setCc(this.getCode());
+		p.setCode(this.getCode());
 		// customerData will be used for black/white list only
 		//p.setCustomerDate(this.getEffectiveDate());
 		p.setCustomerDate(null);
@@ -199,7 +199,6 @@ public class RangeNdc implements java.io.Serializable {
 		p.setTosdesc(this.getTosdesc());
 		p.setDataType("R");
 		p.setCountry(this.getTermCountry());
-		p.setCode(this.getCode());
 		p.setSupplement(this.getSupplement());
 		
 		if ("U".equals(p.getTos()))

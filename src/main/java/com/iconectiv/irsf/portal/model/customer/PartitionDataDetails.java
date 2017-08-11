@@ -31,12 +31,11 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String type;
     private String dialPatternType;
     private String country;
-    private String code;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
     private String reason;
     private String notes;
-    private String cc;
+    private String code;
     private String ndc;
     private String iso2;
     private String tos;
@@ -179,13 +178,13 @@ public class PartitionDataDetails implements java.io.Serializable {
         this.notes = notes;
     }
 
-    @Column(name = "cc", length = 3)
-    public String getCc() {
-        return this.cc;
+    @Column(name = "code", length = 3)
+    public String getCode() {
+        return this.code;
     }
 
-    public void setCc(String cc) {
-        this.cc = cc;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Column(name = "ndc", length = 15)
@@ -243,14 +242,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 	public void setBillingId(String billingId) {
 		this.billingId = billingId;
 	}
-	@Column(name = "code", length = 3)
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
+	
 	@Column(name = "supplement", length = 40)
 	public String getSupplement() {
 		return supplement;
@@ -278,7 +270,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(seperator);
 		 sb.append("notes");
 		 sb.append(seperator);
-		 sb.append("cc");
+		 sb.append("code");
 		 sb.append(seperator);
 		 sb.append("ndc");
 		 sb.append(seperator);
@@ -292,9 +284,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(seperator);
 		 sb.append("billingId");
 		 sb.append(seperator);
-		 sb.append("code");
-		 sb.append(seperator);
-		 sb.append("supplement");
+		  sb.append("supplement");
 		 
 		 return sb.toString();
 	}
@@ -317,7 +307,7 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(seperator);
 		 sb.append(notes==null?"":notes);
 		 sb.append(seperator);
-		 sb.append(cc==null?"":cc);
+		 sb.append(code==null?"":code);
 		 sb.append(seperator);
 		 sb.append(ndc==null?"":ndc);
 		 sb.append(seperator);
@@ -330,8 +320,6 @@ public class PartitionDataDetails implements java.io.Serializable {
 		 sb.append(provider==null?"":provider);
 		 sb.append(seperator);
 		 sb.append(billingId==null?"":billingId);
-		 sb.append(seperator);
-		 sb.append(code==null?"":code);
 		 sb.append(seperator);
 		 sb.append(supplement==null?"":supplement);
 		 
