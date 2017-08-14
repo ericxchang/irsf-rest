@@ -312,7 +312,7 @@ public class ListDetails implements java.io.Serializable {
         PartitionDataDetails p = new PartitionDataDetails();
         p.setPartitionId(partition.getId());
         p.setBillingId(this.getBillingId());
-        p.setCc(this.getCode());
+        p.setCode(this.getCode());
         p.setCustomerDate(this.getCustomerDate());
         p.setDialPattern(this.getDialPattern());
         p.setCountry(this.getTermCountry());

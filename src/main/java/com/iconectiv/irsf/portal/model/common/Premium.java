@@ -214,7 +214,7 @@ public class Premium implements java.io.Serializable {
 		PartitionDataDetails p = new PartitionDataDetails();
 		p.setPartitionId(partition.getId());
 		p.setBillingId(this.getBillingId());
-		p.setCc(this.getCode());
+		p.setCode(this.getCode());
 		// customerData will be used for black/white list only
 		//p.setCustomerDate(this.getLastUpdate());
 		p.setCustomerDate(null);
@@ -251,7 +251,6 @@ public class Premium implements java.io.Serializable {
 		p.setDataType(PartitionDataType.Rule.value());
 		p.setType(AppConstants.EXPORT_TYPE_IPRN);
 		p.setCountry(this.getTermCountry());
-		p.setCode(this.getCode());
 		p.setSupplement(this.getSupplement());
 		
 		return p;	
