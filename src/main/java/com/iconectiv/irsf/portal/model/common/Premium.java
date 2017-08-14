@@ -190,8 +190,8 @@ public class Premium implements java.io.Serializable {
 		this.supplement = supplement;
 	}
 
-	@Temporal(TemporalType.DATE)
-	@Column(name = "last_update", length = 10)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_update", nullable = false, length = 19)
 	public Date getLastUpdate() {
 		return this.lastUpdate;
 	}
