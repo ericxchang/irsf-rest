@@ -1601,7 +1601,7 @@ public class MobileIdDataServiceImpl implements MobileIdDataService {
 	}
 
 	public Date calObservedDate(int numOfMonthFromCurrentMonth) {
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(Locale.getDefault());
 		cal.setTime(new Date());
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
