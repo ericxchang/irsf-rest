@@ -200,7 +200,11 @@ public class PartitionDefinition implements java.io.Serializable {
 		this.partitionExportHistories = partitionExportHistories;
 	}
 
-    public void setPartitionExportHistories(List<PartitionExportHistory> partitionExportHistories, int maxSize) {
+	public void addPartitionExportHistory(PartitionExportHistory partitionExportHistory) {
+		this.partitionExportHistories.add(partitionExportHistory);
+	}
+
+	public void setPartitionExportHistories(List<PartitionExportHistory> partitionExportHistories, int maxSize) {
         int historySize = partitionExportHistories.size();
 	    for (int i=0; i<maxSize; i++) {
             if (historySize > i ) {
