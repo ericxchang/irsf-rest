@@ -230,14 +230,17 @@ public class Premium implements java.io.Serializable {
 				p.setDialPatternType(AppConstants.EXPORT_PRIME2);
 			}
 		} else if (AppConstants.PRIME4.equals(rule.getDialPatternType())) {
-			p.setDialPattern(this.getPrimeMinus3());
-			p.setDialPatternType(AppConstants.EXPORT_PRIME3);
-			if (p.getDialPattern() == null)
-				p.setDialPattern(this.getPrimeMinus3());
+			p.setDialPattern(this.getPrimeMinus4());
+			p.setDialPatternType(AppConstants.EXPORT_PRIME4);
 			if (p.getDialPattern() == null) {
-				p.setDialPattern(this.getPrimeMinus2());
+				p.setDialPattern(this.getPrimeMinus3());
 				p.setDialPatternType(AppConstants.EXPORT_PRIME3);
 			}
+			if (p.getDialPattern() == null) {
+				p.setDialPattern(this.getPrimeMinus2());
+				p.setDialPatternType(AppConstants.EXPORT_PRIME2);
+			}
+			
 		}
 
 		p.setIso2(this.getIso2());
