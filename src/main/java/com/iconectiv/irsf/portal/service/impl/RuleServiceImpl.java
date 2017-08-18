@@ -113,6 +113,9 @@ public class RuleServiceImpl implements RuleService {
 		rule.setLastUpdatedBy(loginUser.getUserName());
 
 		for (PartitionDefinition partition : rule.getPartitions()) {
+			if (partition.getId() == null) {
+				partitionService.savePartition(loginUser, partition);
+			}
 			rule.setId(null);
 			rule.setPartitionId(partition.getId());
 			rule = ruleRepo.save(rule);
