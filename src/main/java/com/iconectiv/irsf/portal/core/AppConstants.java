@@ -33,7 +33,7 @@ public class AppConstants {
 	public static int AFTER_LAST_OBSERVED = 32;
 	public static int BEFORE_LAST_OBSERVED = 64;
 
-	public static final String RANGE_NDC_TYPE = "Range NDC";
+	public static final String RANGE_NDC_TYPE = "Range";
 	public static final String PREMIUM_RANGE_TYPE = "IPRN";
 	public static final String PRIME2 = "PRIME-2";
 	public static final String PRIME3 = "PRIME-3";
