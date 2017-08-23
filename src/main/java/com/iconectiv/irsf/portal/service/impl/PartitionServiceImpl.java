@@ -153,7 +153,8 @@ public class PartitionServiceImpl implements PartitionService {
 
 	}
 
-	private void validateParitionStatus(PartitionDefinition partition) throws AppException {
+	@Override
+	public void validateParitionStatus(PartitionDefinition partition) throws AppException {
 		Assert.notNull(partition);
 
 		if (partition.getStatus().equals(PartitionStatus.InProgress.value())) {
@@ -605,6 +606,8 @@ public class PartitionServiceImpl implements PartitionService {
 				throw new AppException("rule " + rule.getId() + " has assigned to different partition.");
 			}
 
+            validateParitionStatus(partition);
+
 			Set<String> ruleIds = new HashSet<>();
 
 			if (partition.getRuleIds() != null) {
@@ -661,6 +664,7 @@ public class PartitionServiceImpl implements PartitionService {
 	public PartitionDefinition removeRule(UserDefinition loginUser, Integer partitionId, Integer ruleId) throws AppException {
 		try {
 			PartitionDefinition partition = partitionDefRepo.findOne(partitionId);
+			validateParitionStatus(partition);
 			removeRule(loginUser, partition, ruleId);
 			return partition;
 		} catch (Exception e) {

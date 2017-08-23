@@ -14,7 +14,9 @@ import java.util.List;
 public interface PartitionService {
 	void refreshPartition(UserDefinition loginUser, Integer partitionId);
 
-    @Transactional
+	void validateParitionStatus(PartitionDefinition partition) throws AppException;
+
+	@Transactional
     void refreshPartitionData(UserDefinition loginUser, PartitionDefinition partition) throws AppException;
 
     void exportPartition(UserDefinition loginUser, Integer partitionId) throws AppException;

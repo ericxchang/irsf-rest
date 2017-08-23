@@ -172,7 +172,9 @@ class PartitionServiceController extends BaseRestController {
 			assertAuthorized(loginUser, PermissionRole.CustAdmin.value() + "," + PermissionRole.User.value());
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
-
+            if (partition.getId() != null) {
+                partitionServ.validateParitionStatus(partition);
+            }
 			partitionServ.savePartition(loginUser, partition);
 			rv = makeSuccessResult(MessageDefinition.Save_Partition_Success, partition);
 		} catch (SecurityException e) {
@@ -204,7 +206,8 @@ class PartitionServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
-			partitionServ.savePartition(loginUser, partition);
+            partitionServ.validateParitionStatus(partition);
+            partitionServ.savePartition(loginUser, partition);
 
 			partitionServ.checkStale(loginUser, partition, " has different black list");
 
@@ -238,6 +241,7 @@ class PartitionServiceController extends BaseRestController {
 
 			CustomerContextHolder.setSchema(loginUser.getSchemaName());
 
+			partitionServ.validateParitionStatus(partition);
 			partitionServ.savePartition(loginUser, partition);
 
 			partitionServ.checkStale(loginUser, partition, "has different white list");
@@ -289,8 +293,8 @@ class PartitionServiceController extends BaseRestController {
 			rv = makeErrorResult(e);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug(JsonHelper.toJson(rv));
+		if (log.isTraceEnabled()) {
+			log.trace(JsonHelper.toJson(rv));
 		}
 		return rv;
 	}
