@@ -692,7 +692,7 @@ public class PartitionServiceImpl implements PartitionService {
 
         if (partition.getStatus().equals(PartitionStatus.Exported.value())) {
 			//exported partition, get its export history
-			partition.addPartitionExportHistory(exportRepo.findOneByPartitionId(partition.getId()));
+			partition.setPartitionExportHistories(exportRepo.findAllByPartitionId(partition.getId()));
 		} else {
 			partition.setPartitionExportHistories(exportRepo.findAllByOrigPartitionId(partition.getOrigPartitionId()));
 		}
