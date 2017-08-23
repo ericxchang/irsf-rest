@@ -567,6 +567,9 @@ public class PartitionServiceImpl implements PartitionService {
 			return ruleIds;
 		}
 		for (String ruleId : partition.getRuleIds().split(",")) {
+			if ("".equals(ruleId)) {
+				continue;
+			}
 			RuleDefinition rule = ruleRepo.findOne(Integer.valueOf(ruleId));
 			Assert.notNull(rule);
 
