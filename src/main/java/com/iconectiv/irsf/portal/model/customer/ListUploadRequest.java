@@ -29,7 +29,7 @@ public class ListUploadRequest implements java.io.Serializable {
 	private String delimiter;
 	private String status;
 	private String errorData;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 
