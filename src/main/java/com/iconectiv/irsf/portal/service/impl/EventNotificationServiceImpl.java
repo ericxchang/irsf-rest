@@ -16,20 +16,22 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EventNotificationServiceImpl implements EventNotificationService {
 	private static Logger log = LoggerFactory.getLogger(EventNotificationServiceImpl.class);
-	
+
 	@Autowired
 	private EventNotificationRepository eventRepo;
 	@Autowired
 	private AuditTrailRepository auditRepo;
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
-	
+
 	@Override
 	public void addEventNotification(EventNotification event) {
 		eventRepo.save(event);
@@ -76,7 +78,7 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 			events.add(eventRepo.findTop1ByEventTypeOrderByCreateTimestampDesc(EventTypeDefinition.MobileIdUpdate.value()));
 
 			AuditTrail logoutEvent = auditRepo.findTop1ByUserNameAndActionOrderByLastUpdatedDesc(loginUser.getUserName(), "logout");
-			
+
 			if (logoutEvent != null) {
 				lastQueryTime = logoutEvent.getLastUpdated();
 			} else {
@@ -86,11 +88,25 @@ public class EventNotificationServiceImpl implements EventNotificationService {
 
 		if (log.isDebugEnabled()) log.debug("Query events after " + DateTimeHelper.formatDate( lastQueryTime, "yyyy-MM-dd HH:mm:ss z"));
 		if (loginUser.getCustomerName() != null) {
-			events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(loginUser.getCustomerName(), lastQueryTime));
+		    events.addAll(
+            eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc(loginUser.getCustomerName(), lastQueryTime).stream()
+                    .collect(Collectors.toMap(
+                            EventNotification::getMessage,
+                            item -> new EventNotification(item.getId(), item.getSeverity(), item.getEventType(), item.getStatus(), item.getMessage()),
+                            (oldValue, newValue) -> oldValue
+                            )).values()
+            );
 		}
-		
-		events.addAll(eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc("irsf", lastQueryTime));
-		
+
+		events.addAll(
+		        eventRepo.findAllByCustomerNameAndCreateTimestampGreaterThanOrderByCreateTimestampDesc("irsf", lastQueryTime).stream()
+                        .collect(Collectors.toMap(
+                                EventNotification::getMessage,
+                                item -> new EventNotification(item.getId(), item.getSeverity(), item.getEventType(), item.getStatus(), item.getMessage()),
+                                (oldValue, newValue) -> oldValue
+                        )).values()
+        );
+		events.sort(Comparator.comparing(EventNotification::getId));
 		return events;
 	}
 }

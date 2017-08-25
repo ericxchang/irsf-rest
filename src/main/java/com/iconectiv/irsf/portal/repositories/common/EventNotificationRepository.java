@@ -1,11 +1,10 @@
 package com.iconectiv.irsf.portal.repositories.common;
 
-import java.util.Date;
-import java.util.List;
-
+import com.iconectiv.irsf.portal.model.common.EventNotification;
 import org.springframework.data.repository.CrudRepository;
 
-import com.iconectiv.irsf.portal.model.common.EventNotification;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by echang on 1/12/2017.

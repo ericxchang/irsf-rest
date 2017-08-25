@@ -38,6 +38,14 @@ public class EventNotification implements java.io.Serializable {
 		this.createTimestamp = createTimestamp;
 	}
 
+	public EventNotification(Integer id, Integer severity, String eventType, String status, String message) {
+		this.id = id;
+		this.eventType = eventType;
+		this.message = message;
+		this.status = status;
+		this.severity = severity;
+	}
+
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 

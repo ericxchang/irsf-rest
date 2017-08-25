@@ -62,7 +62,8 @@ public class EventServiceControllerTest  {
 	@Test
 	public void testQueryEvent() throws Exception {
 		Date myDate = DateTimeHelper.getDateBefore(30).toDate();
-        ResultActions action = mockMvc.perform(get("/userEvents").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+		String lastQueryTime = DateTimeHelper.formatDate(myDate, "yyyy-MM-dd HH:mm:ss z");
+        ResultActions action = mockMvc.perform(get("/userEvents?lastQueryTime=" + lastQueryTime).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();
 
         log.info(result);
