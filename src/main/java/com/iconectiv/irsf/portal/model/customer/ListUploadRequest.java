@@ -1,7 +1,6 @@
 package com.iconectiv.irsf.portal.model.customer;
 // Generated Mar 6, 2017 5:15:33 PM by Hibernate Tools 3.2.2.GA
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -29,7 +28,7 @@ public class ListUploadRequest implements java.io.Serializable {
 	private String delimiter;
 	private String status;
 	private String errorData;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+	//@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 
