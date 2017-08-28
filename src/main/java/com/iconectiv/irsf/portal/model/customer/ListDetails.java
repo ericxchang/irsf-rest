@@ -26,10 +26,10 @@ public class ListDetails implements java.io.Serializable {
 	private String dialPattern;
 	private String reason;
 	private String notes;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
 	private Date customerDate;
 	private boolean active;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
 	private Date lastUpdated;
 	private String lastUpdatedBy;
 	private String matchCCNDC;
