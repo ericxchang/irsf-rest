@@ -62,10 +62,10 @@ public class PartitionServiceControllerTest  {
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         loginUser = new UserDefinition();
-        loginUser.setUserName("user01");
+        loginUser.setUserName("user03");
         loginUser.setCustomerId(1);
         loginUser.setRole(PermissionRole.CustAdmin.value());
-        loginUser.setSchemaName("cust01");
+        loginUser.setSchemaName("cust03");
         loginUser.setCustomerName("Verizon");
 
         token = JWTUtil.createToken(loginUser);
@@ -131,7 +131,7 @@ public class PartitionServiceControllerTest  {
 	}
 	@Test
 	public void testQueryPartition() throws Exception {
-			PartitionDefinition partition = partitionRepo.findOne(new Integer(68));
+			PartitionDefinition partition = partitionRepo.findOne(new Integer(38));
 	        queryPartition(partition);
 	}
 
@@ -205,7 +205,17 @@ public class PartitionServiceControllerTest  {
         
 		Thread.sleep(2 * 1000);
     }
-  
+
+    @Test
+    public void queryPartition() throws Exception {
+        ResultActions action = mockMvc.perform(get("/partition/38").header("authorization", "Bearer " + token)).andExpect(status().isOk());
+        String result = action.andReturn().getResponse().getContentAsString();
+
+        log.info(result);
+
+        assertTrue(result.lastIndexOf("success") > 1);
+    }
+
     private void queryPartition(PartitionDefinition partition) throws Exception {
         ResultActions action = mockMvc.perform(get("/partition/" + partition.getId()).header("authorization", "Bearer " + token)).andExpect(status().isOk());
         String result = action.andReturn().getResponse().getContentAsString();

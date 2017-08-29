@@ -109,6 +109,7 @@ class ListUploadService {
         if (customerDate) {
             try {
                 listDetails.customerDate = DateTimeHelper.formatDate(customerDate.replaceAll('"', '').trim(), 'MMddyyyy')
+                listDetails.setCustomerDate(DateTimeHelper.toUTC(listDetails.getCustomerDate()));
             } catch (Exception e) {
                 log.error("Error to parse date field: ${e.getMessage()}" )
                 errorList.append("line $index has invalid date value <$customerDate>\n")

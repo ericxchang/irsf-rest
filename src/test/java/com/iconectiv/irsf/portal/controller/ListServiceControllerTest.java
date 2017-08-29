@@ -7,6 +7,7 @@ import com.iconectiv.irsf.portal.model.common.UserDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDefinition;
 import com.iconectiv.irsf.portal.model.customer.ListDetails;
 import com.iconectiv.irsf.portal.repositories.customer.ListDefinitionRepository;
+import com.iconectiv.irsf.util.DateTimeHelper;
 import com.iconectiv.irsf.util.JsonHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -195,8 +196,10 @@ public class ListServiceControllerTest {
 				
 		ListDetails listDetails = new ListDetails();
 		listDetails.setListRefId(listDefinition.getId());
-		listDetails.setDialPattern("756893456789");
-		listDetails.setCustomerDate(new Date());
+		listDetails.setDialPattern("756893456790");
+        Date myDate = DateTimeHelper.formatDate("08232017", "MMddyyyy");
+        listDetails.setCustomerDate(DateTimeHelper.toUTC(myDate));
+
 		listDetails.setReason("add by junit");
 		
 		ListDetails[] myListRecords = {listDetails};

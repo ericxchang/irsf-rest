@@ -390,6 +390,10 @@ public class ListServiceImpl implements ListService {
             listDetail.setMatchCCNDC(midDataService.findMatchingCCNDC(listDetail.getDialPattern()));
             listDetail.setLastUpdatedBy(loginUser.getUserName());
             listDetail.setLastUpdated(DateTimeHelper.nowInUTC());
+
+            if (listDetail.getCustomerDate() != null) {
+                listDetail.setCustomerDate(DateTimeHelper.toUTC(listDetail.getCustomerDate()));
+            }
         }
 
 
