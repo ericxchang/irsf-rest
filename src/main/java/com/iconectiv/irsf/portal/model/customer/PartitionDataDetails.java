@@ -2,7 +2,6 @@ package com.iconectiv.irsf.portal.model.customer;
 // Generated Mar 9, 2017 1:11:16 PM by Hibernate Tools 3.2.2.GA
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -31,7 +30,7 @@ public class PartitionDataDetails implements java.io.Serializable {
     private String type;
     private String dialPatternType;
     private String country;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date customerDate;
     private String reason;
     private String notes;
